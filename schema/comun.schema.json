@@ -88,7 +88,7 @@
       "additionalProperties": false
     },
     "xref": {
-      "description": "Referencia cruzada como par (fuente, id). El enlace se construye con la plantilla `tipo` de la fuente en sources.yaml.",
+      "description": "Referencia cruzada como par (fuente, id). El enlace se construye con la plantilla `tipo` de la fuente en sources.yaml, reemplazando {id}.",
       "type": "object",
       "properties": {
         "fuente": { "$ref": "#/$defs/id_fuente" },
@@ -97,9 +97,13 @@
           "type": "string",
           "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
         },
-        "id": { "type": "string", "minLength": 1 }
+        "id": {
+          "description": "ID nativo en la fuente, sin prefijo CURIE (por ejemplo map00010, C00022, 2.7.1.1).",
+          "type": "string",
+          "minLength": 1
+        }
       },
-      "required": ["fuente", "id"],
+      "required": ["fuente", "tipo", "id"],
       "additionalProperties": false
     },
     "xrefs": {
@@ -112,7 +116,11 @@
       "type": "object",
       "properties": {
         "fuente": { "$ref": "#/$defs/id_fuente" },
-        "id": { "type": "string", "minLength": 1 },
+        "id": {
+          "description": "ID nativo del registro en la fuente, sin prefijo CURIE (por ejemplo 15361 en ChEBI o P0A6T1 en UniProt).",
+          "type": "string",
+          "minLength": 1
+        },
         "version": { "type": "string", "minLength": 1 },
         "fecha_descarga": { "$ref": "#/$defs/fecha" }
       },

@@ -10,7 +10,7 @@
   "cofactores": [],
   "estado": "vigente",
   "reacciones": [
-    "RHEA:16109"
+    "RHEA:0"
   ],
   "proteinas": [
     {
@@ -24,7 +24,7 @@
         "EC:2.7.1.1"
       ],
       "rhea": [
-        "RHEA:16109"
+        "RHEA:0"
       ],
       "revisada": true,
       "puntaje_anotacion": 5,

@@ -5,13 +5,20 @@
   "nombre_comun": null,
   "rango": "strain",
   "linaje": [],
-  "dominio": "bacteria",
-  "gram": null,
+  "dominio": "eucariota",
+  "gram": "no_aplica",
   "proteoma_referencia": null,
-  "intereses": ["modelo"],
+  "intereses": [
+    "modelo"
+  ],
   "codigo_kegg": null,
   "xrefs": [],
   "procedencia": [
-    { "fuente": "ncbi_taxonomy", "id": "511145", "version": "versión-ficticia", "fecha_descarga": "2026-10-01" }
+    {
+      "fuente": "ncbi_taxonomy",
+      "id": "511145",
+      "version": "versión-ficticia",
+      "fecha_descarga": "2026-10-01"
+    }
   ]
 }

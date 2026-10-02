@@ -1,5 +1,5 @@
 {
-  "id": "via:Glucólisis",
+  "id": "via:ejemplo",
   "nombre": {
     "es": "Vía de ejemplo (ficticia)",
     "en": "Example pathway (fictitious)"
@@ -51,7 +51,6 @@
   "xrefs": [
     {
       "fuente": "kegg",
-      "tipo": "via_referencia",
       "id": "map00010"
     }
   ],

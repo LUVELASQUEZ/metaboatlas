@@ -1,5 +1,5 @@
 {
-  "id": "chebi:15361",
+  "id": "chebi:0",
   "nombre": {
     "es": null,
     "en": "example compound (fictitious)"
@@ -14,11 +14,17 @@
   "inchikey": "AAAAAAAAAAAAAA-AAAAAAAAAA-A",
   "clase": "otro",
   "es_cofactor": false,
-  "xrefs": [],
+  "xrefs": [
+    {
+      "fuente": "kegg",
+      "tipo": "compuesto",
+      "id": "C00000"
+    }
+  ],
   "procedencia": [
     {
       "fuente": "chebi",
-      "id": "CHEBI:15361",
+      "id": "0",
       "version": "versión-ficticia",
       "fecha_descarga": "2026-10-01"
     }

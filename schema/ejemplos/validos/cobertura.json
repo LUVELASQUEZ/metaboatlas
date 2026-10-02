@@ -4,10 +4,21 @@
   "cobertura": 100,
   "clase": "completa",
   "pasos": {
-    "p01": { "estado": "alta", "proteinas": ["UNIPROT:P0A6T1"] },
-    "p02": { "estado": "espontaneo", "proteinas": [] }
+    "p01": {
+      "estado": "alta",
+      "proteinas": [
+        "UNIPROT:P0A6T1"
+      ]
+    },
+    "p02": {
+      "estado": "espontaneo",
+      "proteinas": []
+    }
   },
   "modo": "precalculado",
   "calculado": "2026-10-01",
-  "fuentes": { "uniprot": "versión-ficticia", "rhea": "versión-ficticia" }
+  "fuentes": {
+    "uniprot": "versión-ficticia",
+    "rhea": "versión-ficticia"
+  }
 }

@@ -35,8 +35,8 @@
     },
     "dominio": { "enum": ["bacteria", "arquea", "eucariota"] },
     "gram": {
-      "description": "Tinción de Gram; null en organismos donde no aplica o sin dato con fuente.",
-      "enum": ["positivo", "negativo", "variable", null]
+      "description": "Tinción de Gram. 'no_aplica' en organismos que no son bacterias; null si no hay dato con fuente.",
+      "enum": ["positivo", "negativo", "variable", "no_aplica", null]
     },
     "proteoma_referencia": {
       "description": "ID del proteoma de referencia en UniProt.",

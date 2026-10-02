@@ -51,6 +51,7 @@
     "carga",
     "masa_monoisotopica",
     "smiles",
+    "inchi",
     "inchikey",
     "clase",
     "es_cofactor",

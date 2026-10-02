@@ -21,10 +21,15 @@ Todos los esquemas usan JSON Schema **draft 2020-12**.
 - **Claves en español**, como en el manual (`nombre`, `pasos`, `cobertura`).
 - **IDs externos en formato CURIE** con patrón validado (`CHEBI:`, `RHEA:`, `EC:`, `UNIPROT:`, `taxon:`).
 - **Trazabilidad:** toda entidad que sale de una fuente externa exige `procedencia` (fuente, ID, versión y fecha de descarga). La vía y la cobertura registran la versión de cada fuente en `fuentes`.
-- **Referencias cruzadas como pares** `{fuente, tipo, id}`. `fuente` es una clave de `sources.yaml` y `tipo` es la clave de su plantilla de URL. Esto reemplaza el objeto `xrefs` del ejemplo de la sección 4 del manual (`{"kegg_map": …}`) para cumplir la regla "toda referencia cruzada se guarda como par (fuente, id)".
+- **Referencias cruzadas como pares** `{fuente, tipo, id}`, los tres obligatorios. `fuente` es una clave de `sources.yaml`, `tipo` es la clave de una de sus plantillas de URL e `id` es el ID nativo que reemplaza `{id}` en la plantilla. Esto reemplaza el objeto `xrefs` del ejemplo de la sección 4 del manual (`{"kegg_map": …}`) por tres razones:
+  - **Arquitectura:** un solo formato y una sola función construyen todos los enlaces; agregar una base nueva es agregar una entrada en `sources.yaml`, no una clave nueva en cada esquema.
+  - **Trazabilidad:** una entidad puede tener varios IDs en la misma fuente (por ejemplo, varias vías de Reactome) y cada par se vincula a la licencia y la cita de su fuente.
+  - **Comprensión:** la web puede mostrar el nombre de la base junto a cada ID usando `sources.yaml`.
+- **IDs nativos en `xrefs` y `procedencia`:** el campo `id` lleva el ID tal como lo usa la fuente, sin prefijo CURIE (`15361`, `P0A6T1`, `map00010`). El `id` de la entidad sí va en CURIE (`CHEBI:15361`).
 - **Nunca "ausente":** los estados de evidencia son `espontaneo`, `alta`, `media`, `baja` y `sin_anotacion`.
 - **Coherencia de la cobertura:** un paso `alta`, `media` o `baja` debe citar al menos una proteína; uno `espontaneo` o `sin_anotacion`, ninguna.
 - **Pasos enzimáticos:** un paso no espontáneo debe tener al menos una reacción Rhea.
+- **Sin dato no es "no aplica":** en `organismo.gram`, `no_aplica` (organismos que no son bacterias) se distingue de `null` (sin dato con fuente).
 - **Nombre en español pendiente:** en entidades que vienen de bases de datos, `nombre.es` puede ser `null`. Así queda marcado para traducción manual. En las vías curadas es obligatorio.
 
 ## Lo que JSON Schema no valida
@@ -41,7 +46,19 @@ Estas reglas quedan para la etapa de validación del pipeline (integridad refere
 
 `ejemplos/validos/<esquema>.json` deben pasar y `ejemplos/invalidos/<esquema>--<motivo>.json` deben fallar.
 
-> **Los ejemplos son ficticios.** Usan identificadores con formato válido, tomados del manual, pero sus nombres, fórmulas, ecuaciones y asociaciones no son datos reales. Sirven solo para probar el formato. Nunca deben copiarse a `curation/` ni al paquete de datos.
+> **Los ejemplos son ficticios.** Sirven solo para probar el formato y nunca deben copiarse a `curation/` ni al paquete de datos. Sus nombres, fórmulas y ecuaciones dicen "ficticio" o "ejemplo".
+
+Para no asociar datos falsos a registros reales, los ejemplos usan IDs centinela que no existen en la fuente siempre que el formato lo permite. Que un centinela no existe se comprobará contra los datos descargados cuando cada fuente esté verificada. Cuando el formato no admite un valor imposible, usan IDs que el manual o `CLAUDE.md` ya muestran como ejemplo de formato.
+
+| Tipo | ID en los ejemplos | Por qué |
+| --- | --- | --- |
+| ChEBI | `CHEBI:0` | Centinela: los IDs de ChEBI empiezan en 1. |
+| Rhea | `RHEA:0` a `RHEA:3` | Centinela: por debajo del rango de IDs de Rhea. |
+| KEGG compuesto | `C00000` | Centinela: los IDs de KEGG COMPOUND empiezan en C00001. |
+| EC | `EC:2.7.1.1` | El formato no admite un valor imposible; tomado del manual. |
+| UniProt | `UNIPROT:P0A6T1` | Ídem. |
+| Taxón | `taxon:511145` | Ídem; tomado de `CLAUDE.md`. |
+| KEGG mapa | `map00010` | Ídem; tomado del manual. |
 
 Para validar los esquemas, los ejemplos y `sources.yaml`, ejecuta desde la raíz del repositorio:
 

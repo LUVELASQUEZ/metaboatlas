@@ -1,21 +1,36 @@
 {
-  "id": "RHEA:16109",
-  "ecuacion": "A + B = C (ficticia)",
+  "id": "RHEA:0",
+  "ecuacion": "A + B = C (ecuación ficticia)",
   "participantes": [
-    { "compuesto": "CHEBI:15361", "lado": "izquierda", "estequiometria": 1 },
-    { "compuesto": "CHEBI:15361", "lado": "derecha", "estequiometria": "n" }
+    {
+      "compuesto": "CHEBI:0",
+      "lado": "izquierda",
+      "estequiometria": 1
+    },
+    {
+      "compuesto": "CHEBI:0",
+      "lado": "derecha",
+      "estequiometria": "n"
+    }
   ],
   "direcciones": {
-    "izquierda_a_derecha": "RHEA:16110",
-    "derecha_a_izquierda": "RHEA:16111",
-    "bidireccional": "RHEA:16112"
+    "izquierda_a_derecha": "RHEA:1",
+    "derecha_a_izquierda": "RHEA:2",
+    "bidireccional": "RHEA:3"
   },
   "reversible": null,
   "es_transporte": false,
-  "ec": ["EC:2.7.1.1"],
+  "ec": [
+    "EC:2.7.1.1"
+  ],
   "delta_g": null,
   "xrefs": [],
   "procedencia": [
-    { "fuente": "rhea", "id": "RHEA:16109", "version": "versión-ficticia", "fecha_descarga": "2026-10-01" }
+    {
+      "fuente": "rhea",
+      "id": "0",
+      "version": "versión-ficticia",
+      "fecha_descarga": "2026-10-01"
+    }
   ]
 }

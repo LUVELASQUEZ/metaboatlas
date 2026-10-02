@@ -1,12 +1,12 @@
 {
-  "id": "taxon:0",
+  "id": "taxon:511145",
   "nombre_cientifico": "Organismo de ejemplo (ficticio)",
   "cepa": null,
   "nombre_comun": null,
   "rango": "strain",
   "linaje": [],
   "dominio": "eucariota",
-  "gram": "no_aplica",
+  "gram": "sin_dato",
   "proteoma_referencia": null,
   "intereses": [
     "modelo"

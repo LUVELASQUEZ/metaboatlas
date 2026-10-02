@@ -25,7 +25,7 @@
       "orden": 1,
       "titulo": "Paso enzimático de ejemplo",
       "reacciones": [
-        "RHEA:16109"
+        "RHEA:0"
       ],
       "ec": [
         "2.7.1.1"
