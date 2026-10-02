@@ -1,0 +1,423 @@
+# Registro central de fuentes de MetaboAtlas (secciones 2, 3 y 11 de docs/MANUAL.md).
+#
+# Regla de oro: ningún dato entra al pipeline si su fuente no tiene aquí una entrada
+# con la licencia verificada en su página oficial y la fecha de verificación.
+#
+# ESTADO: inventario inicial. NINGUNA entrada está verificada todavía.
+# - Licencias, URLs y patrones de enlace se copiaron del manual, no de las páginas
+#   oficiales; deben confirmarse una por una antes de usar la fuente.
+# - `cita_recomendada` y `doi_cita` se copian textualmente de la página oficial
+#   "How to cite" de cada base. Nunca se escriben de memoria.
+# - Mientras `estado` sea "pendiente de verificar", el pipeline no debe descargar
+#   datos de esa fuente.
+#
+# Campos de cada entrada:
+#   nombre            Nombre de la base.
+#   uso               redistribuir | por_verificar | solo_enlace
+#   estado            pendiente de verificar | verificada
+#   url               Página principal.
+#   licencia          Licencia declarada (según el manual mientras no se verifique).
+#   licencia_url      Página oficial de la licencia o de los términos de uso.
+#   verificada        Fecha (AAAA-MM-DD) de la última verificación de la licencia.
+#   que_tomamos       Qué datos se toman (o "nada" si es solo enlace).
+#   condicion         Condición de uso que impone la licencia.
+#   acceso            Descargas o API oficiales previstas (por confirmar al implementar).
+#   plantillas        Plantillas de URL para construir enlaces; `{id}` es el ID sin prefijo.
+#   cita_recomendada  Cita copiada textualmente de la página oficial de citación.
+#   doi_cita          DOI del artículo recomendado.
+#   notas             Observaciones.
+
+# ---------------------------------------------------------------------------
+# Fuentes que se pueden redistribuir (sección 2 del manual)
+# ---------------------------------------------------------------------------
+
+reactome:
+  nombre: Reactome
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO: confirmar URL oficial
+  licencia: CC BY 4.0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: >-
+    Jerarquía de vías, reacciones, participantes, especies inferidas, textos
+    descriptivos y referencias bibliográficas.
+  condicion: Atribución e indicar cambios (traducciones).
+  acceso:
+    - reactome.org/download/current/  # ReactomePathways.txt, ReactomePathwaysRelation.txt, UniProt2Reactome.txt, ChEBI2Reactome.txt
+    - reactome.org/ContentService
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO: copiar de la página oficial de citación
+  doi_cita: null  # TODO
+  notas: Los textos traducidos deben indicar "adaptado y traducido de Reactome" con enlace.
+
+wikipathways:
+  nombre: WikiPathways
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Vías por especie con coordenadas de dibujo (GPML) y referencias cruzadas.
+  condicion: Ninguna; se cita por buena práctica.
+  acceso:
+    - sparql.wikipathways.org
+    # TODO: URL de los volcados de datos por especie
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+rhea:
+  nombre: Rhea
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: https://www.rhea-db.org
+  licencia: CC BY 4.0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: >-
+    Reacciones balanceadas, dirección, participantes ChEBI y número EC.
+  condicion: Atribución.
+  acceso:
+    - ftp.expasy.org/databases/rhea/tsv/  # rhea-directions.tsv, rhea2ec.tsv, rhea2uniprot
+    - sparql.rhea-db.org
+  plantillas:
+    reaccion: https://www.rhea-db.org/rhea/{id}  # TODO: confirmar
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+chebi:
+  nombre: ChEBI
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC BY 4.0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: >-
+    Compuestos: nombre, fórmula, carga, masa, SMILES, InChI, sinónimos y
+    ontología de roles.
+  condicion: Atribución.
+  acceso:
+    - ftp.ebi.ac.uk/pub/databases/chebi/
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: El manual advierte que ChEBI cambió sus formatos de descarga recientemente; verificar.
+
+uniprot:
+  nombre: UniProtKB
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC BY 4.0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: >-
+    Enzimas por organismo: EC, reacciones Rhea, genes, cofactores, GO y nivel
+    de revisión.
+  condicion: Atribución.
+  acceso:
+    - rest.uniprot.org/uniprotkb/stream
+    - rest.uniprot.org/proteomes
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: Núcleo del cálculo de cobertura. Descargar solo los proteomas de pipeline/organismos.yaml.
+
+enzyme:
+  nombre: ENZYME (Expasy)
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC BY 4.0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Nomenclatura EC oficial, nombres aceptados y jerarquía de clases.
+  condicion: Atribución.
+  acceso:
+    - ftp.expasy.org/databases/enzyme/  # enzyme.dat, enzclass.txt
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+go:
+  nombre: Gene Ontology
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC BY 4.0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Procesos biológicos y funciones moleculares.
+  condicion: Atribución.
+  acceso: []  # TODO: URL oficial de go-basic.obo
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+ncbi_taxonomy:
+  nombre: NCBI Taxonomy
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: Dominio público
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Linaje, rangos, nombres científicos y comunes.
+  condicion: Citar la fuente.
+  acceso:
+    - ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+wikidata:
+  nombre: Wikidata
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC0
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: >-
+    Nombres en español de compuestos, enzimas y taxones; enlaces a Wikipedia
+    en español.
+  condicion: Ninguna.
+  acceso:
+    - query.wikidata.org/sparql
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: >-
+    Consultas por lotes de 200 a 500 IDs. Solo se toman datos de Wikidata; los
+    artículos de Wikipedia solo se enlazan (su licencia es distinta; verificar).
+
+brenda:
+  nombre: BRENDA
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: CC BY 4.0
+  licencia_url: https://brenda-enzymes.de/license.php
+  verificada: null  # TODO
+  que_tomamos: >-
+    Cinética (Km, kcat), inhibidores, pH y temperatura óptimos (fase 3).
+  condicion: Atribución; aceptar la licencia antes de descargar.
+  acceso: []  # TODO: descarga tras registro (fase 3)
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO: BRENDA pide citar su publicación más reciente
+  doi_cita: null  # TODO
+  notas: Solo en la fase 3.
+
+europe_pmc:
+  nombre: Europe PMC
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: Metadatos abiertos  # TODO: precisar la licencia exacta de los metadatos
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Título, autores, revista y DOI de los artículos citados.
+  condicion: Citar la fuente.
+  acceso:
+    - ebi.ac.uk/europepmc/webservices/rest/search
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+escher:
+  nombre: Escher (software)
+  uso: redistribuir
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: MIT
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Referencia de notación y, opcionalmente, editor de diseños.
+  condicion: Conservar el aviso MIT.
+  acceso: []
+  plantillas: {}
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: Es software, no una base de datos.
+
+# ---------------------------------------------------------------------------
+# Por verificar antes de integrar (sección 2 del manual)
+# ---------------------------------------------------------------------------
+
+pubchem:
+  nombre: PubChem
+  uso: por_verificar
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: null  # TODO: dominio público en general; algunos depositantes tienen condiciones propias
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: Solo CID, propiedades calculadas y enlaces.
+  condicion: null  # TODO
+  acceso:
+    - pubchem.ncbi.nlm.nih.gov/rest/pug/
+  plantillas: {}  # TODO
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+bigg:
+  nombre: BiGG Models
+  uso: por_verificar
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: null  # TODO: revisar los términos del sitio y de cada modelo
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: null  # TODO: posiblemente mapas Escher
+  condicion: null  # TODO
+  acceso: []
+  plantillas: {}
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+metanetx:
+  nombre: MetaNetX
+  uso: por_verificar
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: null  # TODO: confirmar la licencia de los archivos MNXref
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: null  # TODO: reconciliación de identificadores (MNXref)
+  condicion: null  # TODO
+  acceso: []
+  plantillas: {}
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+human_gem:
+  nombre: Human-GEM
+  uso: por_verificar
+  estado: pendiente de verificar
+  url: null  # TODO: repositorio en GitHub
+  licencia: null  # TODO: confirmar en el repositorio
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: null  # TODO
+  condicion: null  # TODO
+  acceso: []
+  plantillas: {}
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+yeast_gem:
+  nombre: Yeast-GEM
+  uso: por_verificar
+  estado: pendiente de verificar
+  url: null  # TODO: repositorio en GitHub
+  licencia: null  # TODO: confirmar en el repositorio
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: null  # TODO
+  condicion: null  # TODO
+  acceso: []
+  plantillas: {}
+  cita_recomendada: null  # TODO
+  doi_cita: null  # TODO
+  notas: null
+
+# ---------------------------------------------------------------------------
+# Solo enlace: no se descarga ni se copia ningún dato (sección 2 del manual)
+# ---------------------------------------------------------------------------
+
+kegg:
+  nombre: KEGG
+  uso: solo_enlace
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: Uso académico gratuito solo en su web; prestar un servicio requiere licencia de pago
+  licencia_url: https://www.kegg.jp/kegg/legal.html
+  verificada: null  # TODO
+  que_tomamos: nada
+  condicion: Solo enlaces profundos. Nunca usar su API ni copiar o redibujar sus mapas.
+  acceso: []
+  plantillas:  # patrones de la sección 3 del manual; TODO: confirmar
+    via_referencia: https://www.kegg.jp/pathway/{id}  # p. ej. map00010
+    via_organismo: https://www.kegg.jp/pathway/{id}   # p. ej. eco00010
+    compuesto: https://www.kegg.jp/entry/{id}         # p. ej. C00022
+    enzima: https://www.kegg.jp/entry/{id}            # p. ej. 2.7.1.1
+  cita_recomendada: null
+  doi_cita: null
+  notas: null
+
+biocyc_metacyc:
+  nombre: BioCyc / MetaCyc
+  uso: solo_enlace
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: La mayoría de las bases de organismos requieren suscripción
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: nada
+  condicion: Solo enlaces a la vía y a la reacción.
+  acceso: []
+  plantillas: {}  # TODO
+  cita_recomendada: null
+  doi_cita: null
+  notas: null
+
+hmdb:
+  nombre: HMDB
+  uso: solo_enlace
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: Licencia con condiciones de uso
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: nada
+  condicion: Solo enlace a la ficha del metabolito.
+  acceso: []
+  plantillas: {}  # TODO
+  cita_recomendada: null
+  doi_cita: null
+  notas: null
+
+smpdb:
+  nombre: SMPDB
+  uso: solo_enlace
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: Licencia con condiciones de uso
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: nada
+  condicion: Solo enlace a la vía humana.
+  acceso: []
+  plantillas: {}  # TODO
+  cita_recomendada: null
+  doi_cita: null
+  notas: null
+
+vmh:
+  nombre: VMH
+  uso: solo_enlace
+  estado: pendiente de verificar
+  url: null  # TODO
+  licencia: Licencia con condiciones de uso
+  licencia_url: null  # TODO
+  verificada: null  # TODO
+  que_tomamos: nada
+  condicion: Solo enlace a la ficha del metabolito o de la vía.
+  acceso: []
+  plantillas: {}  # TODO
+  cita_recomendada: null
+  doi_cita: null
+  notas: null
