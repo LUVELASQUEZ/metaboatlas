@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/enzima.schema.json",
+  "title": "Enzima (actividad)",
+  "description": "Ficha de una actividad enzimática identificada por su número EC, con las proteínas que la tienen en cada organismo. Archivo enzimas/EC_<n>.json del paquete de datos (sección 4 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "comun.schema.json#/$defs/curie_ec" },
+    "nombre": {
+      "description": "Nombre aceptado (ENZYME, en inglés) y su nombre en español.",
+      "$ref": "comun.schema.json#/$defs/texto_bilingue"
+    },
+    "nombres_alternativos": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "clase": {
+      "description": "Clase EC principal (1 oxidorreductasas … 7 translocasas).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 7
+    },
+    "reaccion": {
+      "description": "Reacción catalizada, tal como la publica ENZYME.",
+      "type": ["string", "null"]
+    },
+    "cofactores": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "estado": {
+      "description": "Estado del número EC en ENZYME.",
+      "enum": ["vigente", "transferido", "eliminado"]
+    },
+    "transferido_a": {
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/curie_ec" }
+    },
+    "reacciones": {
+      "description": "Reacciones Rhea asociadas a este número EC.",
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/curie_rhea" },
+      "uniqueItems": true
+    },
+    "proteinas": {
+      "description": "Proteínas anotadas con esta actividad en los organismos precalculados.",
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/proteina" }
+    },
+    "xrefs": {
+      "description": "Referencias a ENZYME, BRENDA y KEGG como pares (fuente, id).",
+      "$ref": "comun.schema.json#/$defs/xrefs"
+    },
+    "procedencia": { "$ref": "comun.schema.json#/$defs/lista_procedencia" }
+  },
+  "required": [
+    "id",
+    "nombre",
+    "nombres_alternativos",
+    "clase",
+    "cofactores",
+    "estado",
+    "reacciones",
+    "proteinas",
+    "xrefs",
+    "procedencia"
+  ],
+  "additionalProperties": false,
+  "if": {
+    "properties": { "estado": { "const": "transferido" } }
+  },
+  "then": {
+    "required": ["transferido_a"],
+    "properties": { "transferido_a": { "type": "array", "minItems": 1 } }
+  }
+}

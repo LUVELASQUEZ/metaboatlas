@@ -1,0 +1,26 @@
+{
+  "id": "chebi:15361",
+  "nombre": {
+    "es": null,
+    "en": "example compound (fictitious)"
+  },
+  "definicion": null,
+  "sinonimos": [],
+  "formula": "C3H3O3",
+  "carga": -1,
+  "masa_monoisotopica": 87.0,
+  "smiles": "C",
+  "inchi": null,
+  "inchikey": "AAAAAAAAAAAAAA-AAAAAAAAAA-A",
+  "clase": "otro",
+  "es_cofactor": false,
+  "xrefs": [],
+  "procedencia": [
+    {
+      "fuente": "chebi",
+      "id": "CHEBI:15361",
+      "version": "versión-ficticia",
+      "fecha_descarga": "2026-10-01"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/reaccion.schema.json",
+  "title": "Reacción",
+  "description": "Ficha de una reacción Rhea (ID maestro). Archivo reacciones/RHEA_<n>.json del paquete de datos (secciones 3 y 4 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "ID maestro (sin dirección) de Rhea.",
+      "$ref": "comun.schema.json#/$defs/curie_rhea"
+    },
+    "ecuacion": {
+      "description": "Ecuación textual tal como la publica Rhea.",
+      "type": "string",
+      "minLength": 1
+    },
+    "participantes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/participante" },
+      "minItems": 2
+    },
+    "direcciones": {
+      "description": "IDs Rhea de las tres variantes de dirección de la reacción maestra.",
+      "type": "object",
+      "properties": {
+        "izquierda_a_derecha": { "$ref": "comun.schema.json#/$defs/curie_rhea" },
+        "derecha_a_izquierda": { "$ref": "comun.schema.json#/$defs/curie_rhea" },
+        "bidireccional": { "$ref": "comun.schema.json#/$defs/curie_rhea" }
+      },
+      "required": ["izquierda_a_derecha", "derecha_a_izquierda", "bidireccional"],
+      "additionalProperties": false
+    },
+    "reversible": {
+      "description": "Reversibilidad en condiciones fisiológicas; null si no hay fuente que la respalde.",
+      "type": ["boolean", "null"]
+    },
+    "es_transporte": { "type": "boolean" },
+    "compartimento": {
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/slug" },
+      "uniqueItems": true
+    },
+    "ec": {
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/curie_ec" },
+      "uniqueItems": true
+    },
+    "delta_g": {
+      "description": "Energía libre estándar, solo si hay una fuente que la respalde.",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "valor": { "type": "number" },
+            "unidad": { "const": "kJ/mol" },
+            "procedencia": { "$ref": "comun.schema.json#/$defs/procedencia" }
+          },
+          "required": ["valor", "unidad", "procedencia"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "xrefs": {
+      "description": "Referencias a MetaCyc, Reactome y KEGG como pares (fuente, id).",
+      "$ref": "comun.schema.json#/$defs/xrefs"
+    },
+    "procedencia": { "$ref": "comun.schema.json#/$defs/lista_procedencia" }
+  },
+  "required": [
+    "id",
+    "ecuacion",
+    "participantes",
+    "direcciones",
+    "reversible",
+    "es_transporte",
+    "ec",
+    "xrefs",
+    "procedencia"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "participante": {
+      "type": "object",
+      "properties": {
+        "compuesto": { "$ref": "comun.schema.json#/$defs/curie_chebi" },
+        "lado": { "enum": ["izquierda", "derecha"] },
+        "estequiometria": {
+          "description": "Coeficiente estequiométrico. Rhea usa coeficientes como 'n' o '2n' en polímeros.",
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "string", "pattern": "^[0-9]*n([+-][0-9]+)?$" }
+          ]
+        },
+        "compartimento": {
+          "description": "Compartimento del participante (útil en reacciones de transporte).",
+          "$ref": "comun.schema.json#/$defs/slug"
+        }
+      },
+      "required": ["compuesto", "lado", "estequiometria"],
+      "additionalProperties": false
+    }
+  }
+}

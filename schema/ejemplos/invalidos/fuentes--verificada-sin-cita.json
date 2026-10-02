@@ -1,0 +1,18 @@
+{
+  "fuente_ejemplo": {
+    "nombre": "Fuente de ejemplo (ficticia)",
+    "uso": "redistribuir",
+    "estado": "verificada",
+    "url": null,
+    "licencia": "CC BY 4.0",
+    "licencia_url": "https://ejemplo.invalid/licencia",
+    "verificada": "2026-10-01",
+    "que_tomamos": "Datos ficticios.",
+    "condicion": "Atribución.",
+    "acceso": [],
+    "plantillas": {},
+    "cita_recomendada": null,
+    "doi_cita": null,
+    "notas": null
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/via.schema.json",
+  "title": "Vía",
+  "description": "Vía de referencia, independiente del organismo, con sus módulos y pasos. Archivo vias/<slug>.json del paquete de datos (secciones 4 y 6 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "comun.schema.json#/$defs/id_via" },
+    "nombre": { "$ref": "comun.schema.json#/$defs/texto_bilingue_completo" },
+    "categoria": { "$ref": "comun.schema.json#/$defs/id_categoria" },
+    "compartimento": {
+      "description": "Compartimentos donde ocurre la vía (citosol, matriz-mitocondrial, membrana, periplasma, …).",
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/slug" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "modulos": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/modulo" },
+      "minItems": 1
+    },
+    "pasos": {
+      "type": "array",
+      "items": { "$ref": "paso.schema.json" },
+      "minItems": 1
+    },
+    "conecta_con": {
+      "description": "Vías conectadas por compuestos compartidos.",
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/id_via" },
+      "uniqueItems": true
+    },
+    "variante_de": {
+      "description": "Vía de la que esta es una variante (por ejemplo, Entner-Doudoroff respecto de la glucólisis), o null.",
+      "oneOf": [
+        { "$ref": "comun.schema.json#/$defs/id_via" },
+        { "type": "null" }
+      ]
+    },
+    "xrefs": {
+      "description": "Referencias a Reactome, WikiPathways, GO, KEGG (mapa) y MetaCyc, como pares (fuente, id).",
+      "$ref": "comun.schema.json#/$defs/xrefs"
+    },
+    "version": { "$ref": "comun.schema.json#/$defs/version_datos" },
+    "estado_editorial": {
+      "enum": ["borrador", "revisado", "validado"]
+    },
+    "revisores": {
+      "description": "Nombres de quienes revisaron o validaron la vía.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "fuentes": {
+      "description": "Versión de cada fuente con la que se verificó la curaduría (por ejemplo, la versión de Rhea).",
+      "$ref": "comun.schema.json#/$defs/versiones_fuentes"
+    }
+  },
+  "required": [
+    "id",
+    "nombre",
+    "categoria",
+    "compartimento",
+    "modulos",
+    "pasos",
+    "conecta_con",
+    "variante_de",
+    "xrefs",
+    "version",
+    "estado_editorial",
+    "fuentes"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "modulo": {
+      "description": "Bloque funcional con sentido didáctico (por ejemplo, la fase preparatoria de la glucólisis).",
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "comun.schema.json#/$defs/id_modulo" },
+        "nombre": { "type": "string", "minLength": 1 },
+        "pasos": {
+          "type": "array",
+          "items": { "$ref": "comun.schema.json#/$defs/id_paso" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "resumen": {
+          "description": "Resumen didáctico corto en español.",
+          "type": "string"
+        }
+      },
+      "required": ["id", "nombre", "pasos"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "via:ejemplo",
+  "nombre": {
+    "es": "Vía de ejemplo (ficticia)",
+    "en": "Example pathway (fictitious)"
+  },
+  "categoria": "cat:carbohidratos",
+  "compartimento": [
+    "citosol"
+  ],
+  "modulos": [
+    {
+      "id": "m1",
+      "nombre": "Módulo de ejemplo",
+      "pasos": [
+        "p01",
+        "p02"
+      ],
+      "resumen": "Texto ficticio."
+    }
+  ],
+  "pasos": [
+    {
+      "id": "p01",
+      "orden": 1,
+      "titulo": "Paso enzimático de ejemplo",
+      "reacciones": [
+        "RHEA:16109"
+      ],
+      "ec": [
+        "EC:2.7.1.1"
+      ],
+      "espontaneo": false,
+      "regulacion": true,
+      "energia": {
+        "ATP": -1
+      }
+    },
+    {
+      "id": "p02",
+      "orden": 2,
+      "titulo": "Paso espontáneo de ejemplo",
+      "reacciones": [],
+      "ec": [],
+      "espontaneo": true,
+      "regulacion": false
+    }
+  ],
+  "conecta_con": [],
+  "variante_de": null,
+  "xrefs": [
+    {
+      "fuente": "kegg",
+      "tipo": "via_referencia",
+      "id": "map00010"
+    }
+  ],
+  "version": "2026.10",
+  "estado_editorial": "borrador"
+}

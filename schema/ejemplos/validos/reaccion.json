@@ -1,0 +1,21 @@
+{
+  "id": "RHEA:16109",
+  "ecuacion": "A + B = C (ficticia)",
+  "participantes": [
+    { "compuesto": "CHEBI:15361", "lado": "izquierda", "estequiometria": 1 },
+    { "compuesto": "CHEBI:15361", "lado": "derecha", "estequiometria": "n" }
+  ],
+  "direcciones": {
+    "izquierda_a_derecha": "RHEA:16110",
+    "derecha_a_izquierda": "RHEA:16111",
+    "bidireccional": "RHEA:16112"
+  },
+  "reversible": null,
+  "es_transporte": false,
+  "ec": ["EC:2.7.1.1"],
+  "delta_g": null,
+  "xrefs": [],
+  "procedencia": [
+    { "fuente": "rhea", "id": "RHEA:16109", "version": "versión-ficticia", "fecha_descarga": "2026-10-01" }
+  ]
+}

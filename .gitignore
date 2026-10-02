@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Datos generados por el pipeline
+raw/
+staging.duckdb
+
+# Web
+node_modules/
+web/.next/
+web/out/

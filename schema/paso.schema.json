@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/paso.schema.json",
+  "title": "Paso",
+  "description": "Una posición en el mapa de una vía de referencia: una o varias reacciones Rhea alternativas catalizadas por una actividad enzimática (sección 4 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "comun.schema.json#/$defs/id_paso" },
+    "orden": {
+      "description": "Posición del paso en el recorrido didáctico, empezando en 1.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "titulo": {
+      "description": "Título corto en español (por ejemplo, 'Fosforilación de la glucosa').",
+      "type": "string",
+      "minLength": 1
+    },
+    "reacciones": {
+      "description": "Reacciones Rhea válidas para el paso (alternativas). Vacío solo si el paso es espontáneo y no tiene reacción Rhea.",
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/curie_rhea" },
+      "uniqueItems": true
+    },
+    "ec": {
+      "description": "Números EC de las actividades que catalizan el paso.",
+      "type": "array",
+      "items": { "$ref": "comun.schema.json#/$defs/curie_ec" },
+      "uniqueItems": true
+    },
+    "espontaneo": {
+      "description": "true si el paso no requiere enzima; en ese caso siempre cuenta como presente.",
+      "type": "boolean"
+    },
+    "regulacion": {
+      "description": "true si es un punto de regulación de la vía.",
+      "type": "boolean"
+    },
+    "complejo": {
+      "description": "true si la actividad la realiza un complejo multiproteico (se muestra 'complejo: verificar subunidades').",
+      "type": "boolean",
+      "default": false
+    },
+    "energia": {
+      "description": "Moléculas de energía o poder reductor consumidas (negativo) o producidas (positivo) en el paso, por ejemplo { \"ATP\": -1 }.",
+      "type": "object",
+      "propertyNames": { "enum": ["ATP", "GTP", "NADH", "NADPH", "FADH2"] },
+      "additionalProperties": { "type": "integer" }
+    }
+  },
+  "required": ["id", "orden", "titulo", "reacciones", "ec", "espontaneo", "regulacion"],
+  "additionalProperties": false,
+  "if": {
+    "properties": { "espontaneo": { "const": false } }
+  },
+  "then": {
+    "description": "Un paso enzimático necesita al menos una reacción Rhea.",
+    "properties": { "reacciones": { "type": "array", "minItems": 1 } }
+  }
+}
