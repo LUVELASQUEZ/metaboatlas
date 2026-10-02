@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/comun.schema.json",
+  "title": "Definiciones comunes",
+  "description": "Tipos compartidos por todos los esquemas del paquete de datos: identificadores CURIE, slugs propios, textos bilingües, referencias cruzadas y procedencia (sección 4 de docs/MANUAL.md).",
+  "$defs": {
+    "slug": {
+      "description": "Slug en español, sin tildes, en minúsculas y con guiones.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "id_via": {
+      "description": "ID propio de una vía, por ejemplo via:glucolisis.",
+      "type": "string",
+      "pattern": "^via:[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "id_categoria": {
+      "description": "ID propio de una categoría, por ejemplo cat:carbohidratos.",
+      "type": "string",
+      "pattern": "^cat:[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "id_modulo": {
+      "description": "ID local de un módulo dentro de su vía (m1, m2, …). El ID global es via:<slug>/m1.",
+      "type": "string",
+      "pattern": "^m[0-9]+$"
+    },
+    "id_paso": {
+      "description": "ID local de un paso dentro de su vía (p01, p02, …). El ID global es via:<slug>/p01.",
+      "type": "string",
+      "pattern": "^p[0-9]{2,}$"
+    },
+    "id_fuente": {
+      "description": "Clave de una fuente registrada en sources.yaml (rhea, chebi, uniprot, …).",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+    },
+    "curie_chebi": {
+      "type": "string",
+      "pattern": "^CHEBI:[0-9]+$"
+    },
+    "curie_rhea": {
+      "type": "string",
+      "pattern": "^RHEA:[0-9]+$"
+    },
+    "curie_ec": {
+      "description": "Número EC completo o parcial (EC:2.7.1.1, EC:2.7.1.-, EC:3.5.1.n3).",
+      "type": "string",
+      "pattern": "^EC:[1-7](\\.([0-9]+|-|n[0-9]+)){3}$"
+    },
+    "curie_uniprot": {
+      "description": "Accesión UniProtKB con prefijo UNIPROT.",
+      "type": "string",
+      "pattern": "^UNIPROT:([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$"
+    },
+    "curie_taxon": {
+      "description": "Identificador de NCBI Taxonomy.",
+      "type": "string",
+      "pattern": "^taxon:[1-9][0-9]*$"
+    },
+    "fecha": {
+      "description": "Fecha ISO 8601 (AAAA-MM-DD).",
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "version_datos": {
+      "description": "Versión del paquete de datos de MetaboAtlas (AAAA.MM).",
+      "type": "string",
+      "pattern": "^[0-9]{4}\\.(0[1-9]|1[0-2])$"
+    },
+    "texto_bilingue": {
+      "description": "Texto en español e inglés. Si falta el español, `es` es null y queda marcado para traducción manual.",
+      "type": "object",
+      "properties": {
+        "es": { "type": ["string", "null"], "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "required": ["es", "en"],
+      "additionalProperties": false
+    },
+    "texto_bilingue_completo": {
+      "description": "Texto en español e inglés, ambos obligatorios (contenido curado).",
+      "type": "object",
+      "properties": {
+        "es": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      },
+      "required": ["es", "en"],
+      "additionalProperties": false
+    },
+    "xref": {
+      "description": "Referencia cruzada como par (fuente, id). El enlace se construye con la plantilla `tipo` de la fuente en sources.yaml, reemplazando {id}.",
+      "type": "object",
+      "properties": {
+        "fuente": { "$ref": "#/$defs/id_fuente" },
+        "tipo": {
+          "description": "Clave de la plantilla de URL en sources.yaml (por ejemplo via_referencia en KEGG).",
+          "type": "string",
+          "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+        },
+        "id": {
+          "description": "ID nativo en la fuente, sin prefijo CURIE (por ejemplo map00010, C00022, 2.7.1.1).",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["fuente", "tipo", "id"],
+      "additionalProperties": false
+    },
+    "xrefs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/xref" },
+      "uniqueItems": true
+    },
+    "procedencia": {
+      "description": "De dónde sale un dato: fuente, ID en esa fuente, versión de la base y fecha de descarga.",
+      "type": "object",
+      "properties": {
+        "fuente": { "$ref": "#/$defs/id_fuente" },
+        "id": {
+          "description": "ID nativo del registro en la fuente, sin prefijo CURIE (por ejemplo 15361 en ChEBI o P0A6T1 en UniProt).",
+          "type": "string",
+          "minLength": 1
+        },
+        "version": { "type": "string", "minLength": 1 },
+        "fecha_descarga": { "$ref": "#/$defs/fecha" }
+      },
+      "required": ["fuente", "id", "version", "fecha_descarga"],
+      "additionalProperties": false
+    },
+    "lista_procedencia": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/procedencia" },
+      "minItems": 1
+    },
+    "versiones_fuentes": {
+      "description": "Versión de cada fuente usada, por clave de sources.yaml.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/id_fuente" },
+      "additionalProperties": { "type": "string", "minLength": 1 },
+      "minProperties": 1
+    },
+    "estado_evidencia": {
+      "description": "Estado de un paso en un organismo (sección 5). Nunca existe el estado 'ausente'.",
+      "enum": ["espontaneo", "alta", "media", "baja", "sin_anotacion"]
+    },
+    "proteina": {
+      "description": "Proteína concreta de un organismo (UniProtKB).",
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/curie_uniprot" },
+        "taxon": { "$ref": "#/$defs/curie_taxon" },
+        "nombre": { "type": ["string", "null"] },
+        "genes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "ec": { "type": "array", "items": { "$ref": "#/$defs/curie_ec" }, "uniqueItems": true },
+        "rhea": { "type": "array", "items": { "$ref": "#/$defs/curie_rhea" }, "uniqueItems": true },
+        "revisada": { "description": "true si es Swiss-Prot; false si es TrEMBL.", "type": "boolean" },
+        "puntaje_anotacion": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "xrefs": { "$ref": "#/$defs/xrefs" },
+        "procedencia": { "$ref": "#/$defs/lista_procedencia" }
+      },
+      "required": ["id", "taxon", "genes", "ec", "rhea", "revisada", "procedencia"],
+      "additionalProperties": false
+    }
+  }
+}

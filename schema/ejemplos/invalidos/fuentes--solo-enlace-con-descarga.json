@@ -1,0 +1,18 @@
+{
+  "fuente_ejemplo": {
+    "nombre": "Fuente de ejemplo (ficticia)",
+    "uso": "solo_enlace",
+    "estado": "pendiente de verificar",
+    "url": null,
+    "licencia": null,
+    "licencia_url": null,
+    "verificada": null,
+    "que_tomamos": "nada",
+    "condicion": null,
+    "acceso": ["ejemplo.invalid/descargas/"],
+    "plantillas": {},
+    "cita_recomendada": null,
+    "doi_cita": null,
+    "notas": null
+  }
+}

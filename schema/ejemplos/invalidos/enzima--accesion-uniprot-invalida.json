@@ -1,0 +1,56 @@
+{
+  "id": "EC:2.7.1.1",
+  "nombre": {
+    "es": "Enzima de ejemplo (ficticia)",
+    "en": "Example enzyme (fictitious)"
+  },
+  "nombres_alternativos": [],
+  "clase": 2,
+  "reaccion": null,
+  "cofactores": [],
+  "estado": "vigente",
+  "reacciones": [
+    "RHEA:0"
+  ],
+  "proteinas": [
+    {
+      "id": "UNIPROT:123",
+      "taxon": "taxon:511145",
+      "nombre": null,
+      "genes": [
+        "gen-ficticio"
+      ],
+      "ec": [
+        "EC:2.7.1.1"
+      ],
+      "rhea": [
+        "RHEA:0"
+      ],
+      "revisada": true,
+      "puntaje_anotacion": 5,
+      "procedencia": [
+        {
+          "fuente": "uniprot",
+          "id": "P0A6T1",
+          "version": "versión-ficticia",
+          "fecha_descarga": "2026-10-01"
+        }
+      ]
+    }
+  ],
+  "xrefs": [
+    {
+      "fuente": "kegg",
+      "tipo": "enzima",
+      "id": "2.7.1.1"
+    }
+  ],
+  "procedencia": [
+    {
+      "fuente": "enzyme",
+      "id": "2.7.1.1",
+      "version": "versión-ficticia",
+      "fecha_descarga": "2026-10-01"
+    }
+  ]
+}

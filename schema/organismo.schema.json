@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/organismo.schema.json",
+  "title": "Organismo",
+  "description": "Perfil de un organismo (NCBI Taxonomy + proteoma de UniProt). Archivo organismos/<taxon>.json del paquete de datos (sección 4 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "comun.schema.json#/$defs/curie_taxon" },
+    "nombre_cientifico": { "type": "string", "minLength": 1 },
+    "cepa": { "type": ["string", "null"] },
+    "nombre_comun": {
+      "oneOf": [
+        { "$ref": "comun.schema.json#/$defs/texto_bilingue" },
+        { "type": "null" }
+      ]
+    },
+    "rango": {
+      "description": "Rango taxonómico según NCBI (species, strain, …).",
+      "type": "string",
+      "minLength": 1
+    },
+    "linaje": {
+      "description": "Linaje desde la raíz hasta el padre inmediato.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "taxon": { "$ref": "comun.schema.json#/$defs/curie_taxon" },
+          "nombre": { "type": "string", "minLength": 1 },
+          "rango": { "type": "string", "minLength": 1 }
+        },
+        "required": ["taxon", "nombre", "rango"],
+        "additionalProperties": false
+      }
+    },
+    "dominio": { "enum": ["bacteria", "arquea", "eucariota"] },
+    "gram": {
+      "description": "Tinción de Gram. 'no_aplica' en organismos que no son bacterias; null si no hay dato con fuente.",
+      "enum": ["positivo", "negativo", "variable", "no_aplica", null]
+    },
+    "proteoma_referencia": {
+      "description": "ID del proteoma de referencia en UniProt.",
+      "type": ["string", "null"],
+      "pattern": "^UP[0-9]{9}$"
+    },
+    "intereses": {
+      "type": "array",
+      "items": { "enum": ["modelo", "clinico", "industrial"] },
+      "uniqueItems": true
+    },
+    "codigo_kegg": {
+      "description": "Código de organismo de KEGG obtenido de las referencias cruzadas de UniProt (solo para construir enlaces).",
+      "type": ["string", "null"],
+      "pattern": "^[a-z]{3,4}$"
+    },
+    "xrefs": { "$ref": "comun.schema.json#/$defs/xrefs" },
+    "procedencia": { "$ref": "comun.schema.json#/$defs/lista_procedencia" }
+  },
+  "required": [
+    "id",
+    "nombre_cientifico",
+    "cepa",
+    "rango",
+    "linaje",
+    "dominio",
+    "gram",
+    "proteoma_referencia",
+    "intereses",
+    "codigo_kegg",
+    "xrefs",
+    "procedencia"
+  ],
+  "additionalProperties": false
+}

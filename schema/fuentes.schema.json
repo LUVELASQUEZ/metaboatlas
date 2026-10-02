@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/fuentes.schema.json",
+  "title": "Registro de fuentes",
+  "description": "Estructura de sources.yaml (secciones 2 y 11 de docs/MANUAL.md). Una fuente solo se puede usar si está verificada.",
+  "type": "object",
+  "propertyNames": { "$ref": "comun.schema.json#/$defs/id_fuente" },
+  "additionalProperties": { "$ref": "#/$defs/fuente" },
+  "minProperties": 1,
+  "$defs": {
+    "fuente": {
+      "type": "object",
+      "properties": {
+        "nombre": { "type": "string", "minLength": 1 },
+        "uso": { "enum": ["redistribuir", "por_verificar", "solo_enlace"] },
+        "estado": { "enum": ["pendiente de verificar", "verificada"] },
+        "url": { "type": ["string", "null"], "pattern": "^https://" },
+        "licencia": { "type": ["string", "null"], "minLength": 1 },
+        "licencia_url": { "type": ["string", "null"], "pattern": "^https://" },
+        "verificada": {
+          "oneOf": [{ "$ref": "comun.schema.json#/$defs/fecha" }, { "type": "null" }]
+        },
+        "que_tomamos": { "type": ["string", "null"] },
+        "condicion": { "type": ["string", "null"] },
+        "acceso": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "plantillas": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+          "additionalProperties": { "type": "string", "pattern": "^https://.*\\{id\\}" }
+        },
+        "cita_recomendada": { "type": ["string", "null"] },
+        "doi_cita": { "type": ["string", "null"], "pattern": "^10\\.[0-9]{4,}/" },
+        "notas": { "type": ["string", "null"] }
+      },
+      "required": [
+        "nombre",
+        "uso",
+        "estado",
+        "url",
+        "licencia",
+        "licencia_url",
+        "verificada",
+        "que_tomamos",
+        "condicion",
+        "acceso",
+        "plantillas",
+        "cita_recomendada",
+        "doi_cita",
+        "notas"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "description": "Una fuente verificada debe tener licencia, URL de licencia y fecha de verificación.",
+          "if": { "properties": { "estado": { "const": "verificada" } } },
+          "then": {
+            "properties": {
+              "licencia": { "type": "string" },
+              "licencia_url": { "type": "string" },
+              "verificada": { "type": "string" }
+            }
+          }
+        },
+        {
+          "description": "Una fuente que se redistribuye y está verificada debe tener su cita recomendada.",
+          "if": {
+            "properties": {
+              "estado": { "const": "verificada" },
+              "uso": { "const": "redistribuir" }
+            }
+          },
+          "then": {
+            "properties": { "cita_recomendada": { "type": "string", "minLength": 1 } }
+          }
+        },
+        {
+          "description": "Una fuente solo de enlace no aporta datos ni accesos de descarga.",
+          "if": { "properties": { "uso": { "const": "solo_enlace" } } },
+          "then": {
+            "properties": {
+              "que_tomamos": { "const": "nada" },
+              "acceso": { "type": "array", "maxItems": 0 }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
