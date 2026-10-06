@@ -1,12 +1,56 @@
 # pipeline/
 
-Pipeline de datos en Python 3.12 (gestor `uv`). Descarga las fuentes registradas en `../sources.yaml`, las normaliza en DuckDB, integra la curaduría, calcula la cobertura, valida contra `../schema/` y exporta el paquete de datos.
+Pipeline de datos de MetaboAtlas en Python 3.12 (gestor `uv`). Descarga las fuentes registradas en [`../sources.yaml`](../sources.yaml), las normaliza en DuckDB, integra la curaduría, calcula la cobertura, valida contra [`../schema/`](../schema/) y exporta el paquete de datos. Ver la sección 6 de [`docs/MANUAL.md`](../docs/MANUAL.md).
 
-Comando principal (pendiente): `uv run metabo build`.
+> **Estado:** esqueleto. Las etapas existen como lista, pero todavía no procesan datos. Ninguna fuente está verificada, así que el pipeline no descarga nada.
 
-Ver la sección 6 de `docs/MANUAL.md`.
+## Uso
 
-Archivos previstos:
+```bash
+cd pipeline
+uv sync                  # instala Python 3.12 y las dependencias
+uv run metabo validate   # valida config.yaml, organismos.yaml y sources.yaml
+uv run metabo fuentes    # lista las fuentes y si se pueden descargar
+uv run metabo build      # recorre las etapas (por ahora, solo las enumera)
+uv run pytest            # pruebas
+uv run ruff check . && uv run ruff format --check .   # linter
+```
 
-- `config.yaml`: umbrales de cobertura y parámetros (pendiente).
-- `organismos.yaml`: lista curada de organismos (pendiente; el código no asume un número fijo).
+## Estructura
+
+```
+pipeline/
+├─ config.yaml          # umbrales de cobertura, parámetros de descarga y directorios
+├─ organismos.yaml      # lista curada de organismos (el código no asume un número fijo)
+├─ pyproject.toml       # dependencias y comando `metabo`
+├─ metabo/
+│  ├─ cli.py            # comandos build, validate y fuentes
+│  ├─ config.py         # lectura y validación de config.yaml
+│  ├─ organisms.py      # lectura y validación de organismos.yaml
+│  ├─ registry.py       # sources.yaml: qué se puede descargar y cómo se enlaza
+│  ├─ download.py       # descargador común
+│  ├─ manifest.py       # manifest.json con SHA-256
+│  ├─ schemas.py        # validación contra schema/
+│  ├─ sources/          # un extractor por base de datos (próximas tareas)
+│  ├─ transform/        # normalización e integración de la curaduría
+│  ├─ coverage/         # algoritmo de cobertura
+│  └─ export/           # exportación del paquete de datos
+└─ tests/
+```
+
+Las carpetas `sources/`, `transform/`, `coverage/` y `export/` de la sección 12 del manual viven dentro del paquete `metabo/` para que se puedan importar (`metabo.sources.rhea`).
+
+## Garantías del descargador
+
+El descargador (`metabo/download.py`) aplica las reglas 1 a 4 de `CLAUDE.md` antes de hacer cualquier petición:
+
+1. **Solo fuentes verificadas.** Rechaza las fuentes que no están en `sources.yaml`, las de solo enlace (KEGG, BioCyc, HMDB…), las de uso `por_verificar` y las que siguen "pendiente de verificar".
+2. **Solo accesos oficiales.** La URL debe ser `https` y estar bajo uno de los prefijos de `acceso` de la fuente. Si una redirección sale de esos accesos, la descarga se cancela.
+3. **Buen comportamiento.** Envía un User-Agent con correo de contacto y reintenta con espera exponencial ante errores de red, 429 y 5xx, con un número máximo de intentos. Los demás errores 4xx no se reintentan.
+4. **Trazabilidad.** Guarda en `raw/<fuente>/<version>/<archivo>` y devuelve un registro con URL, versión, fecha, licencia, tamaño y SHA-256 para `manifest.json`, que se valida contra `schema/manifiesto.schema.json`.
+
+## Pendiente antes de la primera descarga
+
+- **Correo de contacto:** definir `descargas.contacto` en `config.yaml`. Mientras sea `null`, el descargador se niega a crearse.
+- **Fuentes:** verificar en `sources.yaml` la licencia y la cita de cada fuente de la Fase 0 (Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy).
+- **Proteomas:** completar `proteoma_referencia` de cada organismo con datos de UniProt.

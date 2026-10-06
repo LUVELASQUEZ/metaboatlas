@@ -1,0 +1,16 @@
+{
+  "version_datos": "2026.10",
+  "generado": "2026-10-01T12:00:00Z",
+  "descargas": [
+    {
+      "fuente": "fuente_ejemplo",
+      "url": "https://datos.ejemplo.invalid/descargas/archivo-ficticio.tsv",
+      "version": "ficticia-1",
+      "fecha_descarga": "2026-10-01",
+      "archivo": "fuente_ejemplo/../x.tsv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "licencia": "CC BY 4.0"
+    }
+  ]
+}

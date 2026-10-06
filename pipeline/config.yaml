@@ -1,0 +1,27 @@
+# Parámetros del pipeline de MetaboAtlas (sección 5 y 6 de docs/MANUAL.md).
+# Las rutas son relativas a la raíz del repositorio.
+
+cobertura:
+  # Umbrales de la clase de cobertura (porcentaje de pasos presentes o espontáneos).
+  # Deben ajustarse con las verdades biológicas de la sección 14 del manual.
+  umbrales:
+    completa: 100
+    casi_completa: 80
+    parcial: 30
+
+descargas:
+  # El User-Agent incluye un correo de contacto, como piden las fuentes.
+  # TODO: definir el correo de contacto del proyecto. Mientras sea null,
+  # el pipeline se niega a descargar.
+  contacto: null
+  producto: MetaboAtlas
+  url_proyecto: https://github.com/LUVELASQUEZ/metaboatlas
+  timeout_segundos: 60
+  reintentos: 5
+  espera_inicial_segundos: 2
+  espera_maxima_segundos: 60
+
+directorios:
+  crudos: raw          # raw/<fuente>/<version>/
+  staging: staging.duckdb
+  salida: data         # data/<version_datos>/
