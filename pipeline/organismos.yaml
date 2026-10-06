@@ -1,0 +1,28 @@
+# Organismos con cobertura precalculada (sección 5 de docs/MANUAL.md).
+# Fase 0: cuatro organismos definidos en CLAUDE.md. El tamaño final de la lista
+# del MVP está pendiente de decisión; el código no asume un número fijo.
+#
+# proteoma_referencia: ID del proteoma de referencia en UniProt (UPxxxxxxxxx).
+# TODO: completarlo a partir de rest.uniprot.org/proteomes cuando la fuente
+# esté verificada. Nunca se escribe de memoria.
+
+organismos:
+  - id: taxon:511145
+    nombre: Escherichia coli K-12 MG1655
+    intereses: [modelo]
+    proteoma_referencia: null  # TODO
+
+  - id: taxon:224308
+    nombre: Bacillus subtilis 168
+    intereses: [modelo]
+    proteoma_referencia: null  # TODO
+
+  - id: taxon:559292
+    nombre: Saccharomyces cerevisiae S288C
+    intereses: [modelo]
+    proteoma_referencia: null  # TODO
+
+  - id: taxon:9606
+    nombre: Homo sapiens
+    intereses: [modelo]
+    proteoma_referencia: null  # TODO
