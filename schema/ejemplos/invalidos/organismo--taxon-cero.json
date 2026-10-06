@@ -1,0 +1,24 @@
+{
+  "id": "taxon:0",
+  "nombre_cientifico": "Organismo de ejemplo (ficticio)",
+  "cepa": null,
+  "nombre_comun": null,
+  "rango": "strain",
+  "linaje": [],
+  "dominio": "eucariota",
+  "gram": "no_aplica",
+  "proteoma_referencia": null,
+  "intereses": [
+    "modelo"
+  ],
+  "codigo_kegg": null,
+  "xrefs": [],
+  "procedencia": [
+    {
+      "fuente": "ncbi_taxonomy",
+      "id": "511145",
+      "version": "versión-ficticia",
+      "fecha_descarga": "2026-10-01"
+    }
+  ]
+}

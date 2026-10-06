@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/compuesto.schema.json",
+  "title": "Compuesto",
+  "description": "Ficha de un compuesto químico (ChEBI). Archivo compuestos/CHEBI_<n>.json del paquete de datos (sección 4 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "comun.schema.json#/$defs/curie_chebi" },
+    "nombre": { "$ref": "comun.schema.json#/$defs/texto_bilingue" },
+    "definicion": {
+      "description": "Definición de ChEBI, en inglés.",
+      "type": ["string", "null"]
+    },
+    "sinonimos": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "formula": {
+      "description": "Fórmula molecular tal como la publica ChEBI (la web la muestra con subíndices).",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "carga": { "type": ["integer", "null"] },
+    "masa_monoisotopica": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+    "smiles": { "type": ["string", "null"], "minLength": 1 },
+    "inchi": { "type": ["string", "null"], "pattern": "^InChI=" },
+    "inchikey": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z]{14}-[A-Z]{10}-[A-Z]$"
+    },
+    "clase": {
+      "description": "Clase de molécula derivada de la ontología de ChEBI; define el color en el mapa.",
+      "enum": ["carbohidrato", "lipido", "aminoacido", "nucleotido", "cofactor", "ion_gas", "otro"]
+    },
+    "es_cofactor": {
+      "description": "true si es cofactor o metabolito 'moneda' (ATP, NAD+, CoA, …).",
+      "type": "boolean"
+    },
+    "xrefs": {
+      "description": "Referencias a KEGG, HMDB, PubChem y Wikidata como pares (fuente, id).",
+      "$ref": "comun.schema.json#/$defs/xrefs"
+    },
+    "procedencia": { "$ref": "comun.schema.json#/$defs/lista_procedencia" }
+  },
+  "required": [
+    "id",
+    "nombre",
+    "sinonimos",
+    "formula",
+    "carga",
+    "masa_monoisotopica",
+    "smiles",
+    "inchi",
+    "inchikey",
+    "clase",
+    "es_cofactor",
+    "xrefs",
+    "procedencia"
+  ],
+  "additionalProperties": false
+}

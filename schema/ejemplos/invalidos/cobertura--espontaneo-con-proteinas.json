@@ -1,0 +1,26 @@
+{
+  "via": "via:ejemplo",
+  "taxon": "taxon:511145",
+  "cobertura": 100,
+  "clase": "completa",
+  "pasos": {
+    "p01": {
+      "estado": "alta",
+      "proteinas": [
+        "UNIPROT:P0A6T1"
+      ]
+    },
+    "p02": {
+      "estado": "espontaneo",
+      "proteinas": [
+        "UNIPROT:P0A6T1"
+      ]
+    }
+  },
+  "modo": "precalculado",
+  "calculado": "2026-10-01",
+  "fuentes": {
+    "uniprot": "versión-ficticia",
+    "rhea": "versión-ficticia"
+  }
+}
