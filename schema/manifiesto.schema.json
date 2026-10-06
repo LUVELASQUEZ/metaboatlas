@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/manifiesto.schema.json",
+  "title": "Manifiesto",
+  "description": "Procedencia del paquete de datos: cada descarga con su fuente, URL, versión, fecha, licencia y checksum SHA-256 (regla 4 de CLAUDE.md, sección 6 de docs/MANUAL.md).",
+  "type": "object",
+  "properties": {
+    "version_datos": { "$ref": "comun.schema.json#/$defs/version_datos" },
+    "generado": {
+      "description": "Fecha y hora UTC en que se escribió el manifiesto (ISO 8601).",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "descargas": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/descarga" }
+    }
+  },
+  "required": ["version_datos", "generado", "descargas"],
+  "additionalProperties": false,
+  "$defs": {
+    "descarga": {
+      "type": "object",
+      "properties": {
+        "fuente": { "$ref": "comun.schema.json#/$defs/id_fuente" },
+        "url": { "type": "string", "pattern": "^https://" },
+        "version": {
+          "description": "Versión de la base según la fuente (por ejemplo, el número de release).",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "fecha_descarga": { "$ref": "comun.schema.json#/$defs/fecha" },
+        "archivo": {
+          "description": "Ruta del archivo dentro del directorio de datos crudos: <fuente>/<version>/<nombre>.",
+          "type": "string",
+          "pattern": "^[a-z0-9_]+/[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "licencia": { "type": "string", "minLength": 1 }
+      },
+      "required": ["fuente", "url", "version", "fecha_descarga", "archivo", "sha256", "bytes", "licencia"],
+      "additionalProperties": false
+    }
+  }
+}

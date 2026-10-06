@@ -15,6 +15,7 @@ Todos los esquemas usan JSON Schema **draft 2020-12**.
 | `organismo.schema.json` | Organismo (NCBI Taxonomy + UniProt) | `organismos/<taxon>.json` |
 | `cobertura.schema.json` | Cobertura de una vía en un organismo | `cobertura/<slug>/<taxon>.json` |
 | `fuentes.schema.json` | Estructura de `sources.yaml` | `sources.yaml` |
+| `manifiesto.schema.json` | Procedencia: cada descarga con URL, versión, fecha, licencia y SHA-256 | `manifest.json` |
 
 ## Decisiones de diseño
 
