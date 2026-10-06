@@ -1,0 +1,44 @@
+# Verificaciones de cada pull request (sección 15 de docs/MANUAL.md).
+# Por ahora cubre el pipeline y los esquemas; la web se agrega cuando exista web/.
+name: Verificaciones
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: Pipeline y esquemas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pipeline/uv.lock
+
+      - name: Instalar dependencias
+        working-directory: pipeline
+        run: uv sync --locked
+
+      - name: Linter
+        working-directory: pipeline
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Pruebas
+        working-directory: pipeline
+        run: uv run pytest
+
+      - name: Validar configuración, organismos y fuentes
+        working-directory: pipeline
+        run: uv run metabo validate
+
+      - name: Validar esquemas y ejemplos
+        run: uv run schema/validate_examples.py

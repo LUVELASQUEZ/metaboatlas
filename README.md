@@ -49,6 +49,19 @@ El diseño completo está en [`docs/MANUAL.md`](docs/MANUAL.md).
 
 Organismos de la Fase 0: *Escherichia coli* K-12 MG1655, *Bacillus subtilis* 168, *Saccharomyces cerevisiae* S288C y *Homo sapiens*.
 
+## Desarrollo
+
+El pipeline de datos está en [`pipeline/`](pipeline/README.md):
+
+```bash
+cd pipeline
+uv sync
+uv run metabo validate
+uv run pytest
+```
+
+Los esquemas se validan desde la raíz con `uv run schema/validate_examples.py`. Cada pull request ejecuta estas verificaciones en GitHub Actions ([`checks.yml`](.github/workflows/checks.yml)).
+
 ## Cómo contribuir
 
 Lee [`CONTRIBUTING.md`](CONTRIBUTING.md). Los reportes de errores científicos son especialmente bienvenidos.
