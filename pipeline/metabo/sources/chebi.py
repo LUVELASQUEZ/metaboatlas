@@ -11,6 +11,10 @@ from __future__ import annotations
 
 import csv
 import gzip
+import html
+import re
+from collections.abc import Iterable, Iterator
+from dataclasses import dataclass
 from pathlib import Path
 
 from metabo.download import Downloader
@@ -108,3 +112,114 @@ def read_compound_names(path: Path) -> dict[str, str]:
         return {
             row["chebi_accession"]: row["name"] for row in csv.DictReader(handle, delimiter="\t")
         }
+
+
+# ---------------------------------------------------------------------------
+# Lectura de compuestos y ontología para el paquete de datos
+# ---------------------------------------------------------------------------
+
+# Relaciones de la ontología que se siguen para clasificar un compuesto: "es un" y
+# ácido/base conjugados (Rhea usa la forma iónica a pH 7,3, y ChEBI clasifica muchas
+# veces la forma neutra).
+ONTOLOGY_RELATIONS = ("is_a", "is_conjugate_acid_of", "is_conjugate_base_of")
+# Tipos de nombre de names.tsv que se exportan como sinónimos.
+SYNONYM_TYPES = ("SYNONYM", "IUPAC NAME", "UNIPROT NAME")
+
+_TAG = re.compile(r"<[^>]+>")
+
+
+def plain_text(value: str) -> str:
+    """Quita las etiquetas HTML que ChEBI usa en los nombres (<small>D</small>, <em>…</em>)."""
+    return html.unescape(_TAG.sub("", value)).strip()
+
+
+@dataclass(frozen=True)
+class Compound:
+    id: str  # CURIE
+    nombre: str
+    definicion: str | None
+    sinonimos: tuple[str, ...]
+    formula: str | None
+    carga: int | None
+    masa_monoisotopica: float | None
+
+
+def _rows(path: Path) -> Iterator[dict[str, str]]:
+    csv.field_size_limit(1 << 24)
+    with gzip.open(path, "rt", encoding="utf-8", newline="") as handle:
+        yield from csv.DictReader(handle, delimiter="\t")
+
+
+def _number(value: str) -> float | None:
+    return float(value) if value.strip() else None
+
+
+def read_compounds(raw_files: dict[str, Path], wanted: Iterable[str]) -> dict[str, Compound]:
+    """Datos de los compuestos pedidos (CURIE) desde compounds, chemical_data y names.
+
+    `raw_files` asocia cada nombre de archivo de TSV_FILES con su ruta. Si un compuesto
+    tiene varias filas en chemical_data, se usa la de menor `id`.
+    """
+    wanted = set(wanted)
+    base: dict[str, dict[str, str]] = {}
+    for row in _rows(raw_files["compounds.tsv.gz"]):
+        if row["chebi_accession"] in wanted:
+            base[row["id"]] = row
+    missing = wanted - {row["chebi_accession"] for row in base.values()}
+    if missing:
+        raise SourceFormatError(
+            f"compounds.tsv.gz no tiene {', '.join(sorted(missing))} como ID primario."
+        )
+
+    chemical: dict[str, dict[str, str]] = {}
+    for row in _rows(raw_files["chemical_data.tsv.gz"]):
+        cid = row["compound_id"]
+        if cid in base and (cid not in chemical or int(row["id"]) < int(chemical[cid]["id"])):
+            chemical[cid] = row
+
+    synonyms: dict[str, list[str]] = {}
+    for row in _rows(raw_files["names.tsv.gz"]):
+        if row["compound_id"] in base and row["type"] in SYNONYM_TYPES:
+            synonyms.setdefault(row["compound_id"], []).append(plain_text(row["name"]))
+
+    compounds = {}
+    for cid, row in base.items():
+        name = plain_text(row["name"])
+        data = chemical.get(cid, {})
+        charge = data.get("charge", "").strip()
+        compounds[row["chebi_accession"]] = Compound(
+            id=row["chebi_accession"],
+            nombre=name,
+            definicion=plain_text(row["definition"]) or None,
+            sinonimos=tuple(dict.fromkeys(s for s in synonyms.get(cid, []) if s and s != name)),
+            formula=data.get("formula") or None,
+            carga=int(charge) if charge else None,
+            masa_monoisotopica=_number(data.get("monoisotopic_mass", "")),
+        )
+    return compounds
+
+
+def read_ontology(relation: Path, relation_type: Path) -> dict[str, frozenset[str]]:
+    """Grafo de ONTOLOGY_RELATIONS: compuesto (CURIE) -> compuestos a los que apunta."""
+    codes = {row["id"]: row["code"] for row in _rows(relation_type)}
+    unknown = set(ONTOLOGY_RELATIONS) - set(codes.values())
+    if unknown:
+        raise SourceFormatError(f"relation_type.tsv.gz no tiene {', '.join(sorted(unknown))}.")
+    edges: dict[str, set[str]] = {}
+    for row in _rows(relation):
+        if codes.get(row["relation_type_id"]) in ONTOLOGY_RELATIONS:
+            edges.setdefault(f"CHEBI:{row['init_id']}", set()).add(f"CHEBI:{row['final_id']}")
+    return {k: frozenset(v) for k, v in edges.items()}
+
+
+def ancestors(compound: str, ontology: dict[str, frozenset[str]]) -> frozenset[str]:
+    """Todos los nodos alcanzables desde `compound` en el grafo (sin incluirlo)."""
+    seen: set[str] = set()
+    pending = [compound]
+    while pending:
+        for parent in ontology.get(pending.pop(), ()):
+            if parent not in seen:
+                seen.add(parent)
+                pending.append(parent)
+    seen.discard(compound)
+    return frozenset(seen)

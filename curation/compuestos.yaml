@@ -1,0 +1,47 @@
+# Clase y papel de los compuestos en el mapa (secciones 7 y 8 de docs/MANUAL.md).
+#
+# La clase de un compuesto (`clase` en schema/compuesto.schema.json) se deriva de la
+# ontología de ChEBI: se recorren sus relaciones "is a" y ácido/base conjugados (Rhea
+# usa la forma iónica a pH 7,3 y ChEBI suele clasificar la forma neutra), y gana la
+# primera clase de esta lista cuyo nodo aparece entre los ancestros. Si ninguna
+# aparece, la clase es `otro`.
+#
+# Cada nodo lleva el nombre que tiene en ChEBI: `metabo exportar` comprueba que ID y
+# nombre coincidan con los datos descargados, para que ningún ID se escriba de memoria.
+# Nombres e IDs buscados en compounds.tsv.gz de ChEBI 256 (2026-10-07).
+#
+# Orden: los nucleótidos van antes que los carbohidratos porque ChEBI clasifica el ATP
+# y el ADP también como derivados de carbohidrato (por la ribosa).
+clases:
+  - clase: nucleotido
+    ancestros:
+      - {id: CHEBI:36976, nombre: nucleotide}
+  - clase: aminoacido
+    ancestros:
+      - {id: CHEBI:33709, nombre: amino acid}
+  - clase: lipido
+    ancestros:
+      - {id: CHEBI:18059, nombre: lipid}
+  - clase: carbohidrato
+    ancestros:
+      - {id: CHEBI:16646, nombre: carbohydrate}
+      - {id: CHEBI:63299, nombre: carbohydrate derivative}
+  - clase: ion_gas
+    ancestros:
+      - {id: CHEBI:24835, nombre: inorganic molecular entity}
+
+# Cofactores y metabolitos "moneda" (`es_cofactor: true`): portadores de energía, de
+# poder reductor o de grupos que la célula regenera, y las moléculas inorgánicas
+# pequeñas que acompañan a muchas reacciones. En el mapa se dibujan como compuestos
+# secundarios. Si su clase de ontología no es `ion_gas`, su clase pasa a `cofactor`.
+#
+# Solo se listan los que aparecen en las vías curadas. Al curar una vía nueva, se
+# agregan los suyos (CoA, FAD, NADP+, GTP, …) con el nombre de ChEBI.
+cofactores:
+  - {id: CHEBI:30616, nombre: ATP(4−)}
+  - {id: CHEBI:456216, nombre: ADP(3−)}
+  - {id: CHEBI:57540, nombre: NAD(1−)}
+  - {id: CHEBI:57945, nombre: NADH(2−)}
+  - {id: CHEBI:15378, nombre: hydron}
+  - {id: CHEBI:15377, nombre: water}
+  - {id: CHEBI:43474, nombre: hydrogenphosphate}

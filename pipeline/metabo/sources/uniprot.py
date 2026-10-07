@@ -17,9 +17,11 @@ extracción se detiene.
 
 from __future__ import annotations
 
+import csv
 import gzip
 import json
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -166,3 +168,48 @@ def extract(
             )
         records.append(record)
     return version, records
+
+
+# ---------------------------------------------------------------------------
+# Lectura de las proteínas descargadas para el paquete de datos
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Entry:
+    """Proteína de un proteoma con los campos que exporta el paquete de datos."""
+
+    accession: str  # nativo, p. ej. P0A6T1
+    nombre: str | None
+    genes: tuple[str, ...]
+    ec: tuple[str, ...]  # CURIE
+    rhea: tuple[str, ...]  # CURIE, tal como los anota UniProt (maestros o direccionales)
+    revisada: bool
+    puntaje_anotacion: int | None
+    kegg: tuple[str, ...]  # IDs de genes de KEGG ("eco:b0001"), solo para construir enlaces
+
+
+def _split(value: str, sep: str | None) -> tuple[str, ...]:
+    return tuple(v.strip() for v in value.split(sep) if v.strip())
+
+
+def read_entries(path: Path) -> Iterator[Entry]:
+    """Proteínas de un `<UP>.tsv.gz` descargado (columnas de FIELDS)."""
+    check_header(path, tuple(FIELDS.values()))
+    with gzip.open(path, "rt", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle, delimiter="\t"):
+            if row["Reviewed"] not in ("reviewed", "unreviewed"):
+                raise SourceFormatError(
+                    f"{path.name}: valor inesperado en Reviewed: {row['Reviewed']!r}."
+                )
+            score = row["Annotation"].strip()
+            yield Entry(
+                accession=row["Entry"],
+                nombre=row["Protein names"].strip() or None,
+                genes=_split(row["Gene Names"], None),
+                ec=tuple(f"EC:{ec}" for ec in _split(row["EC number"], ";")),
+                rhea=_split(row["Rhea ID"], None),
+                revisada=row["Reviewed"] == "reviewed",
+                puntaje_anotacion=int(float(score)) if score else None,
+                kegg=_split(row["KEGG"], ";"),
+            )
