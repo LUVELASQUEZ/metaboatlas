@@ -3,26 +3,35 @@
 # del MVP está pendiente de decisión; el código no asume un número fijo.
 #
 # proteoma_referencia: ID del proteoma de referencia en UniProt (UPxxxxxxxxx).
-# TODO: completarlo a partir de rest.uniprot.org/proteomes cuando la fuente
-# esté verificada. Nunca se escribe de memoria.
+# Nunca se escribe de memoria: se obtiene de rest.uniprot.org/proteomes/search
+# (proteomeType "Reference proteome").
+# Consultado el 2026-10-07, UniProt release 2026_03 (02-September-2026).
+#
+# Las proteínas de un organismo se descargan siempre por proteoma
+# (query=proteome:UPxxxxxxxxx), no por taxón: UniProt puede registrar el proteoma
+# bajo un taxón distinto del de la cepa (ver E. coli).
 
 organismos:
   - id: taxon:511145
     nombre: Escherichia coli K-12 MG1655
     intereses: [modelo]
-    proteoma_referencia: null  # TODO
+    # UniProt no tiene proteoma de referencia para el taxón 511145. Este proteoma
+    # está registrado bajo el taxón 83333, "Escherichia coli (strain K12)", con cepa
+    # "K12 / MG1655 / ATCC 47076" y ensamblaje GCA_000005845.2 (genoma de MG1655).
+    # Por eso una consulta por organism_id:511145 no devuelve proteínas revisadas.
+    proteoma_referencia: UP000000625
 
   - id: taxon:224308
     nombre: Bacillus subtilis 168
     intereses: [modelo]
-    proteoma_referencia: null  # TODO
+    proteoma_referencia: UP000001570  # ensamblaje GCA_000009045.1
 
   - id: taxon:559292
     nombre: Saccharomyces cerevisiae S288C
     intereses: [modelo]
-    proteoma_referencia: null  # TODO
+    proteoma_referencia: UP000002311  # ensamblaje GCA_000146045.2
 
   - id: taxon:9606
     nombre: Homo sapiens
     intereses: [modelo]
-    proteoma_referencia: null  # TODO
+    proteoma_referencia: UP000005640  # ensamblaje GCA_000001405.29
