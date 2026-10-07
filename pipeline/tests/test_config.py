@@ -47,3 +47,25 @@ def test_invalid_contact_email_is_rejected(tmp_path):
 def test_missing_file_is_a_config_error(tmp_path):
     with pytest.raises(ConfigError, match="No existe"):
         load_config(tmp_path / "no-existe.yaml")
+
+
+def test_repository_config_never_stores_the_contact_email():
+    raw = yaml.safe_load(Path(__file__).parents[1].joinpath("config.yaml").read_text())
+    assert raw["descargas"]["contacto"] is None
+
+
+def test_contact_is_read_from_environment(monkeypatch):
+    monkeypatch.setenv("METABO_CONTACTO", "  contacto@ejemplo.invalid  ")
+    assert load_config().descargas.contacto == "contacto@ejemplo.invalid"
+
+
+def test_without_environment_contact_is_missing(monkeypatch):
+    monkeypatch.delenv("METABO_CONTACTO", raising=False)
+    assert load_config().descargas.contacto is None
+
+
+def test_invalid_environment_contact_is_rejected_without_echoing_it(monkeypatch):
+    monkeypatch.setenv("METABO_CONTACTO", "valor-secreto-invalido")
+    with pytest.raises(ConfigError, match="METABO_CONTACTO") as error:
+        load_config()
+    assert "valor-secreto-invalido" not in str(error.value)

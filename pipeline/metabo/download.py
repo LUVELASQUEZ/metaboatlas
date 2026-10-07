@@ -25,7 +25,7 @@ from tenacity import (
 )
 
 from metabo import __version__
-from metabo.config import DownloadConfig
+from metabo.config import CONTACT_ENV_VAR, DownloadConfig
 from metabo.errors import ConfigError, DownloadError
 from metabo.manifest import DownloadRecord
 from metabo.registry import Source, SourceRegistry
@@ -59,8 +59,8 @@ class Downloader:
     ):
         if not config.contacto:
             raise ConfigError(
-                "Falta descargas.contacto en pipeline/config.yaml: las fuentes piden un correo "
-                "de contacto en el User-Agent. No se descarga nada hasta definirlo."
+                f"Falta el correo de contacto: define la variable de entorno {CONTACT_ENV_VAR}. "
+                "Las fuentes piden un correo en el User-Agent; no se descarga nada sin él."
             )
         self._config = config
         self._registry = registry

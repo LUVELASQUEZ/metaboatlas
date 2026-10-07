@@ -142,5 +142,5 @@ def test_unsafe_paths_are_refused(registry, download_config, tmp_path, version, 
 
 def test_missing_contact_blocks_downloads(registry, download_config, tmp_path):
     config = DownloadConfig(**{**download_config.model_dump(), "contacto": None})
-    with pytest.raises(ConfigError, match="contacto"):
+    with pytest.raises(ConfigError, match="METABO_CONTACTO"):
         Downloader(config, registry, tmp_path / "raw")
