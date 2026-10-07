@@ -47,6 +47,7 @@ pipeline/
 │  ├─ manifest.py       # manifest.json con SHA-256 (y la versión más reciente de cada fuente)
 │  ├─ schemas.py        # validación contra schema/
 │  ├─ curation.py       # búsqueda y verificación de IDs de curation/vias/ contra raw/
+│  ├─ maps.py           # verificación de curation/mapas/ contra las reacciones Rhea de cada paso
 │  ├─ sources/          # un extractor por base de datos (rhea.py, enzyme.py, chebi.py, uniprot.py, ncbi_taxonomy.py)
 │  ├─ transform/        # normalización e integración de la curaduría
 │  ├─ coverage/         # algoritmo de cobertura (ver coverage/README.md)

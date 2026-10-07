@@ -8,7 +8,7 @@ from datetime import date
 
 import pytest
 
-from metabo import curation
+from metabo import curation, maps
 from metabo.config import load_config
 from metabo.coverage import compute
 from metabo.errors import ConfigError
@@ -30,6 +30,10 @@ def documents() -> dict:
             compounds.load_curation(root / "curation" / "compuestos.yaml"),
             compute.thresholds(config.cobertura.umbrales),
             date.today(),
+            {
+                p.stem: maps.load_map(p)
+                for p in sorted((root / "curation" / "mapas").glob("*.json"))
+            },
         )
     except (ConfigError, FileNotFoundError) as exc:
         pytest.skip(f"Faltan datos descargados en raw/: {exc}")
@@ -59,3 +63,12 @@ def test_every_glycolysis_step_has_its_reactions_and_enzymes(documents) -> None:
             assert f"reacciones/{package.file_name(rid)}" in documents
         for ec in step["ec"]:
             assert documents[f"enzimas/{package.file_name(ec)}"]["estado"] == "vigente"
+
+
+def test_glycolysis_map_draws_every_step(documents) -> None:
+    # package.build ya comprobó cada flecha contra Rhea; aquí, que el mapa se exporte.
+    mapa = documents["mapas/glucolisis.json"]
+    via = documents["vias/glucolisis.json"]
+    assert sorted(s["paso"] for s in mapa["pasos"]) == sorted(p["id"] for p in via["pasos"])
+    for node in mapa["compuestos"]:
+        assert not documents[f"compuestos/{package.file_name(node['compuesto'])}"]["es_cofactor"]

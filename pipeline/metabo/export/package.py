@@ -24,7 +24,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from metabo import schemas
+from metabo import maps, schemas
 from metabo.coverage import compute
 from metabo.coverage.algorithm import Thresholds
 from metabo.errors import ConfigError
@@ -254,8 +254,14 @@ def build(
     compound_curation: CompoundCuration,
     umbrales: Thresholds,
     calculado: date,
+    mapas: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> Package:
-    """Arma todos los documentos del paquete y los valida contra schema/."""
+    """Arma todos los documentos del paquete y los valida contra schema/.
+
+    `mapas` asocia el slug de una vía con su mapa curado; una vía sin mapa se exporta
+    sin él (la web usará un diseño automático).
+    """
+    mapas = mapas or {}
     manifest = Manifest.read(raw_dir / "manifest.json")
     without = [o.id for o in organisms if o.proteoma_referencia is None]
     if without:
@@ -287,20 +293,33 @@ def build(
             all_reactions[rid], directions[rid], rhea2ec.get(rid, ()), sources["rhea"]
         )
 
-    # Compuestos de esas reacciones, con su clase.
-    compound_ids = {c for rid in reaction_ids for c in all_reactions[rid].chebi}
-    curated_ids = {node.id for node in compound_curation.nodes}
+    # Mapas curados, verificados contra las reacciones de sus pasos.
     chebi_files = sources["chebi"].paths
+    ontology = chebi.read_ontology(
+        chebi_files["relation.tsv.gz"], chebi_files["relation_type.tsv.gz"]
+    )
+    cofactors = {node.id for node in compound_curation.cofactores}
+    map_nodes: set[str] = set()
+    for via in vias:
+        slug = _native(via["id"])
+        if slug not in mapas:
+            continue
+        errors = maps.check_map(mapas[slug], via, all_reactions, ontology, cofactors)
+        if errors:
+            detail = "\n  ".join(errors)
+            raise ConfigError(f"curation/mapas/{slug}.json no es coherente:\n  {detail}")
+        documents[f"mapas/{slug}.json"] = dict(mapas[slug])
+        map_nodes |= {node["compuesto"] for node in mapas[slug]["compuestos"]}
+
+    # Compuestos de esas reacciones y de los mapas, con su clase.
+    compound_ids = {c for rid in reaction_ids for c in all_reactions[rid].chebi} | map_nodes
+    curated_ids = {node.id for node in compound_curation.nodes}
     compounds = chebi.read_compounds(chebi_files, compound_ids | curated_ids)
     errors = check_names(compound_curation, {k: c.nombre for k, c in compounds.items()})
     if errors:
-        raise ConfigError(
-            "curation/compuestos.yaml no coincide con ChEBI:\n  " + "\n  ".join(errors)
-        )
-    classifier = Classifier(
-        compound_curation,
-        chebi.read_ontology(chebi_files["relation.tsv.gz"], chebi_files["relation_type.tsv.gz"]),
-    )
+        detail = "\n  ".join(errors)
+        raise ConfigError(f"curation/compuestos.yaml no coincide con ChEBI:\n  {detail}")
+    classifier = Classifier(compound_curation, ontology)
     for cid in sorted(compound_ids, key=lambda c: int(_native(c))):
         documents[f"compuestos/{file_name(cid)}"] = _compound_document(
             compounds[cid], classifier, sources["chebi"]
@@ -366,4 +385,5 @@ _SCHEMA_BY_FOLDER = {
     "enzimas": "enzima",
     "organismos": "organismo",
     "cobertura": "cobertura",
+    "mapas": "mapa",
 }

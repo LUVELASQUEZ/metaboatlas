@@ -11,9 +11,11 @@ data/2026.10/
   enzimas/EC_2.7.1.1.json       # EC de los pasos (ENZYME, Rhea) y sus proteínas por organismo (UniProt)
   organismos/511145.json        # organismos.yaml + NCBI Taxonomy + UniProt
   cobertura/glucolisis/511145.json
+  mapas/glucolisis.json         # el dibujo de curation/mapas/, verificado contra Rhea
 ```
 
 - `package.py` arma los documentos. Solo exporta las entidades que tocan las vías curadas, y cada una lleva su `procedencia` (fuente, ID, versión y fecha de descarga). Una exportación nueva reemplaza la carpeta de la misma versión.
+- Los mapas de `curation/mapas/` se verifican con `metabo/maps.py` (ver [`curation/mapas/README.md`](../../../curation/mapas/README.md)) y sus nodos también se exportan como compuestos.
 - `compounds.py` decide la clase de cada compuesto y si es cofactor, con las reglas de [`curation/compuestos.yaml`](../../../curation/compuestos.yaml).
 
 ## De dónde sale cada campo

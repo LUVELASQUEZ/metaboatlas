@@ -1,0 +1,45 @@
+{
+  "via": "via:ejemplo",
+  "lienzo": {
+    "ancho": 400,
+    "alto": 300
+  },
+  "compuestos": [
+    {
+      "compuesto": "CHEBI:0",
+      "x": 200,
+      "y": 60
+    },
+    {
+      "compuesto": "CHEBI:0",
+      "x": 200,
+      "y": 220
+    }
+  ],
+  "pasos": [
+    {
+      "paso": "p01",
+      "desde": [
+        "CHEBI:0"
+      ],
+      "hacia": [
+        "CHEBI:0"
+      ],
+      "rotulo": {
+        "x": 300,
+        "y": 140
+      },
+      "cofactores": "centro"
+    }
+  ],
+  "modulos": [
+    {
+      "modulo": "m1",
+      "x": 20,
+      "y": 20,
+      "ancho": 360,
+      "alto": 260
+    }
+  ],
+  "portales": []
+}

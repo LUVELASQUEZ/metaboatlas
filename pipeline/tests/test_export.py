@@ -295,9 +295,44 @@ def raw_dir(tmp_path: Path) -> Path:
     return raw
 
 
-def build(raw_dir: Path, curation=CURATION) -> package.Package:
+# El nodo CHEBI:901 (azúcar) es más general que el participante CHEBI:1 de Rhea.
+MAPA = {
+    "via": "via:prueba",
+    "lienzo": {"ancho": 300, "alto": 300},
+    "compuestos": [
+        {"compuesto": "CHEBI:901", "x": 100, "y": 50},
+        {"compuesto": "CHEBI:2", "x": 100, "y": 250},
+    ],
+    "pasos": [
+        {
+            "paso": "p01",
+            "desde": ["CHEBI:901"],
+            "hacia": ["CHEBI:2"],
+            "rotulo": {"x": 100, "y": 150},
+            "cofactores": "derecha",
+        },
+        {
+            "paso": "p02",
+            "desde": ["CHEBI:901"],
+            "hacia": ["CHEBI:901"],
+            "rotulo": {"x": 200, "y": 50},
+            "cofactores": "arriba",
+        },
+    ],
+    "modulos": [{"modulo": "m1", "x": 10, "y": 10, "ancho": 280, "alto": 280}],
+    "portales": [],
+}
+
+
+def build(raw_dir: Path, curation=CURATION, mapas=None) -> package.Package:
     return package.build(
-        raw_dir, [VIA], ORGANISMS, curation, Thresholds(100, 80, 30), date(2026, 10, 7)
+        raw_dir,
+        [VIA],
+        ORGANISMS,
+        curation,
+        Thresholds(100, 80, 30),
+        date(2026, 10, 7),
+        mapas,
     )
 
 
@@ -422,6 +457,20 @@ def test_curation_names_must_match_chebi(raw_dir):
     )
     with pytest.raises(ConfigError, match="CHEBI:3 se llama 'moneda"):
         build(raw_dir, wrong)
+
+
+def test_maps_are_checked_and_exported(raw_dir):
+    docs = build(raw_dir, mapas={"prueba": MAPA}).documents
+    assert docs["mapas/prueba.json"] == MAPA
+    # Los nodos del mapa también se exportan como compuestos.
+    assert docs["compuestos/CHEBI_901.json"]["nombre"]["en"] == "azúcar"
+
+
+def test_incoherent_map_stops_the_export(raw_dir):
+    mapa = json.loads(json.dumps(MAPA))
+    mapa["pasos"][0]["desde"] = ["CHEBI:2"]  # 2 solo está a la derecha de RHEA:1000
+    with pytest.raises(ConfigError, match=r"curation/mapas/prueba\.json no es coherente"):
+        build(raw_dir, mapas={"prueba": mapa})
 
 
 def test_write_replaces_the_previous_export(raw_dir, tmp_path):

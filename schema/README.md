@@ -14,6 +14,7 @@ Todos los esquemas usan JSON Schema **draft 2020-12**.
 | `enzima.schema.json` | Actividad enzimática (EC) y proteínas por organismo | `enzimas/EC_<n>.json` |
 | `organismo.schema.json` | Organismo (NCBI Taxonomy + UniProt) | `organismos/<taxon>.json` |
 | `cobertura.schema.json` | Cobertura de una vía en un organismo | `cobertura/<slug>/<taxon>.json` |
+| `mapa.schema.json` | Dibujo curado de una vía: posiciones de compuestos, flechas por paso y módulos | `mapas/<slug>.json` |
 | `fuentes.schema.json` | Estructura de `sources.yaml` | `sources.yaml` |
 | `manifiesto.schema.json` | Procedencia: cada descarga con URL, versión, fecha, licencia y SHA-256 | `manifest.json` |
 
@@ -40,6 +41,7 @@ Estas reglas quedan para la etapa de validación del pipeline (integridad refere
 - Que los pasos de cada módulo existan en `pasos` de la misma vía y que los IDs de paso no se repitan.
 - Que todo ID citado (Rhea, ChEBI, EC, vía, taxón) exista en el paquete de datos.
 - Que `xrefs[].fuente` y las claves de `fuentes` existan en `sources.yaml`.
+- Que el mapa de una vía dibuje cada paso una vez y que cada flecha corresponda a una reacción Rhea del paso (lo verifica `pipeline/metabo/maps.py`).
 - Que `cobertura` y `clase` sean coherentes con los estados de los pasos y con los umbrales de `pipeline/config.yaml`.
 - Que una fuente con `estado: pendiente de verificar` no se use para descargar datos.
 

@@ -9,7 +9,7 @@ from collections.abc import Callable, Sequence
 from datetime import date
 from pathlib import Path
 
-from metabo import __version__, curation
+from metabo import __version__, curation, maps
 from metabo.config import load_config
 from metabo.coverage import compute
 from metabo.download import Downloader
@@ -204,6 +204,10 @@ def cmd_exportar(args: argparse.Namespace) -> int:
         export_compounds.load_curation(root / "curation" / "compuestos.yaml"),
         compute.thresholds(config.cobertura.umbrales),
         date.today(),
+        {
+            path.stem: maps.load_map(path)
+            for path in sorted((root / "curation" / "mapas").glob("*.json"))
+        },
     )
     out_dir = root / config.directorios.salida / built.manifest.version_datos
     written = built.write(out_dir)

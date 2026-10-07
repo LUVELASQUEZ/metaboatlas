@@ -1,0 +1,225 @@
+{
+  "via": "via:glucolisis",
+  "lienzo": {
+    "ancho": 760,
+    "alto": 1680
+  },
+  "compuestos": [
+    {
+      "compuesto": "CHEBI:4167",
+      "x": 330,
+      "y": 80
+    },
+    {
+      "compuesto": "CHEBI:61548",
+      "x": 330,
+      "y": 240
+    },
+    {
+      "compuesto": "CHEBI:57634",
+      "x": 330,
+      "y": 400
+    },
+    {
+      "compuesto": "CHEBI:32966",
+      "x": 330,
+      "y": 560
+    },
+    {
+      "compuesto": "CHEBI:57642",
+      "x": 170,
+      "y": 740
+    },
+    {
+      "compuesto": "CHEBI:59776",
+      "x": 480,
+      "y": 740,
+      "etiqueta": "derecha"
+    },
+    {
+      "compuesto": "CHEBI:57604",
+      "x": 480,
+      "y": 960
+    },
+    {
+      "compuesto": "CHEBI:58272",
+      "x": 480,
+      "y": 1120
+    },
+    {
+      "compuesto": "CHEBI:58289",
+      "x": 480,
+      "y": 1280
+    },
+    {
+      "compuesto": "CHEBI:58702",
+      "x": 480,
+      "y": 1440
+    },
+    {
+      "compuesto": "CHEBI:15361",
+      "x": 480,
+      "y": 1600
+    }
+  ],
+  "pasos": [
+    {
+      "paso": "p01",
+      "desde": [
+        "CHEBI:4167"
+      ],
+      "hacia": [
+        "CHEBI:61548"
+      ],
+      "rotulo": {
+        "x": 330,
+        "y": 160
+      },
+      "cofactores": "derecha"
+    },
+    {
+      "paso": "p02",
+      "desde": [
+        "CHEBI:61548"
+      ],
+      "hacia": [
+        "CHEBI:57634"
+      ],
+      "rotulo": {
+        "x": 330,
+        "y": 320
+      },
+      "cofactores": "derecha"
+    },
+    {
+      "paso": "p03",
+      "desde": [
+        "CHEBI:57634"
+      ],
+      "hacia": [
+        "CHEBI:32966"
+      ],
+      "rotulo": {
+        "x": 330,
+        "y": 480
+      },
+      "cofactores": "derecha"
+    },
+    {
+      "paso": "p04",
+      "desde": [
+        "CHEBI:32966"
+      ],
+      "hacia": [
+        "CHEBI:57642",
+        "CHEBI:59776"
+      ],
+      "rotulo": {
+        "x": 330,
+        "y": 640
+      },
+      "cofactores": "derecha"
+    },
+    {
+      "paso": "p05",
+      "desde": [
+        "CHEBI:57642"
+      ],
+      "hacia": [
+        "CHEBI:59776"
+      ],
+      "rotulo": {
+        "x": 325,
+        "y": 770
+      },
+      "cofactores": "abajo"
+    },
+    {
+      "paso": "p06",
+      "desde": [
+        "CHEBI:59776"
+      ],
+      "hacia": [
+        "CHEBI:57604"
+      ],
+      "rotulo": {
+        "x": 480,
+        "y": 870
+      },
+      "cofactores": "izquierda"
+    },
+    {
+      "paso": "p07",
+      "desde": [
+        "CHEBI:57604"
+      ],
+      "hacia": [
+        "CHEBI:58272"
+      ],
+      "rotulo": {
+        "x": 480,
+        "y": 1040
+      },
+      "cofactores": "izquierda"
+    },
+    {
+      "paso": "p08",
+      "desde": [
+        "CHEBI:58272"
+      ],
+      "hacia": [
+        "CHEBI:58289"
+      ],
+      "rotulo": {
+        "x": 480,
+        "y": 1200
+      },
+      "cofactores": "izquierda"
+    },
+    {
+      "paso": "p09",
+      "desde": [
+        "CHEBI:58289"
+      ],
+      "hacia": [
+        "CHEBI:58702"
+      ],
+      "rotulo": {
+        "x": 480,
+        "y": 1360
+      },
+      "cofactores": "izquierda"
+    },
+    {
+      "paso": "p10",
+      "desde": [
+        "CHEBI:58702"
+      ],
+      "hacia": [
+        "CHEBI:15361"
+      ],
+      "rotulo": {
+        "x": 480,
+        "y": 1520
+      },
+      "cofactores": "izquierda"
+    }
+  ],
+  "modulos": [
+    {
+      "modulo": "m1",
+      "x": 20,
+      "y": 20,
+      "ancho": 720,
+      "alto": 770
+    },
+    {
+      "modulo": "m2",
+      "x": 20,
+      "y": 800,
+      "ancho": 720,
+      "alto": 860
+    }
+  ],
+  "portales": []
+}
