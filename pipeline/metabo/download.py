@@ -95,18 +95,8 @@ class Downloader:
         target.parent.mkdir(parents=True, exist_ok=True)
         partial = target.with_name(target.name + ".parcial")
 
-        retrying = Retrying(
-            stop=stop_after_attempt(self._config.reintentos),
-            wait=wait_exponential(
-                multiplier=self._config.espera_inicial_segundos,
-                max=self._config.espera_maxima_segundos,
-            ),
-            retry=retry_if_exception(_is_retryable),
-            sleep=self._sleep,
-            reraise=False,
-        )
         try:
-            digest, size = retrying(self._fetch, source, url, partial)
+            digest, size = self._retrying()(self._fetch, source, url, partial)
         except RetryError as exc:
             partial.unlink(missing_ok=True)
             cause = exc.last_attempt.exception()
@@ -131,6 +121,47 @@ class Downloader:
             bytes=size,
             licencia=source.licencia or "",
         )
+
+    def fetch_text(self, fuente: str, url: str, max_bytes: int = 1 << 16) -> str:
+        """Lee un archivo de texto pequeño (por ejemplo, el número de release) sin guardarlo.
+
+        Aplica las mismas reglas que `download`: fuente verificada, acceso oficial y
+        reintentos con espera exponencial.
+        """
+        source = self._registry.require_downloadable(fuente)
+        self._registry.require_official_url(source, url)
+        try:
+            return self._retrying()(self._fetch_text, source, url, max_bytes)
+        except RetryError as exc:
+            cause = exc.last_attempt.exception()
+            raise DownloadError(
+                f"No se pudo leer {url} tras {self._config.reintentos} intentos: {cause}"
+            ) from cause
+        except httpx.HTTPError as exc:
+            raise DownloadError(f"No se pudo leer {url}: {exc}") from exc
+
+    def _retrying(self) -> Retrying:
+        return Retrying(
+            stop=stop_after_attempt(self._config.reintentos),
+            wait=wait_exponential(
+                multiplier=self._config.espera_inicial_segundos,
+                max=self._config.espera_maxima_segundos,
+            ),
+            retry=retry_if_exception(_is_retryable),
+            sleep=self._sleep,
+            reraise=False,
+        )
+
+    def _fetch_text(self, source: Source, url: str, max_bytes: int) -> str:
+        data = bytearray()
+        with self._client.stream("GET", url) as response:
+            self._registry.require_official_url(source, str(response.url))
+            response.raise_for_status()
+            for chunk in response.iter_bytes(_CHUNK_SIZE):
+                data.extend(chunk)
+                if len(data) > max_bytes:
+                    raise DownloadError(f"{url} supera el tamaño esperado ({max_bytes} bytes).")
+        return data.decode("utf-8")
 
     def _fetch(self, source: Source, url: str, destination: Path) -> tuple[str, int]:
         sha = hashlib.sha256()

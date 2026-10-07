@@ -87,6 +87,7 @@ rhea:
     archivos debe ir acompañada de su declaración de copyright.
   acceso:
     - ftp.expasy.org/databases/rhea/tsv/  # rhea-directions.tsv, rhea2ec.tsv, rhea2uniprot.tsv
+    - ftp.expasy.org/databases/rhea/rhea-release.properties  # número y fecha del release
   plantillas:
     reaccion: https://www.rhea-db.org/rhea/{id}  # formato de /help/links (p. ej. /rhea/19253)
   cita_recomendada: |-

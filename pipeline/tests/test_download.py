@@ -144,3 +144,28 @@ def test_missing_contact_blocks_downloads(registry, download_config, tmp_path):
     config = DownloadConfig(**{**download_config.model_dump(), "contacto": None})
     with pytest.raises(ConfigError, match="METABO_CONTACTO"):
         Downloader(config, registry, tmp_path / "raw")
+
+
+def test_fetch_text_reads_without_saving(registry, download_config, tmp_path):
+    server = FakeServer(503, 200)
+    downloader, sleeps = make_downloader(registry, download_config, tmp_path, server)
+    assert downloader.fetch_text("fuente_prueba", URL) == BODY.decode()
+    assert len(sleeps) == 1
+    assert not (tmp_path / "raw").exists()
+
+
+def test_fetch_text_applies_source_rules(registry, download_config, tmp_path):
+    server = FakeServer(200)
+    downloader, _ = make_downloader(registry, download_config, tmp_path, server)
+    with pytest.raises(SourceNotAllowedError):
+        downloader.fetch_text("fuente_pendiente", "https://pendiente.ejemplo.invalid/x.txt")
+    with pytest.raises(SourceNotAllowedError):
+        downloader.fetch_text("fuente_prueba", "https://otro.ejemplo.invalid/descargas/x.txt")
+    assert server.requests == []
+
+
+def test_fetch_text_refuses_oversized_files(registry, download_config, tmp_path):
+    server = FakeServer(200, body=b"x" * 100)
+    downloader, _ = make_downloader(registry, download_config, tmp_path, server)
+    with pytest.raises(DownloadError, match="tamaño"):
+        downloader.fetch_text("fuente_prueba", URL, max_bytes=10)
