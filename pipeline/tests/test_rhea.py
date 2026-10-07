@@ -6,13 +6,11 @@ se usan como datos.
 
 from datetime import date
 
-import httpx
 import pytest
+from conftest import FakeFtp
 
-from metabo.download import Downloader
 from metabo.errors import SourceFormatError
 from metabo.manifest import Manifest
-from metabo.registry import SourceRegistry
 from metabo.sources import rhea
 
 RELEASE = b"rhea.release.number=142\nrhea.release.date=2026-09-02\n"
@@ -30,39 +28,6 @@ def files(**overrides: bytes) -> dict[str, bytes]:
         url = rhea.RELEASE_URL if name == "release" else f"{rhea.BASE_URL}/tsv/{name}"
         served[url] = body
     return served
-
-
-class FakeFtp:
-    """Sirve un cuerpo por URL; `releases` permite cambiar el release entre lecturas."""
-
-    def __init__(self, served: dict[str, bytes], releases: list[bytes] | None = None):
-        self.served = served
-        self.releases = list(releases or [])
-        self.requests: list[str] = []
-
-    def __call__(self, request: httpx.Request) -> httpx.Response:
-        url = str(request.url)
-        self.requests.append(url)
-        if url == rhea.RELEASE_URL and self.releases:
-            return httpx.Response(200, content=self.releases.pop(0))
-        if url not in self.served:
-            return httpx.Response(404)
-        return httpx.Response(200, content=self.served[url])
-
-
-@pytest.fixture
-def rhea_registry() -> SourceRegistry:
-    # Registro real: la prueba falla si sources.yaml deja de permitir estas URLs.
-    return SourceRegistry.load()
-
-
-def run(rhea_registry, download_config, tmp_path, server):
-    client = httpx.Client(transport=httpx.MockTransport(server), follow_redirects=True)
-    raw_dir = tmp_path / "raw"
-    downloader = Downloader(
-        download_config, rhea_registry, raw_dir, client=client, sleep=lambda _: None
-    )
-    return raw_dir, rhea.extract(downloader, raw_dir)
 
 
 def test_parse_release():
@@ -83,8 +48,8 @@ def test_parse_release_rejects_missing_or_malformed_values(text):
         rhea.parse_release(text)
 
 
-def test_extract_downloads_into_release_folder(rhea_registry, download_config, tmp_path):
-    raw_dir, (release, records) = run(rhea_registry, download_config, tmp_path, FakeFtp(files()))
+def test_extract_downloads_into_release_folder(run_extractor, tmp_path):
+    raw_dir, (release, records) = run_extractor(rhea.extract, FakeFtp(files()))
 
     assert release.numero == "142"
     assert [r.archivo for r in records] == [
@@ -96,8 +61,8 @@ def test_extract_downloads_into_release_folder(rhea_registry, download_config, t
     assert all(r.version == "142" and r.licencia == "CC BY 4.0" for r in records)
 
 
-def test_records_validate_against_manifest_schema(rhea_registry, download_config, tmp_path):
-    _, (_, records) = run(rhea_registry, download_config, tmp_path, FakeFtp(files()))
+def test_records_validate_against_manifest_schema(run_extractor, tmp_path):
+    _, (_, records) = run_extractor(rhea.extract, FakeFtp(files()))
     manifest = Manifest(version_datos="2026.10")
     for record in records:
         manifest.add(record)
@@ -115,32 +80,32 @@ def test_records_validate_against_manifest_schema(rhea_registry, download_config
         ("rhea2ec.tsv", b""),
     ],
 )
-def test_changed_columns_stop_the_extraction(rhea_registry, download_config, tmp_path, name, body):
+def test_changed_columns_stop_the_extraction(run_extractor, tmp_path, name, body):
     with pytest.raises(SourceFormatError, match=name):
-        run(rhea_registry, download_config, tmp_path, FakeFtp(files(**{name: body})))
+        run_extractor(rhea.extract, FakeFtp(files(**{name: body})))
 
 
-def test_missing_release_stops_before_downloading(rhea_registry, download_config, tmp_path):
+def test_missing_release_stops_before_downloading(run_extractor, tmp_path):
     server = FakeFtp(files(release=b"rhea.release.date=2026-09-02\n"))
     with pytest.raises(SourceFormatError):
-        run(rhea_registry, download_config, tmp_path, server)
+        run_extractor(rhea.extract, server)
     assert server.requests == [rhea.RELEASE_URL]
     assert not (tmp_path / "raw").exists()
 
 
-def test_release_change_during_download_is_detected(rhea_registry, download_config, tmp_path):
+def test_release_change_during_download_is_detected(run_extractor, tmp_path):
     newer = b"rhea.release.number=143\nrhea.release.date=2026-10-07\n"
-    server = FakeFtp(files(), releases=[RELEASE, RELEASE, newer])
+    server = FakeFtp(files(), {rhea.RELEASE_URL: [RELEASE, RELEASE, newer]})
     with pytest.raises(SourceFormatError, match="142 -> 143"):
-        run(rhea_registry, download_config, tmp_path, server)
+        run_extractor(rhea.extract, server)
 
 
-def test_only_official_rhea_urls_are_requested(rhea_registry, download_config, tmp_path):
+def test_only_official_rhea_urls_are_requested(run_extractor, tmp_path):
     server = FakeFtp(files())
-    run(rhea_registry, download_config, tmp_path, server)
+    run_extractor(rhea.extract, server)
     assert all(url.startswith("https://ftp.expasy.org/databases/rhea/") for url in server.requests)
 
 
-def test_download_date_is_recorded(rhea_registry, download_config, tmp_path):
-    _, (_, records) = run(rhea_registry, download_config, tmp_path, FakeFtp(files()))
+def test_download_date_is_recorded(run_extractor, tmp_path):
+    _, (_, records) = run_extractor(rhea.extract, FakeFtp(files()))
     assert {r.fecha_descarga for r in records} == {date.today().isoformat()}
