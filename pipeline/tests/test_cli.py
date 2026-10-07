@@ -12,7 +12,12 @@ def test_build_command_lists_every_stage(capsys):
     out = capsys.readouterr().out
     for name, _ in STAGES:
         assert name in out
-    assert "no se descargará nada" in out
+    # Fuentes verificadas de la fase 0; las pendientes no aparecen.
+    lines = out.splitlines()
+    downloadable = next(line for line in lines if line.startswith("Fuentes descargables"))
+    for nombre in ("Rhea", "ChEBI", "UniProtKB", "ENZYME", "NCBI Taxonomy"):
+        assert nombre in downloadable
+    assert "Reactome" not in downloadable
 
 
 def test_fuentes_command_marks_link_only_sources(capsys):

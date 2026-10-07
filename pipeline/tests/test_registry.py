@@ -12,10 +12,52 @@ def test_repository_sources_load():
 
 
 def test_no_repository_source_is_downloadable_until_verified():
-    # Fase 0: todas las fuentes están "pendiente de verificar".
     for source in SourceRegistry.load():
         if source.estado != "verificada":
             assert not source.downloadable
+
+
+PHASE_0_SOURCES = ["rhea", "chebi", "uniprot", "enzyme", "ncbi_taxonomy"]
+
+
+@pytest.mark.parametrize("key", PHASE_0_SOURCES)
+def test_phase_0_sources_are_verified_and_downloadable(key):
+    source = SourceRegistry.load().require_downloadable(key)
+    assert source.acceso
+
+
+def test_verified_repository_sources_are_complete():
+    # Una fuente verificada que se redistribuye debe poder citarse y rastrearse:
+    # el esquema exige licencia, URL de licencia, fecha y cita; aquí además el DOI,
+    # la página principal y las plantillas de enlace.
+    for source in SourceRegistry.load():
+        if source.estado == "verificada" and source.uso == "redistribuir":
+            assert source.url and source.url.startswith("https://"), source.key
+            assert source.licencia_url, source.key
+            assert source.verificada, source.key
+            assert source.cita_recomendada, source.key
+            assert source.doi_cita, source.key
+            assert "TODO" not in source.cita_recomendada, source.key
+            assert source.plantillas, source.key
+
+
+@pytest.mark.parametrize(
+    ("fuente", "tipo", "id", "expected"),
+    [
+        ("rhea", "reaccion", "16109", "https://www.rhea-db.org/rhea/16109"),
+        ("chebi", "compuesto", "15361", "https://www.ebi.ac.uk/chebi/CHEBI:15361"),
+        ("uniprot", "proteina", "P0A6T1", "https://www.uniprot.org/uniprotkb/P0A6T1"),
+        ("enzyme", "enzima", "2.7.1.1", "https://enzyme.expasy.org/EC/2.7.1.1"),
+        (
+            "ncbi_taxonomy",
+            "organismo",
+            "511145",
+            "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=511145",
+        ),
+    ],
+)
+def test_repository_phase_0_links(fuente, tipo, id, expected):
+    assert SourceRegistry.load().build_link(fuente, tipo, id) == expected
 
 
 def test_link_only_sources_are_never_downloadable():
