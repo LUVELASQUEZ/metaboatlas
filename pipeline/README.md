@@ -2,7 +2,7 @@
 
 Pipeline de datos de MetaboAtlas en Python 3.12 (gestor `uv`). Descarga las fuentes registradas en [`../sources.yaml`](../sources.yaml), las normaliza en DuckDB, integra la curaduría, calcula la cobertura, valida contra [`../schema/`](../schema/) y exporta el paquete de datos. Ver la sección 6 de [`docs/MANUAL.md`](../docs/MANUAL.md).
 
-> **Estado:** las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) están verificadas en `sources.yaml`. Ya existen los extractores de Rhea, ENZYME, ChEBI y UniProt (`uv run metabo extraer rhea|enzyme|chebi|uniprot`) las ayudas de curaduría (`uv run metabo curar buscar|validar`) y el cálculo de cobertura (`uv run metabo cobertura`); el de NCBI Taxonomy y el resto de las etapas de `build` se implementan en las próximas tareas.
+> **Estado:** las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) están verificadas en `sources.yaml` y tienen extractor (`uv run metabo extraer rhea|enzyme|chebi|uniprot|ncbi_taxonomy`). También existen las ayudas de curaduría (`uv run metabo curar buscar|validar`) y el cálculo de cobertura (`uv run metabo cobertura`); el resto de las etapas de `build` se implementan en las próximas tareas.
 
 ## Uso
 
@@ -11,7 +11,7 @@ cd pipeline
 uv sync                  # instala Python 3.12 y las dependencias
 uv run metabo validate   # valida config.yaml, organismos.yaml y sources.yaml
 uv run metabo fuentes    # lista las fuentes y si se pueden descargar
-uv run metabo extraer rhea   # descarga la versión vigente de una fuente (rhea, enzyme, chebi, uniprot) a raw/ y actualiza raw/manifest.json
+uv run metabo extraer rhea   # descarga la versión vigente de una fuente (rhea, enzyme, chebi, uniprot, ncbi_taxonomy) a raw/ y actualiza raw/manifest.json
 uv run metabo curar buscar 2.7.1.1   # reacciones Rhea maestras de un EC, con su ecuación y sus ChEBI
 uv run metabo curar validar          # verifica los IDs de curation/vias/*.yaml contra raw/ (necesita rhea, enzyme y chebi descargados)
 uv run metabo cobertura              # cobertura de cada vía en cada organismo -> data/<version_datos>/cobertura/ (necesita rhea y uniprot descargados)
@@ -46,7 +46,7 @@ pipeline/
 │  ├─ manifest.py       # manifest.json con SHA-256 (y la versión más reciente de cada fuente)
 │  ├─ schemas.py        # validación contra schema/
 │  ├─ curation.py       # búsqueda y verificación de IDs de curation/vias/ contra raw/
-│  ├─ sources/          # un extractor por base de datos (rhea.py, enzyme.py, chebi.py, uniprot.py; NCBI Taxonomy, próxima tarea)
+│  ├─ sources/          # un extractor por base de datos (rhea.py, enzyme.py, chebi.py, uniprot.py, ncbi_taxonomy.py)
 │  ├─ transform/        # normalización e integración de la curaduría
 │  ├─ coverage/         # algoritmo de cobertura (ver coverage/README.md)
 │  └─ export/           # exportación del paquete de datos
@@ -69,4 +69,8 @@ El descargador (`metabo/download.py`) aplica las reglas 1 a 4 de `CLAUDE.md` ant
 - **Correo de contacto:** se lee del secreto `METABO_CONTACTO`.
 - **Fuentes:** Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy están verificadas en `sources.yaml`.
 - **Proteomas:** cada organismo de `organismos.yaml` tiene su `proteoma_referencia`. Las proteínas se descargan por proteoma (`proteome:UP…`), no por taxón, porque UniProt puede registrar el proteoma bajo otro taxón (es el caso de *E. coli* MG1655, cuyo proteoma está bajo el taxón 83333).
-- **Taxones:** cada `id` de `organismos.yaml` existe en NCBI Taxonomy (ni fusionado ni eliminado) y su `nombre_ncbi` se copió de `names.dmp`.
+- **Taxones:** cada `id` de `organismos.yaml` existe en NCBI Taxonomy (ni fusionado ni eliminado) y su `nombre_ncbi` se copió de `names.dmp`. `tests/test_taxonomia_datos.py` lo comprueba contra el volcado descargado.
+
+## NCBI Taxonomy
+
+NCBI regenera `new_taxdump.tar.gz` a diario y no le pone número de versión, así que la versión es la fecha de la cabecera Last-Modified de `new_taxdump.tar.gz.md5`. El extractor compara la suma MD5 del archivo descargado con la publicada: si NCBI publica un volcado nuevo durante la descarga, se detiene. El volcado pesa unos 160 MB y no se descomprime en disco: `read_taxa` lee de él `taxidlineage.dmp`, `names.dmp`, `nodes.dmp`, `merged.dmp` y `delnodes.dmp` en unos 15 segundos.
