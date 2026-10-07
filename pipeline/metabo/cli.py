@@ -4,13 +4,19 @@ from __future__ import annotations
 
 import argparse
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from datetime import date
+from pathlib import Path
 
 from metabo import __version__
 from metabo.config import load_config
+from metabo.download import Downloader
 from metabo.errors import PipelineError
+from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
+from metabo.paths import repo_root
 from metabo.registry import SourceRegistry
+from metabo.sources import rhea
 
 # Etapas de `metabo build`, en orden. Se implementan en tareas posteriores.
 STAGES: tuple[tuple[str, str], ...] = (
@@ -51,6 +57,35 @@ def cmd_fuentes(_: argparse.Namespace) -> int:
     return 0
 
 
+# Extractores disponibles: fuente -> función que descarga a raw/ y devuelve sus registros.
+EXTRACTORS: dict[str, Callable[[Downloader, Path], tuple[object, list[DownloadRecord]]]] = {
+    "rhea": rhea.extract,
+}
+
+
+def cmd_extraer(args: argparse.Namespace) -> int:
+    config = load_config()
+    registry = SourceRegistry.load()
+    raw_dir = repo_root() / config.directorios.crudos
+    downloader = Downloader(config.descargas, registry, raw_dir)
+    _, records = EXTRACTORS[args.fuente](downloader, raw_dir)
+
+    manifest_path = raw_dir / "manifest.json"
+    if manifest_path.exists():
+        manifest = Manifest.read(manifest_path)
+    else:
+        manifest = Manifest(version_datos=date.today().strftime("%Y.%m"))
+    for record in records:
+        manifest.add(record)
+    manifest.write(manifest_path)
+
+    print(f"{registry.get(args.fuente).nombre}: versión {records[0].version}")
+    for record in records:
+        print(f"  {record.archivo}  {record.bytes} bytes  sha256 {record.sha256}")
+    print(f"Manifiesto actualizado: {manifest_path}")
+    return 0
+
+
 def cmd_build(_: argparse.Namespace) -> int:
     registry, n_organisms = _load_all()
     downloadable = [s.nombre for s in registry if s.downloadable]
@@ -76,6 +111,11 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("fuentes", help="lista las fuentes y si se pueden descargar").set_defaults(
         func=cmd_fuentes
     )
+    extraer = sub.add_parser(
+        "extraer", help="descarga una fuente verificada a raw/ y actualiza el manifiesto"
+    )
+    extraer.add_argument("fuente", choices=sorted(EXTRACTORS))
+    extraer.set_defaults(func=cmd_extraer)
     return parser
 
 

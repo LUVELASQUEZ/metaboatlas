@@ -15,3 +15,7 @@ class SourceNotAllowedError(PipelineError):
 
 class DownloadError(PipelineError):
     """Una descarga falló después de los reintentos permitidos."""
+
+
+class SourceFormatError(PipelineError):
+    """Un archivo descargado no tiene el formato esperado (la fuente pudo cambiarlo)."""

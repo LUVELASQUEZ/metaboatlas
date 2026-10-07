@@ -1,3 +1,5 @@
+import pytest
+
 from metabo.cli import STAGES, main
 from metabo.paths import PIPELINE_DIR
 
@@ -32,3 +34,10 @@ def test_errors_are_reported_without_traceback(capsys, monkeypatch, tmp_path):
     (tmp_path / "schema").symlink_to(PIPELINE_DIR.parent / "schema")
     assert main(["fuentes"]) == 1
     assert "Error:" in capsys.readouterr().err
+
+
+def test_extraer_rejects_unknown_sources(capsys):
+    # Solo se ofrecen las fuentes con extractor; las de solo enlace nunca.
+    with pytest.raises(SystemExit):
+        main(["extraer", "kegg"])
+    assert "invalid choice" in capsys.readouterr().err
