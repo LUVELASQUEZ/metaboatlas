@@ -8,9 +8,12 @@ Cada extractor expone `extract(downloader, raw_dir)`: descarga a `raw/<fuente>/<
 | --- | --- | --- | --- |
 | Rhea | `rhea.py` | `rhea-release.properties`, `tsv/rhea-directions.tsv`, `tsv/rhea2ec.tsv`, `txt/rhea-reactions.txt.gz` (ecuación con participantes ChEBI) | `rhea.release.number` de `rhea-release.properties` |
 | ENZYME | `enzyme.py` | `enzclass.txt`, `enzyme.dat` | Fecha "Release" de ambos archivos, en ISO (deben coincidir) |
+| UniProtKB | `uniprot.py` | Por cada organismo de `organismos.yaml`: `<UP>.json` (ficha del proteoma de referencia, `rest.uniprot.org/proteomes/<UP>`) y `<UP>.tsv.gz` (todas sus proteínas, revisadas y no revisadas, con los campos de `uniprot.FIELDS`, de `rest.uniprot.org/uniprotkb/stream?query=proteome:<UP>`) | Cabecera `X-UniProt-Release` de la API (p. ej. `2026_03`); todas las respuestas deben traer la misma |
 | ChEBI | `chebi.py` | `flat_files/README` y `flat_files/{compounds,chemical_data,names,relation,relation_type,secondary_ids}.tsv.gz` | "ChEBI Release" del README de `flat_files/` |
 
 Los módulos también leen lo descargado para la curaduría (`rhea.read_reactions`, `enzyme.read_entries`, `chebi.read_compound_names`).
+
+UniProt también se detiene si un proteoma deja de ser de referencia o si el TSV no tiene tantas filas como el `proteinCount` del proteoma (el stream de la API puede cortarse sin error).
 
 Las comprobaciones compartidas (encabezados de TSV, también comprimidos, y fechas de versión) están en `formats.py`.
 

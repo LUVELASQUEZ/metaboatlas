@@ -16,7 +16,7 @@ from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
 from metabo.registry import SourceRegistry
-from metabo.sources import chebi, enzyme, rhea
+from metabo.sources import chebi, enzyme, rhea, uniprot
 
 # Etapas de `metabo build`, en orden. Se implementan en tareas posteriores.
 STAGES: tuple[tuple[str, str], ...] = (
@@ -62,6 +62,7 @@ EXTRACTORS: dict[str, Callable[[Downloader, Path], tuple[object, list[DownloadRe
     "chebi": chebi.extract,
     "enzyme": enzyme.extract,
     "rhea": rhea.extract,
+    "uniprot": uniprot.extract,
 }
 
 
