@@ -1,0 +1,158 @@
+# Glucólisis: vía de referencia (secciones 4 y 5 de docs/MANUAL.md).
+#
+# Cada ID Rhea se eligió con `uv run metabo curar buscar <EC>` a partir de los datos
+# descargados (no de memoria) y se verifica con `uv run metabo curar validar`.
+# Los comentarios copian la ecuación de la reacción maestra tal como la da Rhea 142.
+#
+# Decisiones de curaduría (2026-10-07, aprobadas por Luisa en el hilo del proyecto):
+# - p01: hexocinasa y glucocinasa. El sistema de fosfotransferasa (PTS) de las
+#   bacterias no se incluye aquí; queda para una vía propia.
+# - p03: solo la fosfofructocinasa dependiente de ATP.
+# - p08: las dos fosfoglicerato mutasas (dependiente e independiente de
+#   2,3-bisfosfoglicerato).
+# - p01 incluye también la reacción genérica de la hexocinasa ("a D-hexose + ATP"),
+#   para no dejar sin anotar un organismo cuyas proteínas solo la tengan (decisión
+#   de Luisa, 2026-10-07).
+# - Las reacciones con otros sustratos que Rhea asocia al mismo EC (por ejemplo,
+#   manosa en p01 o GTP en lugar de ATP en p10) no se incluyen.
+#
+# `energia` cuenta una vez cada reacción. Los pasos p06 a p10 ocurren dos veces por
+# cada glucosa porque la aldolasa produce dos triosas fosfato.
+
+id: via:glucolisis
+nombre:
+  es: Glucólisis
+  en: Glycolysis
+categoria: cat:carbohidratos
+compartimento: [citosol]
+
+modulos:
+  - id: m1
+    nombre: Fase preparatoria
+    pasos: [p01, p02, p03, p04, p05]
+    resumen: >-
+      La glucosa se fosforila dos veces, gastando dos ATP, y se divide en dos triosas
+      fosfato.
+  - id: m2
+    nombre: Fase de beneficio
+    pasos: [p06, p07, p08, p09, p10]
+    resumen: >-
+      Cada triosa fosfato se oxida hasta piruvato. Por cada glucosa se forman cuatro ATP
+      y dos NADH, con una ganancia neta de dos ATP.
+
+pasos:
+  - id: p01
+    orden: 1
+    titulo: Fosforilación de la glucosa
+    # RHEA:17825  D-glucose + ATP = D-glucose 6-phosphate + ADP + H(+)
+    # RHEA:22740  a D-hexose + ATP = a D-hexose 6-phosphate + ADP + H(+)
+    reacciones: [RHEA:17825, RHEA:22740]
+    ec: [EC:2.7.1.1, EC:2.7.1.2]  # hexokinase; glucokinase
+    espontaneo: false
+    regulacion: true
+    energia: {ATP: -1}
+
+  - id: p02
+    orden: 2
+    titulo: Isomerización de la glucosa 6-fosfato
+    # RHEA:11816  alpha-D-glucose 6-phosphate = beta-D-fructose 6-phosphate
+    reacciones: [RHEA:11816]
+    ec: [EC:5.3.1.9]  # glucose-6-phosphate isomerase
+    espontaneo: false
+    regulacion: false
+
+  - id: p03
+    orden: 3
+    titulo: Fosforilación de la fructosa 6-fosfato
+    # RHEA:16109  beta-D-fructose 6-phosphate + ATP = beta-D-fructose 1,6-bisphosphate + ADP + H(+)
+    reacciones: [RHEA:16109]
+    ec: [EC:2.7.1.11]  # 6-phosphofructokinase
+    espontaneo: false
+    regulacion: true
+    energia: {ATP: -1}
+
+  - id: p04
+    orden: 4
+    titulo: Ruptura de la fructosa 1,6-bisfosfato
+    # RHEA:14729  beta-D-fructose 1,6-bisphosphate = D-glyceraldehyde 3-phosphate + dihydroxyacetone phosphate
+    reacciones: [RHEA:14729]
+    ec: [EC:4.1.2.13]  # fructose-bisphosphate aldolase
+    espontaneo: false
+    regulacion: false
+
+  - id: p05
+    orden: 5
+    titulo: Isomerización de las triosas fosfato
+    # RHEA:18585  D-glyceraldehyde 3-phosphate = dihydroxyacetone phosphate
+    reacciones: [RHEA:18585]
+    ec: [EC:5.3.1.1]  # triose-phosphate isomerase
+    espontaneo: false
+    regulacion: false
+
+  - id: p06
+    orden: 6
+    titulo: Oxidación del gliceraldehído 3-fosfato
+    # RHEA:10300  D-glyceraldehyde 3-phosphate + phosphate + NAD(+) = (2R)-3-phospho-glyceroyl phosphate + NADH + H(+)
+    reacciones: [RHEA:10300]
+    ec: [EC:1.2.1.12]  # glyceraldehyde-3-phosphate dehydrogenase (phosphorylating)
+    espontaneo: false
+    regulacion: false
+    energia: {NADH: 1}
+
+  - id: p07
+    orden: 7
+    titulo: Primera fosforilación a nivel de sustrato
+    # RHEA:14801  (2R)-3-phosphoglycerate + ATP = (2R)-3-phospho-glyceroyl phosphate + ADP
+    # (Rhea escribe la reacción maestra en sentido inverso al de la glucólisis.)
+    reacciones: [RHEA:14801]
+    ec: [EC:2.7.2.3]  # phosphoglycerate kinase
+    espontaneo: false
+    regulacion: false
+    energia: {ATP: 1}
+
+  - id: p08
+    orden: 8
+    titulo: Isomerización del 3-fosfoglicerato
+    # RHEA:15901  (2R)-2-phosphoglycerate = (2R)-3-phosphoglycerate
+    reacciones: [RHEA:15901]
+    # phosphoglycerate mutase (2,3-diphosphoglycerate-dependent); (…-independent)
+    ec: [EC:5.4.2.11, EC:5.4.2.12]
+    espontaneo: false
+    regulacion: false
+
+  - id: p09
+    orden: 9
+    titulo: Deshidratación del 2-fosfoglicerato
+    # RHEA:10164  (2R)-2-phosphoglycerate = phosphoenolpyruvate + H2O
+    reacciones: [RHEA:10164]
+    ec: [EC:4.2.1.11]  # phosphopyruvate hydratase (enolasa)
+    espontaneo: false
+    regulacion: false
+
+  - id: p10
+    orden: 10
+    titulo: Segunda fosforilación a nivel de sustrato
+    # RHEA:18157  pyruvate + ATP = phosphoenolpyruvate + ADP + H(+)
+    # (Rhea escribe la reacción maestra en sentido inverso al de la glucólisis.)
+    reacciones: [RHEA:18157]
+    ec: [EC:2.7.1.40]  # pyruvate kinase
+    espontaneo: false
+    regulacion: true
+    energia: {ATP: 1}
+
+# TODO: enlazar las vías conectadas (pentosas fosfato, Krebs, fermentaciones) cuando
+# existan en curation/vias/.
+conecta_con: []
+variante_de: null
+# map00010 es el mapa de referencia de KEGG citado en la sección 4 del manual; KEGG
+# es solo enlace (regla 2). TODO: Reactome y WikiPathways cuando se verifiquen en
+# sources.yaml.
+xrefs:
+  - {fuente: kegg, tipo: via_referencia, id: map00010}
+version: "2026.10"
+estado_editorial: borrador
+# Versiones con las que se verificó cada ID (raw/manifest.json).
+fuentes:
+  rhea: "142"
+  enzyme: "2026-09-02"
+  chebi: "256"

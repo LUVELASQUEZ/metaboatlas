@@ -87,3 +87,19 @@ def test_only_official_chebi_urls_are_requested(run_extractor):
         url.startswith("https://ftp.ebi.ac.uk/pub/databases/chebi/flat_files/")
         for url in server.requests
     )
+
+
+def test_read_compound_names(tmp_path):
+    header = chebi.TSV_FILES["compounds.tsv.gz"]
+    rows = [
+        dict.fromkeys(header, "0") | {"chebi_accession": "CHEBI:1", "name": "compuesto ficticio"},
+        dict.fromkeys(header, "0") | {"chebi_accession": "CHEBI:2", "name": "otro\tno"},
+    ]
+    rows[1]["name"] = "otro compuesto"
+    lines = ["\t".join(header)] + ["\t".join(r[h] for h in header) for r in rows]
+    path = tmp_path / "compounds.tsv.gz"
+    path.write_bytes(gzip.compress(("\n".join(lines) + "\n").encode()))
+    assert chebi.read_compound_names(path) == {
+        "CHEBI:1": "compuesto ficticio",
+        "CHEBI:2": "otro compuesto",
+    }

@@ -88,6 +88,7 @@ rhea:
   acceso:
     - ftp.expasy.org/databases/rhea/tsv/  # rhea-directions.tsv, rhea2ec.tsv, rhea2uniprot.tsv
     - ftp.expasy.org/databases/rhea/rhea-release.properties  # número y fecha del release
+    - ftp.expasy.org/databases/rhea/txt/rhea-reactions.txt.gz  # ecuación con participantes ChEBI y EC de cada reacción
   plantillas:
     reaccion: https://www.rhea-db.org/rhea/{id}  # formato de /help/links (p. ej. /rhea/19253)
   cita_recomendada: |-
@@ -99,6 +100,10 @@ rhea:
     Cita copiada de https://www.rhea-db.org/help/publications ("How to cite us"),
     enlazada desde la página de licencia. Licencia confirmada también en
     https://ftp.expasy.org/databases/rhea/LICENSE.txt. DOI comprobado en Crossref.
+    Los participantes ChEBI se toman de txt/rhea-reactions.txt.gz: datos de Rhea en el
+    formato de texto "KEGG REACTION" (solo el formato; no contiene datos de KEGG). Su
+    README lo mantiene por compatibilidad y recomienda otros formatos; si se retira,
+    la alternativa es rdf/rhea.rdf.gz.
     TODO: sparql.rhea-db.org (previsto en el manual) no se agregó a `acceso` porque
     ese dominio no se pudo verificar desde el entorno.
 

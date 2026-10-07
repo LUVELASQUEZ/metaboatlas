@@ -9,6 +9,8 @@ todavía no se descargan; se agregan cuando una etapa los use.
 
 from __future__ import annotations
 
+import csv
+import gzip
 from pathlib import Path
 
 from metabo.download import Downloader
@@ -97,3 +99,12 @@ def extract(downloader: Downloader, raw_dir: Path) -> tuple[str, list[DownloadRe
             "vuelve a ejecutar la extracción."
         )
     return release, records
+
+
+def read_compound_names(path: Path) -> dict[str, str]:
+    """compounds.tsv.gz: ID primario (CURIE, p. ej. CHEBI:15361) -> nombre en inglés."""
+    csv.field_size_limit(1 << 24)
+    with gzip.open(path, "rt", encoding="utf-8", newline="") as handle:
+        return {
+            row["chebi_accession"]: row["name"] for row in csv.DictReader(handle, delimiter="\t")
+        }
