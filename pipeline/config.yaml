@@ -11,8 +11,9 @@ cobertura:
 
 descargas:
   # El User-Agent incluye un correo de contacto, como piden las fuentes.
-  # TODO: definir el correo de contacto del proyecto. Mientras sea null,
-  # el pipeline se niega a descargar.
+  # No se escribe aquí porque el repositorio es público: se lee de la variable
+  # de entorno METABO_CONTACTO (en GitHub Actions, un secreto del repositorio).
+  # Sin ella, el pipeline se niega a descargar.
   contacto: null
   producto: MetaboAtlas
   url_proyecto: https://github.com/LUVELASQUEZ/metaboatlas

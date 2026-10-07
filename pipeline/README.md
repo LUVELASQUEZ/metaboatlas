@@ -16,6 +16,16 @@ uv run pytest            # pruebas
 uv run ruff check . && uv run ruff format --check .   # linter
 ```
 
+## Correo de contacto
+
+Las fuentes piden un correo de contacto en el User-Agent de las descargas automáticas. Como el repositorio es público, el correo **no** se escribe en `config.yaml`: se lee de la variable de entorno `METABO_CONTACTO`.
+
+```bash
+export METABO_CONTACTO="correo-del-proyecto@ejemplo.org"   # en tu terminal
+```
+
+En GitHub Actions viene del secreto del repositorio `METABO_CONTACTO` (*Settings → Secrets and variables → Actions*). Si la variable no existe, el pipeline se niega a descargar. Si no es un correo válido, falla sin mostrar su valor.
+
 ## Estructura
 
 ```
@@ -51,6 +61,6 @@ El descargador (`metabo/download.py`) aplica las reglas 1 a 4 de `CLAUDE.md` ant
 
 ## Pendiente antes de la primera descarga
 
-- **Correo de contacto:** definir `descargas.contacto` en `config.yaml`. Mientras sea `null`, el descargador se niega a crearse.
+- **Correo de contacto:** crear el correo del proyecto y guardarlo como secreto `METABO_CONTACTO` en GitHub.
 - **Fuentes:** verificar en `sources.yaml` la licencia y la cita de cada fuente de la Fase 0 (Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy).
 - **Proteomas:** completar `proteoma_referencia` de cada organismo con datos de UniProt.
