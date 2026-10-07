@@ -13,6 +13,8 @@ interface Props {
   cobertura: Cobertura | null;
   seleccion: Seleccion;
   onSeleccion: (s: Seleccion) => void;
+  /** false en el nivel básico: sin EC ni cofactores. */
+  detallado: boolean;
 }
 
 const CLASES = ["carbohidrato", "lipido", "aminoacido", "nucleotido", "cofactor", "ion_gas", "otro"];
@@ -161,7 +163,7 @@ function ubicarCofactores(cy: Core) {
 }
 
 /** Mapa de la vía con Cytoscape.js (diseño `preset`: las posiciones son las curadas). */
-export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion }: Props) {
+export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion, detallado }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
   const [cy, setCy] = useState<Core | null>(null);
   const alSeleccionar = useRef(onSeleccion);
@@ -218,13 +220,13 @@ export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion }: Props) 
     };
   }, []);
 
-  // Elementos: cambian con el organismo (colores y signos de los rótulos).
+  // Elementos: cambian con el organismo (colores y signos) y con el nivel (detalle).
   useEffect(() => {
     if (!cy) return;
     const primeraVez = cy.elements().length === 0;
     cy.batch(() => {
       cy.elements().remove();
-      cy.add(elementosMapa(vista, cobertura));
+      cy.add(elementosMapa(vista, cobertura, detallado));
     });
     if (primeraVez) ajustar(cy);
     // El ancho de los rótulos se conoce después de dibujarlos con la tipografía final.
@@ -237,7 +239,7 @@ export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion }: Props) 
       vigente = false;
       cancelAnimationFrame(cuadro);
     };
-  }, [cy, vista, cobertura]);
+  }, [cy, vista, cobertura, detallado]);
 
   // Resalta el elemento elegido.
   const pasoElegido = seleccion?.tipo === "paso" ? seleccion.id : null;
@@ -251,7 +253,7 @@ export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion }: Props) 
     } else if (compuestoElegido) {
       cy.getElementById(compuestoElegido).addClass("elegido");
     }
-  }, [cy, pasoElegido, compuestoElegido, cobertura]);
+  }, [cy, pasoElegido, compuestoElegido, cobertura, detallado]);
 
   const zoom = (factor: number) => {
     if (!cy) return;

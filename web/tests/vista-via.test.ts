@@ -198,6 +198,12 @@ describe("elementos del mapa", () => {
     expect(textoCofactores(vista, "p02")).toBe("coin → spent coin");
   });
 
+  it("en el nivel básico oculta los EC y los cofactores", () => {
+    const elementos = elementosMapa(vista, null, false);
+    expect(elementos.some((e) => e.data.tipo === "cofactores")).toBe(false);
+    expect(elementos.find((e) => e.data.id === "paso:p01")!.data.etiqueta).toBe("1. enzima uno ◆");
+  });
+
   it("cada rótulo tiene su propia posición (Cytoscape no debe compartir objetos)", () => {
     const elementos = elementosMapa(vista, null);
     const rotulo = elementos.find((e) => e.data.id === "paso:p01")!;

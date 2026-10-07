@@ -93,3 +93,55 @@ a {
     transition: none !important;
   }
 }
+
+/* Contenido didáctico: solo se ve el bloque del nivel elegido (sección 10 del manual). */
+[data-nivel-activo="basico"] [data-nivel]:not([data-nivel="basico"]),
+[data-nivel-activo="intermedio"] [data-nivel]:not([data-nivel="intermedio"]),
+[data-nivel-activo="avanzado"] [data-nivel]:not([data-nivel="avanzado"]) {
+  display: none;
+}
+
+.prosa {
+  max-width: 72ch;
+}
+.prosa h2 {
+  margin-top: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+.prosa h3 {
+  margin-top: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.prosa p,
+.prosa ul,
+.prosa table {
+  margin-top: 0.75rem;
+}
+.prosa ul {
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+.prosa li + li {
+  margin-top: 0.4rem;
+}
+.prosa table {
+  border-collapse: collapse;
+}
+.prosa caption {
+  caption-side: bottom;
+  padding-top: 0.4rem;
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+}
+.prosa th,
+.prosa td {
+  border: 1px solid var(--borde);
+  padding: 0.3rem 0.75rem;
+  text-align: left;
+}
+.prosa td {
+  font-variant-numeric: tabular-nums;
+}

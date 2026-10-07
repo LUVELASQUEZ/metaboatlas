@@ -22,11 +22,16 @@ export const idPaso = (paso: string) => `paso:${paso}`;
 export const idCofactores = (paso: string) => `cofactores:${paso}`;
 
 /** Texto del rótulo de un paso: enzima y EC, con marcas que no dependen del color. */
-export function textoRotulo(vista: VistaVia, pasoId: string, estado: Estado | null): string {
+export function textoRotulo(
+  vista: VistaVia,
+  pasoId: string,
+  estado: Estado | null,
+  conEc = true,
+): string {
   const paso = vista.pasos.find((p) => p.id === pasoId)!;
   const enzima = paso.enzimas[0] ? vista.enzimas[paso.enzimas[0]]?.nombre : undefined;
   const titulo = `${paso.orden}. ${enzima ?? paso.titulo}${paso.regulacion ? ` ${MARCA_REGULADO}` : ""}`;
-  const ec = paso.enzimas.map((e) => e.replace("EC:", "")).join(", ");
+  const ec = !conEc ? "" : paso.enzimas.map((e) => e.replace("EC:", "")).join(", ");
   const duda = estado === "sin_anotacion" ? " (?)" : "";
   return ec ? `${titulo}\nEC ${ec}${duda}` : `${titulo}${duda}`;
 }
@@ -39,7 +44,12 @@ export function textoCofactores(vista: VistaVia, pasoId: string): string | null 
   return `${nombres(paso.consume)} → ${nombres(paso.produce)}`.trim();
 }
 
-export function elementosMapa(vista: VistaVia, cobertura: Cobertura | null): Elemento[] {
+/** Elementos del mapa. Sin `detallado` (nivel básico) se omiten los EC y los cofactores. */
+export function elementosMapa(
+  vista: VistaVia,
+  cobertura: Cobertura | null,
+  detallado = true,
+): Elemento[] {
   const mapa = vista.mapa;
   if (!mapa) return [];
   const elementos: Elemento[] = [];
@@ -73,13 +83,13 @@ export function elementosMapa(vista: VistaVia, cobertura: Cobertura | null): Ele
         id: idPaso(f.paso),
         tipo: "rotulo",
         paso: f.paso,
-        etiqueta: textoRotulo(vista, f.paso, estado),
+        etiqueta: textoRotulo(vista, f.paso, estado, detallado),
         estado: estado ?? "neutro",
         regulado: paso?.regulacion ?? false,
       },
       position: { ...f.rotulo },
     });
-    const cofactores = textoCofactores(vista, f.paso);
+    const cofactores = detallado ? textoCofactores(vista, f.paso) : null;
     if (cofactores) {
       elementos.push({
         group: "nodes",

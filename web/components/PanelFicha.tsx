@@ -28,10 +28,11 @@ interface Props {
   cobertura: Cobertura | null;
   organismo: OrganismoVista | null;
   onSeleccion: (s: Seleccion) => void;
+  textosPasos: Record<string, string>;
 }
 
 /** Panel lateral: resumen de la vía o ficha del paso o compuesto elegido. */
-export function PanelFicha({ vista, seleccion, cobertura, organismo, onSeleccion }: Props) {
+export function PanelFicha({ vista, seleccion, cobertura, organismo, onSeleccion, textosPasos }: Props) {
   return (
     <aside
       aria-labelledby="titulo-ficha"
@@ -45,6 +46,7 @@ export function PanelFicha({ vista, seleccion, cobertura, organismo, onSeleccion
           cobertura={cobertura}
           organismo={organismo}
           onSeleccion={onSeleccion}
+          texto={textosPasos[seleccion.id]}
         />
       )}
       {seleccion?.tipo === "compuesto" && (
@@ -104,8 +106,10 @@ function FichaPaso({
   cobertura,
   organismo,
   onSeleccion,
+  texto,
 }: {
   vista: VistaVia;
+  texto?: string;
   paso: PasoVista;
   cobertura: Cobertura | null;
   organismo: OrganismoVista | null;
@@ -124,6 +128,7 @@ function FichaPaso({
       <h2 id="titulo-ficha" className="text-2xl font-semibold">
         {paso.titulo}
       </h2>
+      {texto && <p>{texto}</p>}
       {paso.regulacion && (
         <p className="text-sm">
           <span aria-hidden="true">{MARCA_REGULADO} </span>Paso regulado: es un punto de control de
