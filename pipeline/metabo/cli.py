@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from collections.abc import Callable, Sequence
 from datetime import date
 from pathlib import Path
 
 from metabo import __version__, curation
 from metabo.config import load_config
+from metabo.coverage import compute
 from metabo.download import Downloader
 from metabo.errors import PipelineError
 from metabo.manifest import DownloadRecord, Manifest
@@ -139,6 +141,49 @@ def cmd_curar_validar(args: argparse.Namespace) -> int:
     return 1 if failed else 0
 
 
+def cmd_cobertura(args: argparse.Namespace) -> int:
+    config = load_config()
+    root = repo_root()
+    raw_dir = root / config.directorios.crudos
+    organisms = load_organisms()
+    if args.taxon:
+        organisms = [o for o in organisms if o.id in args.taxon]
+        unknown = set(args.taxon) - {o.id for o in organisms}
+        if unknown:
+            print(f"No están en organismos.yaml: {', '.join(sorted(unknown))}", file=sys.stderr)
+            return 1
+    skipped = [o for o in organisms if o.proteoma_referencia is None]
+    organisms = [o for o in organisms if o.proteoma_referencia is not None]
+    paths = [Path(p) for p in args.vias] or sorted((root / "curation" / "vias").glob("*.yaml"))
+    vias = [curation.load_via(path) for path in paths]
+    for via, path in zip(vias, paths, strict=True):
+        errors = curation.check_structure(via)
+        if errors:
+            raise PipelineError(f"{path.name} no es válida: " + "; ".join(errors))
+
+    inputs = compute.CoverageInputs.from_raw(raw_dir, organisms)
+    documents = compute.compute_all(
+        vias, organisms, inputs, compute.thresholds(config.cobertura.umbrales), date.today()
+    )
+    version_datos = Manifest.read(raw_dir / "manifest.json").version_datos
+    out_dir = root / config.directorios.salida / version_datos
+    written = compute.write_documents(documents, out_dir)
+
+    names = {o.id: o.nombre for o in organisms}
+    for document in documents:
+        counts = Counter(p["estado"] for p in document["pasos"].values())
+        detail = ", ".join(f"{k} {v}" for k, v in sorted(counts.items()))
+        print(
+            f"{document['via']:<20} {names[document['taxon']]:<32} "
+            f"{document['cobertura']:>5} %  {document['clase']:<14} ({detail})"
+        )
+    for organism in skipped:
+        print(f"Sin proteoma de referencia, se omite: {organism.id} {organism.nombre}")
+    versions = ", ".join(f"{k} {v}" for k, v in inputs.versiones.items())
+    print(f"{len(written)} archivos en {out_dir / 'cobertura'} (calculado con {versions})")
+    return 0
+
+
 def cmd_build(_: argparse.Namespace) -> int:
     registry, n_organisms = _load_all()
     downloadable = [s.nombre for s in registry if s.downloadable]
@@ -180,6 +225,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     validar.add_argument("archivos", nargs="*", help="vías a verificar (por defecto, todas)")
     validar.set_defaults(func=cmd_curar_validar)
+    cobertura = sub.add_parser(
+        "cobertura", help="calcula la cobertura de cada vía curada en cada organismo"
+    )
+    cobertura.add_argument("vias", nargs="*", help="vías de curation/vias/ (por defecto, todas)")
+    cobertura.add_argument(
+        "--taxon", action="append", help="solo este organismo (p. ej. taxon:511145); repetible"
+    )
+    cobertura.set_defaults(func=cmd_cobertura)
     return parser
 
 

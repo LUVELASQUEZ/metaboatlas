@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from metabo.errors import ConfigError
-from metabo.manifest import DownloadRecord, Manifest
+from metabo.manifest import Manifest
 from metabo.schemas import validation_errors
 from metabo.sources import chebi, enzyme, rhea
 from metabo.sources.enzyme import EnzymeEntry
@@ -27,25 +27,6 @@ REQUIRED_FILES: dict[str, tuple[str, ...]] = {
     "enzyme": ("enzyme.dat",),
     "chebi": ("compounds.tsv.gz",),
 }
-
-
-def _latest_files(manifest: Manifest, fuente: str) -> tuple[str, dict[str, str]]:
-    """Versión más reciente descargada de `fuente` y sus archivos (nombre -> ruta en raw/)."""
-    records: list[DownloadRecord] = [d for d in manifest.descargas if d.fuente == fuente]
-    if not records:
-        raise ConfigError(
-            f"No hay descargas de {fuente} en raw/manifest.json: "
-            f"ejecuta `uv run metabo extraer {fuente}`."
-        )
-    latest = max(records, key=lambda d: (d.fecha_descarga, d.version))
-    files = {Path(d.archivo).name: d.archivo for d in records if d.version == latest.version}
-    missing = [name for name in REQUIRED_FILES[fuente] if name not in files]
-    if missing:
-        raise ConfigError(
-            f"La versión {latest.version} de {fuente} no tiene {', '.join(missing)}: "
-            f"vuelve a ejecutar `uv run metabo extraer {fuente}`."
-        )
-    return latest.version, files
 
 
 @dataclass(frozen=True)
@@ -71,7 +52,7 @@ class ReferenceData:
         versions: dict[str, str] = {}
         paths: dict[str, Path] = {}
         for fuente in REQUIRED_FILES:
-            versions[fuente], files = _latest_files(manifest, fuente)
+            versions[fuente], files = manifest.latest(fuente, REQUIRED_FILES[fuente])
             for name in REQUIRED_FILES[fuente]:
                 paths[name] = raw_dir / files[name]
         return cls(
