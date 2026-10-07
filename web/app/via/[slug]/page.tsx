@@ -5,8 +5,12 @@ import { VistaVia } from "@/components/VistaVia";
 import { BalanceEnergetico } from "@/components/contenido/BalanceEnergetico";
 import { ContenidoNiveles, NivelActivo } from "@/components/contenido/ContenidoNiveles";
 import { Nivel } from "@/components/contenido/Nivel";
+import { Autoevaluacion } from "@/components/contenido/Autoevaluacion";
 import { RefPendiente } from "@/components/contenido/RefPendiente";
+import { TerminoGlosario } from "@/components/contenido/TerminoGlosario";
 import { compilarContenido, leerContenidoVia, validarContenido } from "@/lib/contenido";
+import { leerGlosario } from "@/lib/glosario";
+import { leerPreguntas, type Pregunta, validarPreguntas } from "@/lib/preguntas";
 import { Paquete } from "@/lib/datos";
 import { leerFuentes } from "@/lib/fuentes";
 import { NIVEL_INICIAL } from "@/lib/niveles";
@@ -46,6 +50,11 @@ export default async function ViaPage({ params }: Props) {
     const errores = validarContenido(contenido, via);
     if (errores.length > 0) throw new Error(`content/vias/${slug}.mdx: ${errores.join("; ")}`);
   }
+  const autoevaluacion = leerPreguntas(slug);
+  if (autoevaluacion) {
+    const errores = validarPreguntas(autoevaluacion, via);
+    if (errores.length > 0) throw new Error(`content/preguntas/${slug}.json: ${errores.join("; ")}`);
+  }
   // Versiones de todas las fuentes que alimentan la página: la vía, la cobertura y
   // los organismos.
   const versiones: Record<string, string> = { ...via.fuentes };
@@ -70,7 +79,12 @@ export default async function ViaPage({ params }: Props) {
         <VistaVia vista={vista} textosPasos={contenido?.meta.pasos} />
       </Suspense>
       {contenido ? (
-        <Explicacion via={via} cuerpo={contenido.cuerpo} meta={contenido.meta} />
+        <Explicacion
+          via={via}
+          cuerpo={contenido.cuerpo}
+          meta={contenido.meta}
+          preguntas={autoevaluacion?.preguntas ?? []}
+        />
       ) : (
         <p className="text-tinta-suave">Esta vía aún no tiene explicación didáctica.</p>
       )}
@@ -83,18 +97,34 @@ async function Explicacion({
   via,
   cuerpo,
   meta,
+  preguntas,
 }: {
   via: Via;
   cuerpo: string;
   meta: NonNullable<ReturnType<typeof leerContenidoVia>>["meta"];
+  preguntas: Pregunta[];
 }) {
-  const Contenido = await compilarContenido(cuerpo);
+  const glosario = leerGlosario();
+  const breve = Object.fromEntries(glosario.map((t) => [t.id, t.breve]));
+  const titulos = Object.fromEntries(via.pasos.map((p) => [p.id, p.titulo]));
+  const Contenido = await compilarContenido(cuerpo, glosario);
   const texto = (
     <Contenido
       components={{
         Nivel,
         RefPendiente,
         BalanceEnergetico: (props: { duplicados?: string[] }) => <BalanceEnergetico via={via} {...props} />,
+        TerminoGlosario: ({ id, children }: { id: string; children: React.ReactNode }) => (
+          <TerminoGlosario id={id} breve={breve[id]}>
+            {children}
+          </TerminoGlosario>
+        ),
+        Autoevaluacion: () =>
+          preguntas.length > 0 ? (
+            <Autoevaluacion preguntas={preguntas} titulos={titulos} />
+          ) : (
+            <p>Esta vía aún no tiene preguntas.</p>
+          ),
       }}
     />
   );

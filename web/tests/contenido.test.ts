@@ -43,6 +43,7 @@ describe.each(slugs)("content/vias/%s.mdx", (slug) => {
             createElement("section", { "data-nivel": nivel }, children),
           RefPendiente: () => null,
           BalanceEnergetico: () => null,
+          Autoevaluacion: () => null,
         },
       }),
     );

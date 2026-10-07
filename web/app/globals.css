@@ -145,3 +145,9 @@ a {
 .prosa td {
   font-variant-numeric: tabular-nums;
 }
+
+.termino-glosario {
+  color: inherit;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+}

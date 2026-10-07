@@ -29,7 +29,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Link href="/" className="font-serif text-xl font-semibold text-tinta no-underline">
               MetaboAtlas
             </Link>
-            <nav aria-label="Principal">
+            <nav aria-label="Principal" className="flex gap-4">
+              <Link href="/glosario/">Glosario</Link>
               <Link href="/fuentes/">Fuentes y licencias</Link>
             </nav>
           </div>

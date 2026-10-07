@@ -1,0 +1,115 @@
+{
+  "via": "via:glucolisis",
+  "estado_editorial": "borrador",
+  "generado_con_ia": true,
+  "revisores": [],
+  "actualizado": "2026-10-07",
+  "preguntas": [
+    {
+      "id": "atp-neto",
+      "nivel": "basico",
+      "tipo": "opcion_multiple",
+      "enunciado": "¿Cuántos ATP gana la célula, en total neto, por cada glucosa que recorre la glucólisis?",
+      "opciones": ["Ninguno", "Dos", "Cuatro", "Seis"],
+      "correcta": 1,
+      "explicacion": "Se forman cuatro ATP en la fase de beneficio, pero se gastaron dos en la fase preparatoria.",
+      "verifica": { "molecula": "ATP", "glucosas": 1, "valores": [0, 2, 4, 6] }
+    },
+    {
+      "id": "producto-final",
+      "nivel": "basico",
+      "tipo": "opcion_multiple",
+      "enunciado": "¿Cuál es el producto final de la glucólisis?",
+      "opciones": ["Lactato", "Acetil-CoA", "Piruvato", "Etanol"],
+      "correcta": 2,
+      "explicacion": "La vía termina en piruvato. El lactato, el etanol y el acetil-CoA se forman después, en otras vías.",
+      "verifica": { "compuesto_final": "CHEBI:15361" }
+    },
+    {
+      "id": "oxigeno",
+      "nivel": "basico",
+      "tipo": "opcion_multiple",
+      "enunciado": "¿Necesita oxígeno la glucólisis?",
+      "opciones": [
+        "Sí, en el último paso",
+        "No; el oxígeno decide qué pasa después con el piruvato",
+        "Solo en bacterias",
+        "Solo en el músculo"
+      ],
+      "correcta": 1,
+      "explicacion": "Ningún paso de la glucólisis usa oxígeno. El oxígeno cambia el destino del piruvato y del NADH, no la vía."
+    },
+    {
+      "id": "orden-preparatoria",
+      "nivel": "intermedio",
+      "tipo": "ordenar_pasos",
+      "enunciado": "Ordena los pasos de la fase preparatoria, del primero al último.",
+      "pasos": ["p01", "p02", "p03", "p04", "p05"],
+      "explicacion": "Primero se fosforila la glucosa, luego se isomeriza, se fosforila otra vez, se rompe en dos triosas y estas se igualan."
+    },
+    {
+      "id": "paso-nadh",
+      "nivel": "intermedio",
+      "tipo": "opcion_multiple",
+      "enunciado": "¿En qué paso se forma NADH?",
+      "opciones": [
+        "Paso 1, fosforilación de la glucosa",
+        "Paso 4, ruptura de la fructosa 1,6-bisfosfato",
+        "Paso 6, oxidación del gliceraldehído 3-fosfato",
+        "Paso 10, segunda fosforilación a nivel de sustrato"
+      ],
+      "correcta": 2,
+      "explicacion": "La gliceraldehído 3-fosfato deshidrogenasa es la única enzima de la vía que oxida su sustrato y reduce NAD+.",
+      "verifica": { "paso_con": "NADH", "pasos": ["p01", "p04", "p06", "p10"] }
+    },
+    {
+      "id": "control-principal",
+      "nivel": "intermedio",
+      "tipo": "opcion_multiple",
+      "enunciado": "¿Cuál de estas enzimas cataliza un paso regulado de la glucólisis?",
+      "opciones": ["Fosfoglicerato mutasa", "Enolasa", "Fosfofructocinasa", "Triosa fosfato isomerasa"],
+      "correcta": 2,
+      "explicacion": "La fosfofructocinasa cataliza el paso 3, el principal punto de control. Las otras tres operan cerca del equilibrio.",
+      "verifica": { "paso_regulado": ["p08", "p09", "p03", "p05"] }
+    },
+    {
+      "id": "lactato-tres-glucosas",
+      "nivel": "intermedio",
+      "tipo": "opcion_multiple",
+      "enunciado": "Una célula fermenta tres glucosas hasta lactato. ¿Cuántos ATP netos obtiene de la glucólisis?",
+      "opciones": ["Dos", "Tres", "Seis", "Doce"],
+      "correcta": 2,
+      "explicacion": "Cada glucosa da dos ATP netos. Reducir el piruvato a lactato regenera el NAD+, pero no forma ATP.",
+      "verifica": { "molecula": "ATP", "glucosas": 3, "valores": [2, 3, 6, 12] }
+    },
+    {
+      "id": "dos-mutasas",
+      "nivel": "avanzado",
+      "tipo": "opcion_multiple",
+      "enunciado": "¿Por qué el paso 8 incluye dos fosfoglicerato mutasas distintas?",
+      "opciones": [
+        "Porque el paso ocurre dos veces por glucosa",
+        "Porque hay una forma dependiente y otra independiente de 2,3-bisfosfoglicerato, y cada organismo tiene una u otra (o ambas)",
+        "Porque una actúa en el citosol y la otra en la mitocondria",
+        "Porque una fosforila y la otra desfosforila"
+      ],
+      "correcta": 1,
+      "explicacion": "Son enzimas sin parentesco que catalizan la misma reacción (EC 5.4.2.11 y EC 5.4.2.12). Incluir ambas evita dar por ausente el paso en un organismo que solo tiene una.",
+      "verifica": { "ec_del_paso": { "paso": "p08", "ec": ["EC:5.4.2.11", "EC:5.4.2.12"] } }
+    },
+    {
+      "id": "sin-anotacion",
+      "nivel": "avanzado",
+      "tipo": "opcion_multiple",
+      "enunciado": "Un paso aparece como «sin anotación» en un organismo. ¿Qué se puede concluir?",
+      "opciones": [
+        "Que el organismo no tiene la enzima",
+        "Que la vía no funciona en ese organismo",
+        "Que no se encontró evidencia en las bases de datos; la enzima puede existir sin caracterizar",
+        "Que el paso ocurre sin enzima"
+      ],
+      "correcta": 2,
+      "explicacion": "La cobertura depende de las anotaciones. La falta de anotación no prueba que la enzima falte."
+    }
+  ]
+}
