@@ -2,7 +2,7 @@
 
 Pipeline de datos de MetaboAtlas en Python 3.12 (gestor `uv`). Descarga las fuentes registradas en [`../sources.yaml`](../sources.yaml), las normaliza en DuckDB, integra la curaduría, calcula la cobertura, valida contra [`../schema/`](../schema/) y exporta el paquete de datos. Ver la sección 6 de [`docs/MANUAL.md`](../docs/MANUAL.md).
 
-> **Estado:** las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) están verificadas en `sources.yaml`. Ya existen los extractores de Rhea, ENZYME y ChEBI (`uv run metabo extraer rhea|enzyme|chebi`); los de UniProt y NCBI Taxonomy y el resto de las etapas de `build` se implementan en las próximas tareas.
+> **Estado:** las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) están verificadas en `sources.yaml`. Ya existen los extractores de Rhea, ENZYME y ChEBI (`uv run metabo extraer rhea|enzyme|chebi`) y las ayudas de curaduría (`uv run metabo curar buscar|validar`); los de UniProt y NCBI Taxonomy y el resto de las etapas de `build` se implementan en las próximas tareas.
 
 ## Uso
 
@@ -12,6 +12,8 @@ uv sync                  # instala Python 3.12 y las dependencias
 uv run metabo validate   # valida config.yaml, organismos.yaml y sources.yaml
 uv run metabo fuentes    # lista las fuentes y si se pueden descargar
 uv run metabo extraer rhea   # descarga la versión vigente de una fuente (rhea, enzyme, chebi) a raw/ y actualiza raw/manifest.json
+uv run metabo curar buscar 2.7.1.1   # reacciones Rhea maestras de un EC, con su ecuación y sus ChEBI
+uv run metabo curar validar          # verifica los IDs de curation/vias/*.yaml contra raw/ (necesita rhea, enzyme y chebi descargados)
 uv run metabo build      # recorre las etapas (por ahora, solo las enumera)
 uv run pytest            # pruebas
 uv run ruff check . && uv run ruff format --check .   # linter
@@ -35,13 +37,14 @@ pipeline/
 ├─ organismos.yaml      # lista curada de organismos (el código no asume un número fijo)
 ├─ pyproject.toml       # dependencias y comando `metabo`
 ├─ metabo/
-│  ├─ cli.py            # comandos build, validate, fuentes y extraer
+│  ├─ cli.py            # comandos build, validate, fuentes, extraer y curar
 │  ├─ config.py         # lectura y validación de config.yaml
 │  ├─ organisms.py      # lectura y validación de organismos.yaml
 │  ├─ registry.py       # sources.yaml: qué se puede descargar y cómo se enlaza
 │  ├─ download.py       # descargador común
 │  ├─ manifest.py       # manifest.json con SHA-256
 │  ├─ schemas.py        # validación contra schema/
+│  ├─ curation.py       # búsqueda y verificación de IDs de curation/vias/ contra raw/
 │  ├─ sources/          # un extractor por base de datos (rhea.py, enzyme.py, chebi.py; los demás, próximas tareas)
 │  ├─ transform/        # normalización e integración de la curaduría
 │  ├─ coverage/         # algoritmo de cobertura

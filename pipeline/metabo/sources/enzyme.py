@@ -13,6 +13,7 @@ Ambos archivos declaran su release ("Release: 02-Sep-2026" y "Release of
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from metabo.download import Downloader
@@ -83,3 +84,60 @@ def extract(downloader: Downloader, raw_dir: Path) -> tuple[str, list[DownloadRe
         check(text)
         records.append(record)
     return version, records
+
+
+# ---------------------------------------------------------------------------
+# Lectura de enzyme.dat para la curaduría
+# ---------------------------------------------------------------------------
+
+_TRANSFERRED = re.compile(r"^Transferred entry:\s*(.+?)\.?$")
+
+
+@dataclass(frozen=True)
+class EnzymeEntry:
+    ec: str  # CURIE, p. ej. EC:2.7.1.1
+    nombre: str
+    eliminada: bool
+    transferida_a: tuple[str, ...]  # CURIE de los EC que la reemplazan
+
+    @property
+    def vigente(self) -> bool:
+        return not self.eliminada and not self.transferida_a
+
+
+def _entry(ec: str, description: str) -> EnzymeEntry:
+    transferred = _TRANSFERRED.match(description)
+    targets: tuple[str, ...] = ()
+    if transferred:
+        targets = tuple(
+            f"EC:{t}" for t in re.findall(r"[1-7]\.[0-9]+\.[0-9]+\.n?[0-9]+", transferred.group(1))
+        )
+    return EnzymeEntry(
+        ec=f"EC:{ec}",
+        nombre=description.removesuffix("."),
+        eliminada=description.startswith("Deleted entry"),
+        transferida_a=targets,
+    )
+
+
+def parse_entries(text: str) -> dict[str, EnzymeEntry]:
+    """Entradas de enzyme.dat (líneas ID y DE, terminadas en '//'), indexadas por CURIE."""
+    entries: dict[str, EnzymeEntry] = {}
+    ec: str | None = None
+    description: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("ID   "):
+            ec, description = line[5:].strip(), []
+        elif line.startswith("DE   ") and ec is not None:
+            description.append(line[5:].strip())
+        elif line.startswith("//") and ec is not None:
+            if not description:
+                raise SourceFormatError(f"enzyme.dat: la entrada {ec} no tiene línea DE.")
+            entry = _entry(ec, " ".join(description))
+            entries[entry.ec] = entry
+            ec = None
+    return entries
+
+
+def read_entries(path: Path) -> dict[str, EnzymeEntry]:
+    return parse_entries(path.read_text(encoding="utf-8"))

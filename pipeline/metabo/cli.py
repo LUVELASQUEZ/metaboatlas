@@ -8,7 +8,7 @@ from collections.abc import Callable, Sequence
 from datetime import date
 from pathlib import Path
 
-from metabo import __version__
+from metabo import __version__, curation
 from metabo.config import load_config
 from metabo.download import Downloader
 from metabo.errors import PipelineError
@@ -88,6 +88,56 @@ def cmd_extraer(args: argparse.Namespace) -> int:
     return 0
 
 
+def _reference_data() -> curation.ReferenceData:
+    config = load_config()
+    return curation.ReferenceData.from_raw(repo_root() / config.directorios.crudos)
+
+
+def cmd_curar_buscar(args: argparse.Namespace) -> int:
+    ec = args.ec if args.ec.startswith("EC:") else f"EC:{args.ec}"
+    data = _reference_data()
+    entry = data.enzimas.get(ec)
+    if entry is None:
+        print(f"{ec} no existe en enzyme.dat (ENZYME {data.versiones['enzyme']}).")
+    else:
+        estado = "vigente" if entry.vigente else "NO VIGENTE"
+        print(f"{ec}  {entry.nombre}  ({estado}, ENZYME {data.versiones['enzyme']})")
+    reactions = curation.search_ec(data, ec)
+    print(
+        f"Reacciones maestras de Rhea {data.versiones['rhea']} asociadas a {ec}: {len(reactions)}"
+    )
+    for reaction in reactions:
+        print(f"  {reaction.id}  {reaction.definicion}")
+        participants = ", ".join(
+            f"{c} ({data.compuestos.get(c, '¿no está en ChEBI?')})" for c in sorted(reaction.chebi)
+        )
+        print(f"      {participants}")
+    return 0
+
+
+def cmd_curar_validar(args: argparse.Namespace) -> int:
+    paths = [Path(p) for p in args.archivos] or sorted(
+        (repo_root() / "curation" / "vias").glob("*.yaml")
+    )
+    if not paths:
+        print("No hay vías en curation/vias/.")
+        return 0
+    data = _reference_data()
+    failed = 0
+    for path in paths:
+        errors = curation.check_via(curation.load_via(path), data)
+        if errors:
+            failed += 1
+            print(f"ERROR {path.name}:")
+            for error in errors:
+                print(f"  - {error}")
+        else:
+            print(f"OK {path.name}")
+    versions = ", ".join(f"{k} {v}" for k, v in data.versiones.items())
+    print(f"Verificado contra: {versions}")
+    return 1 if failed else 0
+
+
 def cmd_build(_: argparse.Namespace) -> int:
     registry, n_organisms = _load_all()
     downloadable = [s.nombre for s in registry if s.downloadable]
@@ -118,6 +168,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     extraer.add_argument("fuente", choices=sorted(EXTRACTORS))
     extraer.set_defaults(func=cmd_extraer)
+    curar = sub.add_parser(
+        "curar", help="ayudas para curar vías con los datos descargados en raw/"
+    ).add_subparsers(dest="accion", required=True)
+    buscar = curar.add_parser("buscar", help="lista las reacciones Rhea de un número EC")
+    buscar.add_argument("ec", help="número EC, p. ej. 2.7.1.1 o EC:2.7.1.1")
+    buscar.set_defaults(func=cmd_curar_buscar)
+    validar = curar.add_parser(
+        "validar", help="verifica los IDs Rhea, EC y ChEBI de las vías de curation/vias/"
+    )
+    validar.add_argument("archivos", nargs="*", help="vías a verificar (por defecto, todas)")
+    validar.set_defaults(func=cmd_curar_validar)
     return parser
 
 

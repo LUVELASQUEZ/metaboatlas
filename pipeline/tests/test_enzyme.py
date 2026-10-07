@@ -78,3 +78,37 @@ def test_only_official_enzyme_urls_are_requested(run_extractor):
     assert all(
         url.startswith("https://ftp.expasy.org/databases/enzyme/") for url in server.requests
     )
+
+
+ENTRIES = """CC   Release of 02-Sep-2026
+//
+ID   7.99.99.1
+DE   enzima ficticia de
+DE   nombre largo.
+//
+ID   7.99.99.2
+DE   Transferred entry: 7.99.99.1 and 7.99.99.3.
+//
+ID   7.99.99.3
+DE   Deleted entry.
+//
+ID   7.99.99.n4
+DE   enzima ficticia preliminar.
+//
+"""
+
+
+def test_parse_entries_marks_transferred_and_deleted_numbers():
+    entries = enzyme.parse_entries(ENTRIES)
+    assert set(entries) == {"EC:7.99.99.1", "EC:7.99.99.2", "EC:7.99.99.3", "EC:7.99.99.n4"}
+    assert entries["EC:7.99.99.1"].nombre == "enzima ficticia de nombre largo"
+    assert entries["EC:7.99.99.1"].vigente
+    assert entries["EC:7.99.99.2"].transferida_a == ("EC:7.99.99.1", "EC:7.99.99.3")
+    assert not entries["EC:7.99.99.2"].vigente
+    assert entries["EC:7.99.99.3"].eliminada
+    assert not entries["EC:7.99.99.3"].vigente
+
+
+def test_parse_entries_rejects_entries_without_description():
+    with pytest.raises(SourceFormatError, match=r"7\.99\.99\.1"):
+        enzyme.parse_entries("ID   7.99.99.1\n//\n")
