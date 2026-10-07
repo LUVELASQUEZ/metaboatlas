@@ -43,6 +43,12 @@ Estas reglas quedan para la etapa de validación del pipeline (integridad refere
 - Que `cobertura` y `clase` sean coherentes con los estados de los pasos y con los umbrales de `pipeline/config.yaml`.
 - Que una fuente con `estado: pendiente de verificar` no se use para descargar datos.
 
+## Casos del algoritmo de cobertura
+
+[`casos/cobertura.json`](casos/cobertura.json) es la especificación ejecutable del algoritmo de la sección 5 del manual: cada caso da los pasos de una vía, las proteínas de un organismo y el resultado esperado. La implementación Python (`pipeline/metabo/coverage/`) y la TypeScript del modo en vivo (`web/lib/`) deben pasar los mismos casos. Si cambia una regla, se cambia aquí primero.
+
+Sus IDs son centinelas, como los de los ejemplos: Rhea por debajo de 10000 (el ID más bajo de Rhea 142 es 10000), EC de la clase 9 (no existe) y accesiones UniProt `Z9Z99n`, que no aparecen en los proteomas descargados.
+
 ## Ejemplos y validación
 
 `ejemplos/validos/<esquema>.json` deben pasar y `ejemplos/invalidos/<esquema>--<motivo>.json` deben fallar.

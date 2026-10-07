@@ -1,0 +1,234 @@
+{
+  "descripcion": "Casos de la especificación del algoritmo de cobertura (sección 5 de docs/MANUAL.md). Los pasan la implementación Python (pipeline/metabo/coverage/) y la TypeScript (web/lib/). Todos los IDs son ficticios: prueban la lógica, no son datos.",
+  "umbrales": { "completa": 100, "casi_completa": 80, "parcial": 30 },
+  "casos": [
+    {
+      "nombre": "Un paso espontáneo cuenta como presente y no cita proteínas",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": [], "espontaneo": true }],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000"], "ec": [] }],
+      "esperado": {
+        "cobertura": 100,
+        "clase": "completa",
+        "pasos": { "p01": { "estado": "espontaneo", "proteinas": [] } }
+      }
+    },
+    {
+      "nombre": "Proteína revisada con la reacción Rhea: evidencia alta; solo se citan las revisadas",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] }],
+      "proteinas": [
+        { "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] },
+        { "accession": "UNIPROT:Z9Z992", "revisada": false, "rhea": ["RHEA:1000"], "ec": [] }
+      ],
+      "esperado": {
+        "cobertura": 100,
+        "clase": "completa",
+        "pasos": { "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] } }
+      }
+    },
+    {
+      "nombre": "Solo una proteína no revisada con la reacción Rhea: evidencia media, que también cuenta como presente",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] }],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z992", "revisada": false, "rhea": ["RHEA:1000"], "ec": [] }],
+      "esperado": {
+        "cobertura": 100,
+        "clase": "completa",
+        "pasos": { "p01": { "estado": "media", "proteinas": ["UNIPROT:Z9Z992"] } }
+      }
+    },
+    {
+      "nombre": "Rhea tiene prioridad sobre EC: una revisada con solo el EC no le gana a una no revisada con la reacción",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] }],
+      "proteinas": [
+        { "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": [], "ec": ["EC:9.9.9.1"] },
+        { "accession": "UNIPROT:Z9Z992", "revisada": false, "rhea": ["RHEA:1000"], "ec": [] }
+      ],
+      "esperado": {
+        "cobertura": 100,
+        "clase": "completa",
+        "pasos": { "p01": { "estado": "media", "proteinas": ["UNIPROT:Z9Z992"] } }
+      }
+    },
+    {
+      "nombre": "Solo el número EC: evidencia baja, cita revisadas y no revisadas y no suma al porcentaje",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1", "EC:9.9.9.2"] }],
+      "proteinas": [
+        { "accession": "UNIPROT:Z9Z993", "revisada": false, "rhea": [], "ec": ["EC:9.9.9.2"] },
+        { "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:2000"], "ec": ["EC:9.9.9.1"] }
+      ],
+      "esperado": {
+        "cobertura": 0,
+        "clase": "no_detectada",
+        "pasos": { "p01": { "estado": "baja", "proteinas": ["UNIPROT:Z9Z991", "UNIPROT:Z9Z993"] } }
+      }
+    },
+    {
+      "nombre": "Sin ninguna anotación: sin_anotacion, nunca ausente",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] }],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:2000"], "ec": ["EC:9.9.9.9"] }],
+      "esperado": {
+        "cobertura": 0,
+        "clase": "no_detectada",
+        "pasos": { "p01": { "estado": "sin_anotacion", "proteinas": [] } }
+      }
+    },
+    {
+      "nombre": "Un proteoma vacío deja todos los pasos sin anotación",
+      "pasos": [
+        { "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] },
+        { "id": "p02", "reacciones": ["RHEA:2000"], "ec": ["EC:9.9.9.2"] }
+      ],
+      "proteinas": [],
+      "esperado": {
+        "cobertura": 0,
+        "clase": "no_detectada",
+        "pasos": {
+          "p01": { "estado": "sin_anotacion", "proteinas": [] },
+          "p02": { "estado": "sin_anotacion", "proteinas": [] }
+        }
+      }
+    },
+    {
+      "nombre": "Una reacción direccional (LR, RL o BI) anotada en UniProt cuenta como su reacción maestra",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": [] }],
+      "maestras": { "RHEA:1001": "RHEA:1000", "RHEA:1002": "RHEA:1000", "RHEA:1003": "RHEA:1000" },
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1002"], "ec": [] }],
+      "esperado": {
+        "cobertura": 100,
+        "clase": "completa",
+        "pasos": { "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] } }
+      }
+    },
+    {
+      "nombre": "Un EC parcial (con guion) no coincide con el EC completo del paso",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000"], "ec": ["EC:9.9.9.1"] }],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": [], "ec": ["EC:9.9.9.-"] }],
+      "esperado": {
+        "cobertura": 0,
+        "clase": "no_detectada",
+        "pasos": { "p01": { "estado": "sin_anotacion", "proteinas": [] } }
+      }
+    },
+    {
+      "nombre": "Isoenzimas: basta una, y se citan todas ordenadas y sin repetir",
+      "pasos": [{ "id": "p01", "reacciones": ["RHEA:1000", "RHEA:3000"], "ec": ["EC:9.9.9.1"] }],
+      "proteinas": [
+        { "accession": "UNIPROT:Z9Z999", "revisada": true, "rhea": ["RHEA:1000", "RHEA:3000"], "ec": [] },
+        { "accession": "UNIPROT:Z9Z994", "revisada": true, "rhea": ["RHEA:3000"], "ec": [] }
+      ],
+      "esperado": {
+        "cobertura": 100,
+        "clase": "completa",
+        "pasos": { "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z994", "UNIPROT:Z9Z999"] } }
+      }
+    },
+    {
+      "nombre": "Un complejo con alguna subunidad anotada lleva la advertencia de verificar subunidades",
+      "pasos": [
+        { "id": "p01", "reacciones": ["RHEA:1000"], "ec": [], "complejo": true },
+        { "id": "p02", "reacciones": ["RHEA:2000"], "ec": [], "complejo": true }
+      ],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000"], "ec": [] }],
+      "esperado": {
+        "cobertura": 50,
+        "clase": "parcial",
+        "pasos": {
+          "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"], "advertencias": ["complejo_verificar_subunidades"] },
+          "p02": { "estado": "sin_anotacion", "proteinas": [] }
+        }
+      }
+    },
+    {
+      "nombre": "4 de 5 pasos presentes (80 %) es casi completa; el paso con evidencia baja no suma",
+      "pasos": [
+        { "id": "p01", "reacciones": ["RHEA:1000"], "ec": [] },
+        { "id": "p02", "reacciones": ["RHEA:2000"], "ec": [] },
+        { "id": "p03", "reacciones": ["RHEA:3000"], "ec": [] },
+        { "id": "p04", "reacciones": ["RHEA:4000"], "ec": [], "espontaneo": true },
+        { "id": "p05", "reacciones": ["RHEA:5000"], "ec": ["EC:9.9.9.5"] }
+      ],
+      "proteinas": [
+        { "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000"], "ec": [] },
+        { "accession": "UNIPROT:Z9Z992", "revisada": false, "rhea": ["RHEA:2000", "RHEA:3000"], "ec": [] },
+        { "accession": "UNIPROT:Z9Z995", "revisada": true, "rhea": [], "ec": ["EC:9.9.9.5"] }
+      ],
+      "esperado": {
+        "cobertura": 80,
+        "clase": "casi_completa",
+        "pasos": {
+          "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p02": { "estado": "media", "proteinas": ["UNIPROT:Z9Z992"] },
+          "p03": { "estado": "media", "proteinas": ["UNIPROT:Z9Z992"] },
+          "p04": { "estado": "espontaneo", "proteinas": [] },
+          "p05": { "estado": "baja", "proteinas": ["UNIPROT:Z9Z995"] }
+        }
+      }
+    },
+    {
+      "nombre": "2 de 3 pasos presentes: el porcentaje se redondea a un decimal (66,7 %) y es parcial",
+      "pasos": [
+        { "id": "p01", "reacciones": ["RHEA:1000"], "ec": [] },
+        { "id": "p02", "reacciones": ["RHEA:2000"], "ec": [] },
+        { "id": "p03", "reacciones": ["RHEA:3000"], "ec": [] }
+      ],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000", "RHEA:2000"], "ec": [] }],
+      "esperado": {
+        "cobertura": 66.7,
+        "clase": "parcial",
+        "pasos": {
+          "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p02": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p03": { "estado": "sin_anotacion", "proteinas": [] }
+        }
+      }
+    },
+    {
+      "nombre": "3 de 10 pasos presentes (30 %) es exactamente el umbral de parcial",
+      "pasos": [
+        { "id": "p01", "reacciones": ["RHEA:1000"], "ec": [] },
+        { "id": "p02", "reacciones": ["RHEA:2000"], "ec": [] },
+        { "id": "p03", "reacciones": ["RHEA:3000"], "ec": [] },
+        { "id": "p04", "reacciones": ["RHEA:4000"], "ec": [] },
+        { "id": "p05", "reacciones": ["RHEA:5000"], "ec": [] },
+        { "id": "p06", "reacciones": ["RHEA:6000"], "ec": [] },
+        { "id": "p07", "reacciones": ["RHEA:7000"], "ec": [] },
+        { "id": "p08", "reacciones": ["RHEA:8000"], "ec": [] },
+        { "id": "p09", "reacciones": ["RHEA:9000"], "ec": [] },
+        { "id": "p10", "reacciones": ["RHEA:9100"], "ec": [] }
+      ],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000", "RHEA:2000", "RHEA:3000"], "ec": [] }],
+      "esperado": {
+        "cobertura": 30,
+        "clase": "parcial",
+        "pasos": {
+          "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p02": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p03": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p04": { "estado": "sin_anotacion", "proteinas": [] },
+          "p05": { "estado": "sin_anotacion", "proteinas": [] },
+          "p06": { "estado": "sin_anotacion", "proteinas": [] },
+          "p07": { "estado": "sin_anotacion", "proteinas": [] },
+          "p08": { "estado": "sin_anotacion", "proteinas": [] },
+          "p09": { "estado": "sin_anotacion", "proteinas": [] },
+          "p10": { "estado": "sin_anotacion", "proteinas": [] }
+        }
+      }
+    },
+    {
+      "nombre": "Los umbrales vienen de la configuración: con casi_completa en 50, 1 de 2 pasos es casi completa",
+      "umbrales": { "completa": 100, "casi_completa": 50, "parcial": 10 },
+      "pasos": [
+        { "id": "p01", "reacciones": ["RHEA:1000"], "ec": [] },
+        { "id": "p02", "reacciones": ["RHEA:2000"], "ec": [] }
+      ],
+      "proteinas": [{ "accession": "UNIPROT:Z9Z991", "revisada": true, "rhea": ["RHEA:1000"], "ec": [] }],
+      "esperado": {
+        "cobertura": 50,
+        "clase": "casi_completa",
+        "pasos": {
+          "p01": { "estado": "alta", "proteinas": ["UNIPROT:Z9Z991"] },
+          "p02": { "estado": "sin_anotacion", "proteinas": [] }
+        }
+      }
+    }
+  ]
+}
