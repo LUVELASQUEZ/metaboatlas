@@ -1,5 +1,5 @@
 # Verificaciones de cada pull request (sección 15 de docs/MANUAL.md).
-# Por ahora cubre el pipeline y los esquemas; la web se agrega cuando exista web/.
+# Cubre el pipeline, los esquemas y la web (sin construirla: eso necesita datos).
 name: Verificaciones
 
 on:
@@ -42,3 +42,37 @@ jobs:
 
       - name: Validar esquemas y ejemplos
         run: uv run schema/validate_examples.py
+
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Tipos al día con schema/
+        run: |
+          npm run tipos
+          git diff --exit-code -- lib/tipos
+
+      - name: Linter
+        run: npm run lint -- --max-warnings 0
+
+      - name: Tipos de TypeScript
+        run: npm run typecheck
+
+      # La construcción y la revisión de accesibilidad necesitan el paquete de datos;
+      # corren en el despliegue (web.yml), donde el pipeline lo genera.
+      - name: Pruebas
+        run: npm test

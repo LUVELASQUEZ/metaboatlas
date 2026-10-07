@@ -13,3 +13,6 @@ staging.duckdb
 node_modules/
 web/.next/
 web/out/
+web/public/datos/
+web/next-env.d.ts
+web/*.tsbuildinfo
