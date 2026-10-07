@@ -14,6 +14,8 @@ from metabo.config import load_config
 from metabo.coverage import compute
 from metabo.download import Downloader
 from metabo.errors import PipelineError
+from metabo.export import compounds as export_compounds
+from metabo.export import package
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
@@ -155,12 +157,7 @@ def cmd_cobertura(args: argparse.Namespace) -> int:
             return 1
     skipped = [o for o in organisms if o.proteoma_referencia is None]
     organisms = [o for o in organisms if o.proteoma_referencia is not None]
-    paths = [Path(p) for p in args.vias] or sorted((root / "curation" / "vias").glob("*.yaml"))
-    vias = [curation.load_via(path) for path in paths]
-    for via, path in zip(vias, paths, strict=True):
-        errors = curation.check_structure(via)
-        if errors:
-            raise PipelineError(f"{path.name} no es válida: " + "; ".join(errors))
+    vias = _curated_vias(root, args.vias)
 
     inputs = compute.CoverageInputs.from_raw(raw_dir, organisms)
     documents = compute.compute_all(
@@ -182,6 +179,42 @@ def cmd_cobertura(args: argparse.Namespace) -> int:
         print(f"Sin proteoma de referencia, se omite: {organism.id} {organism.nombre}")
     versions = ", ".join(f"{k} {v}" for k, v in inputs.versiones.items())
     print(f"{len(written)} archivos en {out_dir / 'cobertura'} (calculado con {versions})")
+    return 0
+
+
+def _curated_vias(root: Path, given: Sequence[str]) -> list[dict]:
+    paths = [Path(p) for p in given] or sorted((root / "curation" / "vias").glob("*.yaml"))
+    vias = [curation.load_via(path) for path in paths]
+    for via, path in zip(vias, paths, strict=True):
+        errors = curation.check_structure(via)
+        if errors:
+            raise PipelineError(f"{path.name} no es válida: " + "; ".join(errors))
+    return vias
+
+
+def cmd_exportar(args: argparse.Namespace) -> int:
+    config = load_config()
+    root = repo_root()
+    raw_dir = root / config.directorios.crudos
+    organisms = load_organisms()
+    built = package.build(
+        raw_dir,
+        _curated_vias(root, []),
+        organisms,
+        export_compounds.load_curation(root / "curation" / "compuestos.yaml"),
+        compute.thresholds(config.cobertura.umbrales),
+        date.today(),
+    )
+    out_dir = root / config.directorios.salida / built.manifest.version_datos
+    written = built.write(out_dir)
+    folders = Counter(
+        p.parent.relative_to(out_dir).parts[0] for p in written if p.parent != out_dir
+    )
+    print(f"Paquete de datos {built.manifest.version_datos} en {out_dir}:")
+    for folder, count in sorted(folders.items()):
+        print(f"  {folder:<12} {count} archivos")
+    versions = ", ".join(sorted({f"{d.fuente} {d.version}" for d in built.manifest.descargas}))
+    print(f"  manifest.json  ({versions})")
     return 0
 
 
@@ -234,6 +267,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--taxon", action="append", help="solo este organismo (p. ej. taxon:511145); repetible"
     )
     cobertura.set_defaults(func=cmd_cobertura)
+    sub.add_parser(
+        "exportar", help="escribe el paquete de datos data/<version>/ validado contra schema/"
+    ).set_defaults(func=cmd_exportar)
     return parser
 
 

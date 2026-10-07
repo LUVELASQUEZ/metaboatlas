@@ -248,3 +248,15 @@ def read_rhea2ec(path: Path) -> dict[str, frozenset[str]]:
     for row in _read_tsv(path):
         links.setdefault(f"RHEA:{row['MASTER_ID']}", set()).add(f"EC:{row['ID']}")
     return {k: frozenset(v) for k, v in links.items()}
+
+
+def read_directions(path: Path) -> dict[str, tuple[str, str, str]]:
+    """rhea-directions.tsv: reacción maestra (CURIE) -> (LR, RL, BI) en CURIE."""
+    return {
+        f"RHEA:{row['RHEA_ID_MASTER']}": (
+            f"RHEA:{row['RHEA_ID_LR']}",
+            f"RHEA:{row['RHEA_ID_RL']}",
+            f"RHEA:{row['RHEA_ID_BI']}",
+        )
+        for row in _read_tsv(path)
+    }

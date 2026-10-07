@@ -99,13 +99,38 @@ class EnzymeEntry:
     nombre: str
     eliminada: bool
     transferida_a: tuple[str, ...]  # CURIE de los EC que la reemplazan
+    nombres_alternativos: tuple[str, ...] = ()  # líneas AN
+    reaccion: str | None = None  # líneas CA, unidas
+    cofactores: tuple[str, ...] = ()  # líneas CF, separadas por "; "
 
     @property
     def vigente(self) -> bool:
         return not self.eliminada and not self.transferida_a
 
 
-def _entry(ec: str, description: str) -> EnzymeEntry:
+def _join(lines: list[str]) -> str:
+    """Une líneas de continuación; un guion al final de línea parte una palabra."""
+    text = ""
+    for line in lines:
+        text += line if not text or text.endswith("-") else f" {line}"
+    return text
+
+
+def _names(lines: list[str]) -> tuple[str, ...]:
+    """Líneas AN: cada nombre termina en punto y puede ocupar varias líneas."""
+    names, current = [], []
+    for line in lines:
+        current.append(line)
+        if line.endswith("."):
+            names.append(_join(current).removesuffix("."))
+            current = []
+    if current:
+        names.append(_join(current))
+    return tuple(names)
+
+
+def _entry(ec: str, description: str, fields: dict[str, list[str]] | None = None) -> EnzymeEntry:
+    fields = fields or {}
     transferred = _TRANSFERRED.match(description)
     targets: tuple[str, ...] = ()
     if transferred:
@@ -117,23 +142,35 @@ def _entry(ec: str, description: str) -> EnzymeEntry:
         nombre=description.removesuffix("."),
         eliminada=description.startswith("Deleted entry"),
         transferida_a=targets,
+        nombres_alternativos=_names(fields.get("AN", [])),
+        reaccion=_join(fields["CA"]).removesuffix(".") if fields.get("CA") else None,
+        cofactores=tuple(
+            c.strip().removesuffix(".") for c in _join(fields.get("CF", [])).split(";") if c.strip()
+        ),
     )
 
 
 def parse_entries(text: str) -> dict[str, EnzymeEntry]:
-    """Entradas de enzyme.dat (líneas ID y DE, terminadas en '//'), indexadas por CURIE."""
+    """Entradas de enzyme.dat (líneas ID, DE, AN, CA y CF, terminadas en '//'), por CURIE.
+
+    Cada línea AN es un nombre alternativo completo; DE, CA y CF continúan en varias
+    líneas (formato de enzuser.txt).
+    """
     entries: dict[str, EnzymeEntry] = {}
     ec: str | None = None
     description: list[str] = []
+    fields: dict[str, list[str]] = {}
     for line in text.splitlines():
         if line.startswith("ID   "):
-            ec, description = line[5:].strip(), []
+            ec, description, fields = line[5:].strip(), [], {}
         elif line.startswith("DE   ") and ec is not None:
             description.append(line[5:].strip())
+        elif line[:5] in ("AN   ", "CA   ", "CF   ") and ec is not None:
+            fields.setdefault(line[:2], []).append(line[5:].strip())
         elif line.startswith("//") and ec is not None:
             if not description:
                 raise SourceFormatError(f"enzyme.dat: la entrada {ec} no tiene línea DE.")
-            entry = _entry(ec, " ".join(description))
+            entry = _entry(ec, " ".join(description), fields)
             entries[entry.ec] = entry
             ec = None
     return entries

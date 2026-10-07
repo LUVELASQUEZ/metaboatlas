@@ -132,6 +132,7 @@ class TaxonRecord:
     rango: str
     linaje: tuple[TaxonNode, ...]  # desde el nodo más lejano hasta el padre inmediato
     dominio: str | None  # bacteria, arquea, eucariota; None si el linaje no tiene dominio
+    nombre_comun: str | None = None  # "genbank common name" de names.dmp, en inglés
 
 
 def _rows(handle: IO[bytes]) -> Iterator[list[str]]:
@@ -178,6 +179,7 @@ def read_taxa(path: Path, taxa: Iterable[str]) -> dict[str, TaxonRecord]:
     merged: dict[str, str] = {}
     deleted: set[str] = set()
     names: dict[str, str] = {}
+    common: dict[str, str] = {}
     ranks: dict[str, str] = {}
     for name, handle in _members(path, ["merged.dmp", "delnodes.dmp", "names.dmp", "nodes.dmp"]):
         for row in _rows(handle):
@@ -187,6 +189,8 @@ def read_taxa(path: Path, taxa: Iterable[str]) -> dict[str, TaxonRecord]:
                 deleted.add(row[0])
             elif name == "names.dmp" and row[0] in needed and row[3] == "scientific name":
                 names[row[0]] = row[1]
+            elif name == "names.dmp" and row[0] in requested and row[3] == "genbank common name":
+                common[row[0]] = row[1]
             elif name == "nodes.dmp" and row[0] in needed:
                 ranks[row[0]] = row[2]
 
@@ -227,5 +231,6 @@ def read_taxa(path: Path, taxa: Iterable[str]) -> dict[str, TaxonRecord]:
             rango=ranks[number],
             linaje=lineage,
             dominio=DOMINIOS[domains[0]] if domains else None,
+            nombre_comun=common.get(number),
         )
     return records

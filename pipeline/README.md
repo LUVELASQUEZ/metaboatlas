@@ -2,7 +2,7 @@
 
 Pipeline de datos de MetaboAtlas en Python 3.12 (gestor `uv`). Descarga las fuentes registradas en [`../sources.yaml`](../sources.yaml), las normaliza en DuckDB, integra la curaduría, calcula la cobertura, valida contra [`../schema/`](../schema/) y exporta el paquete de datos. Ver la sección 6 de [`docs/MANUAL.md`](../docs/MANUAL.md).
 
-> **Estado:** las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) están verificadas en `sources.yaml` y tienen extractor (`uv run metabo extraer rhea|enzyme|chebi|uniprot|ncbi_taxonomy`). También existen las ayudas de curaduría (`uv run metabo curar buscar|validar`) y el cálculo de cobertura (`uv run metabo cobertura`); el resto de las etapas de `build` se implementan en las próximas tareas.
+> **Estado:** las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) están verificadas en `sources.yaml` y tienen extractor (`uv run metabo extraer rhea|enzyme|chebi|uniprot|ncbi_taxonomy`). También existen las ayudas de curaduría (`uv run metabo curar buscar|validar`), el cálculo de cobertura (`uv run metabo cobertura`) y la exportación del paquete de datos (`uv run metabo exportar`); el resto de las etapas de `build` se implementan en las próximas tareas.
 
 ## Uso
 
@@ -15,6 +15,7 @@ uv run metabo extraer rhea   # descarga la versión vigente de una fuente (rhea,
 uv run metabo curar buscar 2.7.1.1   # reacciones Rhea maestras de un EC, con su ecuación y sus ChEBI
 uv run metabo curar validar          # verifica los IDs de curation/vias/*.yaml contra raw/ (necesita rhea, enzyme y chebi descargados)
 uv run metabo cobertura              # cobertura de cada vía en cada organismo -> data/<version_datos>/cobertura/ (necesita rhea y uniprot descargados)
+uv run metabo exportar               # paquete de datos completo -> data/<version_datos>/ (necesita las cinco fuentes descargadas)
 uv run metabo build      # recorre las etapas (por ahora, solo las enumera)
 uv run pytest            # pruebas
 uv run ruff check . && uv run ruff format --check .   # linter
@@ -38,7 +39,7 @@ pipeline/
 ├─ organismos.yaml      # lista curada de organismos (el código no asume un número fijo)
 ├─ pyproject.toml       # dependencias y comando `metabo`
 ├─ metabo/
-│  ├─ cli.py            # comandos build, validate, fuentes, extraer, curar y cobertura
+│  ├─ cli.py            # comandos build, validate, fuentes, extraer, curar, cobertura y exportar
 │  ├─ config.py         # lectura y validación de config.yaml
 │  ├─ organisms.py      # lectura y validación de organismos.yaml
 │  ├─ registry.py       # sources.yaml: qué se puede descargar y cómo se enlaza
@@ -49,7 +50,7 @@ pipeline/
 │  ├─ sources/          # un extractor por base de datos (rhea.py, enzyme.py, chebi.py, uniprot.py, ncbi_taxonomy.py)
 │  ├─ transform/        # normalización e integración de la curaduría
 │  ├─ coverage/         # algoritmo de cobertura (ver coverage/README.md)
-│  └─ export/           # exportación del paquete de datos
+│  └─ export/           # exportación del paquete de datos (ver export/README.md)
 └─ tests/
 ```
 
