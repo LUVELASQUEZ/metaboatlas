@@ -37,7 +37,9 @@ def test_unknown_keys_are_rejected(tmp_path):
         load_config(_write(tmp_path, data))
 
 
-def test_invalid_contact_email_is_rejected(tmp_path):
+def test_invalid_contact_email_is_rejected(tmp_path, monkeypatch):
+    # METABO_CONTACTO, si está definida (como en CI), tiene prioridad sobre el archivo.
+    monkeypatch.delenv("METABO_CONTACTO", raising=False)
     data = _base()
     data["descargas"]["contacto"] = "no-es-un-correo"
     with pytest.raises(ConfigError):
