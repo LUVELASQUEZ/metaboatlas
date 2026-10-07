@@ -59,8 +59,8 @@ El descargador (`metabo/download.py`) aplica las reglas 1 a 4 de `CLAUDE.md` ant
 3. **Buen comportamiento.** Envía un User-Agent con correo de contacto y reintenta con espera exponencial ante errores de red, 429 y 5xx, con un número máximo de intentos. Los demás errores 4xx no se reintentan.
 4. **Trazabilidad.** Guarda en `raw/<fuente>/<version>/<archivo>` y devuelve un registro con URL, versión, fecha, licencia, tamaño y SHA-256 para `manifest.json`, que se valida contra `schema/manifiesto.schema.json`.
 
-## Pendiente antes de la primera descarga
+## Listo para la primera descarga
 
-- **Correo de contacto:** crear el correo del proyecto y guardarlo como secreto `METABO_CONTACTO` en GitHub.
-- **Fuentes:** verificar en `sources.yaml` la licencia y la cita de cada fuente de la Fase 0 (Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy).
-- **Proteomas:** completar `proteoma_referencia` de cada organismo con datos de UniProt.
+- **Correo de contacto:** se lee del secreto `METABO_CONTACTO`.
+- **Fuentes:** Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy están verificadas en `sources.yaml`.
+- **Proteomas:** cada organismo de `organismos.yaml` tiene su `proteoma_referencia`. Las proteínas se descargan por proteoma (`proteome:UP…`), no por taxón, porque UniProt puede registrar el proteoma bajo otro taxón (es el caso de *E. coli* MG1655, cuyo proteoma está bajo el taxón 83333).

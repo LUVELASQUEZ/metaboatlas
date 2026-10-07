@@ -17,6 +17,17 @@ def test_phase_0_organisms_are_present():
     assert {"taxon:511145", "taxon:224308", "taxon:559292", "taxon:9606"} <= ids
 
 
+def test_every_repository_organism_has_a_reference_proteome():
+    # El extractor de UniProt descarga las proteínas por proteoma.
+    for organism in load_organisms():
+        assert organism.proteoma_referencia, organism.id
+
+
+def test_reference_proteomes_are_unique():
+    proteomes = [o.proteoma_referencia for o in load_organisms()]
+    assert len(proteomes) == len(set(proteomes))
+
+
 def _write(tmp_path, organismos):
     path = tmp_path / "organismos.yaml"
     path.write_text(yaml.safe_dump({"organismos": organismos}), encoding="utf-8")
