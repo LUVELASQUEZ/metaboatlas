@@ -7,6 +7,7 @@ import path from "node:path";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import { parse } from "yaml";
+import { remarkTerminos, type TerminoEnlazable } from "@/lib/enlazar-terminos";
 import { NIVELES } from "@/lib/niveles";
 import type { Via } from "@/lib/tipos/via";
 
@@ -28,17 +29,23 @@ export interface ContenidoVia {
 
 export const DIR_CONTENIDO = path.join(process.cwd(), "..", "content");
 
-/** Lee content/vias/<slug>.mdx; null si la vía aún no tiene contenido. */
-export function leerContenidoVia(slug: string, raiz = DIR_CONTENIDO): ContenidoVia | null {
-  const archivo = path.join(raiz, "vias", `${slug}.mdx`);
-  if (!existsSync(archivo)) return null;
+/** Separa los metadatos YAML (entre líneas ---) del cuerpo MDX. */
+export function leerMdx(archivo: string): { meta: Record<string, unknown>; cuerpo: string } {
   const texto = readFileSync(archivo, "utf8");
   const partes = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(texto);
   const [, metadatos, cuerpo] = partes ?? [];
   if (metadatos === undefined || cuerpo === undefined) {
     throw new Error(`${archivo}: falta el bloque de metadatos (---).`);
   }
-  return { meta: parse(metadatos) as MetaContenido, cuerpo };
+  return { meta: parse(metadatos) as Record<string, unknown>, cuerpo };
+}
+
+/** Lee content/vias/<slug>.mdx; null si la vía aún no tiene contenido. */
+export function leerContenidoVia(slug: string, raiz = DIR_CONTENIDO): ContenidoVia | null {
+  const archivo = path.join(raiz, "vias", `${slug}.mdx`);
+  if (!existsSync(archivo)) return null;
+  const { meta, cuerpo } = leerMdx(archivo);
+  return { meta: meta as unknown as MetaContenido, cuerpo };
 }
 
 /** Problemas del contenido frente a la vía curada; vacío si todo está bien. */
@@ -69,8 +76,12 @@ export function validarContenido(contenido: ContenidoVia, via: Via): string[] {
   return errores;
 }
 
-/** Compila el MDX a un componente de React. */
-export async function compilarContenido(cuerpo: string): Promise<MDXContent> {
-  const modulo = await evaluate(cuerpo, { ...runtime, remarkPlugins: [remarkGfm] });
+/**
+ * Compila el MDX a un componente de React. Con `terminos`, la primera aparición de cada
+ * término del glosario se envuelve en <TerminoGlosario>.
+ */
+export async function compilarContenido(cuerpo: string, terminos: TerminoEnlazable[] = []): Promise<MDXContent> {
+  const plugins = terminos.length > 0 ? [remarkGfm, [remarkTerminos, terminos] as const] : [remarkGfm];
+  const modulo = await evaluate(cuerpo, { ...runtime, remarkPlugins: plugins as never });
   return modulo.default;
 }

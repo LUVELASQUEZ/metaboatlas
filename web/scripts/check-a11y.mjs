@@ -15,6 +15,8 @@ const axe = readFileSync(path.resolve(here, "../node_modules/axe-core/axe.min.js
 const PAGINAS = [
   "/",
   "/fuentes/",
+  "/glosario/",
+  "/glosario/nad/",
   "/via/glucolisis/",
   "/via/glucolisis/?org=511145&paso=p03",
   "/via/glucolisis/?org=9606&compuesto=CHEBI:59776",
