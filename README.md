@@ -70,6 +70,18 @@ npm run dev        # http://localhost:3000/metaboatlas/
 
 Los esquemas se validan desde la raíz con `uv run schema/validate_examples.py`. Cada pull request ejecuta estas verificaciones en GitHub Actions ([`checks.yml`](.github/workflows/checks.yml)).
 
+## Publicación
+
+Dos flujos de GitHub Actions publican el sitio, sin servidores propios:
+
+1. **Datos** ([`pipeline.yml`](.github/workflows/pipeline.yml)): una vez al mes, a mano o cuando cambia la curaduría o el pipeline. Descarga las fuentes, exporta el paquete, corre las pruebas con datos reales y lo publica como release `data-AAAA.MM` con su `ATRIBUCION.md`. Las descargas del mes se guardan en la caché de Actions para no repetirlas.
+2. **Sitio** ([`web.yml`](.github/workflows/web.yml)): cuando cambia `web/` o termina «Datos». Construye el sitio con el último release `data-*`, revisa la accesibilidad con axe-core y lo publica en GitHub Pages.
+
+Configuración del repositorio, una sola vez:
+
+- Secreto `METABO_CONTACTO` (*Settings → Secrets and variables → Actions*): correo de contacto del User-Agent de las descargas.
+- *Settings → Pages → Build and deployment → Source*: **GitHub Actions**.
+
 ## Cómo contribuir
 
 Lee [`CONTRIBUTING.md`](CONTRIBUTING.md). Los reportes de errores científicos son especialmente bienvenidos.

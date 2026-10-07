@@ -16,6 +16,7 @@ from metabo.download import Downloader
 from metabo.errors import PipelineError
 from metabo.export import compounds as export_compounds
 from metabo.export import package
+from metabo.export.attribution import attribution
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
@@ -211,6 +212,9 @@ def cmd_exportar(args: argparse.Namespace) -> int:
     )
     out_dir = root / config.directorios.salida / built.manifest.version_datos
     written = built.write(out_dir)
+    (out_dir / "ATRIBUCION.md").write_text(
+        attribution(built.manifest, SourceRegistry.load()), encoding="utf-8"
+    )
     folders = Counter(
         p.parent.relative_to(out_dir).parts[0] for p in written if p.parent != out_dir
     )
@@ -219,6 +223,7 @@ def cmd_exportar(args: argparse.Namespace) -> int:
         print(f"  {folder:<12} {count} archivos")
     versions = ", ".join(sorted({f"{d.fuente} {d.version}" for d in built.manifest.descargas}))
     print(f"  manifest.json  ({versions})")
+    print("  ATRIBUCION.md  (licencias y citas de las fuentes)")
     return 0
 
 

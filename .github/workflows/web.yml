@@ -1,0 +1,88 @@
+# Sitio en GitHub Pages (sección 15 de docs/MANUAL.md): construye web/ con el último
+# release `data-<version>`, revisa la accesibilidad y publica.
+name: Sitio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "schema/**"
+      - "sources.yaml"
+      - ".github/workflows/web.yml"
+  workflow_run:
+    workflows: [Datos]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construir:
+    name: Construir
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar el último paquete de datos
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --limit 100 --json tagName --jq \
+            '[.[].tagName | select(startswith("data-"))] | sort | last // empty')
+          if [ -z "$tag" ]; then
+            echo "::error::No hay ningún release data-AAAA.MM. Corre primero el flujo «Datos»."
+            exit 1
+          fi
+          gh release download "$tag" --dir "$RUNNER_TEMP"
+          (cd "$RUNNER_TEMP" && sha256sum -c "$tag.tar.gz.sha256")
+          mkdir -p ../data
+          tar -C ../data -xzf "$RUNNER_TEMP/$tag.tar.gz"
+          echo "Paquete $tag"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Construir
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Revisar la accesibilidad
+        run: |
+          npx playwright install --with-deps chromium
+          npm run a11y
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/out
+
+  publicar:
+    name: Publicar
+    needs: construir
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

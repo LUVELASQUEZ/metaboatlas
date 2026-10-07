@@ -1,6 +1,6 @@
 # web/
 
-Sitio estático en Next.js (App Router, `output: 'export'`) que se publicará en GitHub Pages bajo `/metaboatlas`. Lee el paquete de datos del pipeline; no tiene servidor ni base de datos.
+Sitio estático en Next.js (App Router, `output: 'export'`) publicado en GitHub Pages bajo `/metaboatlas` por el flujo `web.yml`. Lee el paquete de datos del pipeline; no tiene servidor ni base de datos.
 
 ```bash
 npm ci
@@ -47,4 +47,3 @@ Los cofactores de cada paso se escriben junto a su flecha, en el sentido de la v
 - Contenido didáctico por niveles, reproductor paso a paso y contador de energía.
 - Navegación del mapa con teclado: hoy el equivalente accesible es la tabla de pasos.
 - Reversibilidad de las reacciones: no hay fuente verificada, así que todas las flechas tienen una sola punta, en el sentido de la vía.
-- Despliegue en GitHub Pages (`web.yml`), donde también correrán la construcción y la revisión de accesibilidad.
