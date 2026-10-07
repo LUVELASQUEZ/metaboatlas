@@ -1,0 +1,116 @@
+# Paquete de datos (secciones 6, 12 y 15 de docs/MANUAL.md): descarga las fuentes,
+# exporta data/<version>/, corre las pruebas con datos reales y lo publica como
+# release `data-<version>`. Al terminar, web.yml publica el sitio con ese paquete.
+name: Datos
+
+on:
+  schedule:
+    - cron: "0 6 3 * *" # día 3 de cada mes, 06:00 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "curation/**"
+      - "pipeline/**"
+      - "schema/**"
+      - "sources.yaml"
+      - ".github/workflows/pipeline.yml"
+
+permissions:
+  contents: write # crear el release del paquete
+
+concurrency:
+  group: datos
+  cancel-in-progress: false
+
+jobs:
+  datos:
+    name: Paquete de datos
+    runs-on: ubuntu-latest
+    env:
+      METABO_CONTACTO: ${{ secrets.METABO_CONTACTO }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pipeline/uv.lock
+
+      - name: Instalar dependencias
+        working-directory: pipeline
+        run: uv sync --locked
+
+      - name: Mes de las descargas
+        id: mes
+        run: echo "mes=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      # Las descargas del mes se guardan en la caché de Actions (privada) para no
+      # volver a pedirlas a las fuentes cuando solo cambia la curaduría. La ejecución
+      # programada siempre descarga de nuevo.
+      - name: Recuperar las descargas del mes
+        id: cache
+        if: github.event_name != 'schedule'
+        uses: actions/cache/restore@v4
+        with:
+          path: raw
+          key: raw-${{ steps.mes.outputs.mes }}
+
+      - name: Descargar las fuentes
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: pipeline
+        run: |
+          if [ -z "$METABO_CONTACTO" ]; then
+            echo "::error::Falta el secreto METABO_CONTACTO (correo del User-Agent de las descargas)."
+            exit 1
+          fi
+          rm -rf ../raw
+          for fuente in rhea chebi enzyme uniprot ncbi_taxonomy; do
+            uv run metabo extraer "$fuente"
+          done
+
+      # Las cachés no se sobrescriben: si la del mes ya existe (ejecución programada),
+      # este paso solo deja un aviso.
+      - name: Guardar las descargas del mes
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: raw
+          key: raw-${{ steps.mes.outputs.mes }}
+
+      - name: Exportar el paquete
+        working-directory: pipeline
+        run: uv run metabo exportar
+
+      # Con raw/ presente, también corren las verdades biológicas y las pruebas
+      # del paquete real.
+      - name: Pruebas con datos reales
+        working-directory: pipeline
+        run: uv run pytest
+
+      - name: Empaquetar
+        id: paquete
+        run: |
+          version=$(ls data)
+          if [ "$(echo "$version" | wc -l)" -ne 1 ]; then
+            echo "::error::Se esperaba una sola versión en data/: $version"
+            exit 1
+          fi
+          tar -C data -czf "data-$version.tar.gz" "$version"
+          sha256sum "data-$version.tar.gz" > "data-$version.tar.gz.sha256"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publicar el release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.paquete.outputs.version }}
+        run: |
+          tag="data-$VERSION"
+          notas="data/$VERSION/ATRIBUCION.md"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release upload "$tag" "$tag.tar.gz" "$tag.tar.gz.sha256" --clobber
+            gh release edit "$tag" --notes-file "$notas"
+          else
+            gh release create "$tag" "$tag.tar.gz" "$tag.tar.gz.sha256" \
+              --title "Paquete de datos $VERSION" --notes-file "$notas" --latest=false
+          fi

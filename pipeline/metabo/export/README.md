@@ -5,6 +5,7 @@ Exportación del paquete de datos (secciones 4 y 6 de `docs/MANUAL.md`): `uv run
 ```
 data/2026.10/
   manifest.json                 # descargas usadas: fuente, versión, fecha, licencia, SHA-256
+  ATRIBUCION.md                 # licencia, condición y cita de cada fuente (copiadas de sources.yaml)
   vias/glucolisis.json          # la curaduría de curation/vias/
   reacciones/RHEA_14729.json    # reacciones de los pasos (Rhea)
   compuestos/CHEBI_15361.json   # participantes de esas reacciones (ChEBI)
@@ -16,6 +17,7 @@ data/2026.10/
 
 - `package.py` arma los documentos. Solo exporta las entidades que tocan las vías curadas, y cada una lleva su `procedencia` (fuente, ID, versión y fecha de descarga). Una exportación nueva reemplaza la carpeta de la misma versión.
 - Los mapas de `curation/mapas/` se verifican con `metabo/maps.py` (ver [`curation/mapas/README.md`](../../../curation/mapas/README.md)) y sus nodos también se exportan como compuestos.
+- `attribution.py` escribe `ATRIBUCION.md`, que acompaña al paquete en cada copia (release `data-<version>` y sitio web).
 - `compounds.py` decide la clase de cada compuesto y si es cofactor, con las reglas de [`curation/compuestos.yaml`](../../../curation/compuestos.yaml).
 
 ## De dónde sale cada campo
