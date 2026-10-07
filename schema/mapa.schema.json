@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/mapa.schema.json",
+  "title": "Mapa",
+  "description": "Dibujo curado de una vía: solo posiciones, en píxeles de un lienzo con el origen arriba a la izquierda. Los datos (nombres, reacciones, evidencia) se toman del paquete de datos (sección 7 de docs/MANUAL.md). Archivo curation/mapas/<slug>.json, que se exporta como mapas/<slug>.json.",
+  "type": "object",
+  "properties": {
+    "via": {
+      "$ref": "comun.schema.json#/$defs/id_via"
+    },
+    "lienzo": {
+      "type": "object",
+      "properties": {
+        "ancho": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "alto": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "ancho",
+        "alto"
+      ],
+      "additionalProperties": false
+    },
+    "compuestos": {
+      "description": "Metabolitos principales, uno por nodo. Los cofactores no van aquí: se dibujan junto a la flecha de cada paso.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "compuesto": {
+            "$ref": "comun.schema.json#/$defs/curie_chebi"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "etiqueta": {
+            "description": "Lado del nodo donde va el nombre del compuesto.",
+            "enum": [
+              "izquierda",
+              "derecha",
+              "arriba",
+              "abajo"
+            ],
+            "default": "izquierda"
+          }
+        },
+        "required": [
+          "compuesto",
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "pasos": {
+      "description": "Una flecha por paso de la vía, en el sentido de la vía (no necesariamente el de la reacción maestra de Rhea).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "paso": {
+            "$ref": "comun.schema.json#/$defs/id_paso"
+          },
+          "desde": {
+            "type": "array",
+            "items": {
+              "$ref": "comun.schema.json#/$defs/curie_chebi"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "hacia": {
+            "type": "array",
+            "items": {
+              "$ref": "comun.schema.json#/$defs/curie_chebi"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "rotulo": {
+            "description": "Centro del rótulo de la enzima.",
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          },
+          "cofactores": {
+            "description": "Lado de la flecha donde se dibujan los cofactores del paso.",
+            "enum": [
+              "izquierda",
+              "derecha",
+              "arriba",
+              "abajo"
+            ]
+          }
+        },
+        "required": [
+          "paso",
+          "desde",
+          "hacia",
+          "rotulo",
+          "cofactores"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "modulos": {
+      "description": "Región de fondo de cada módulo de la vía.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "modulo": {
+            "$ref": "comun.schema.json#/$defs/id_modulo"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "ancho": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "alto": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "modulo",
+          "x",
+          "y",
+          "ancho",
+          "alto"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "portales": {
+      "description": "Rótulos en el borde que llevan a una vía conectada.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "via": {
+            "$ref": "comun.schema.json#/$defs/id_via"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "via",
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "via",
+    "lienzo",
+    "compuestos",
+    "pasos",
+    "modulos",
+    "portales"
+  ],
+  "additionalProperties": false
+}
