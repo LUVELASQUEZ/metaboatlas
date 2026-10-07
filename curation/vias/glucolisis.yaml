@@ -10,8 +10,11 @@
 # - p03: solo la fosfofructocinasa dependiente de ATP.
 # - p08: las dos fosfoglicerato mutasas (dependiente e independiente de
 #   2,3-bisfosfoglicerato).
-# - Las reacciones genéricas o con otros sustratos que Rhea asocia al mismo EC (por
-#   ejemplo, "a D-hexose + ATP" en p01 o GTP en lugar de ATP en p10) no se incluyen.
+# - p01 incluye también la reacción genérica de la hexocinasa ("a D-hexose + ATP"),
+#   para no dejar sin anotar un organismo cuyas proteínas solo la tengan (decisión
+#   de Luisa, 2026-10-07).
+# - Las reacciones con otros sustratos que Rhea asocia al mismo EC (por ejemplo,
+#   manosa en p01 o GTP en lugar de ATP en p10) no se incluyen.
 #
 # `energia` cuenta una vez cada reacción. Los pasos p06 a p10 ocurren dos veces por
 # cada glucosa porque la aldolasa produce dos triosas fosfato.
@@ -42,7 +45,8 @@ pasos:
     orden: 1
     titulo: Fosforilación de la glucosa
     # RHEA:17825  D-glucose + ATP = D-glucose 6-phosphate + ADP + H(+)
-    reacciones: [RHEA:17825]
+    # RHEA:22740  a D-hexose + ATP = a D-hexose 6-phosphate + ADP + H(+)
+    reacciones: [RHEA:17825, RHEA:22740]
     ec: [EC:2.7.1.1, EC:2.7.1.2]  # hexokinase; glucokinase
     espontaneo: false
     regulacion: true
