@@ -120,3 +120,36 @@ export function elementosMapa(
   }
   return elementos;
 }
+
+export interface ParadaTeclado {
+  /** ID del elemento de Cytoscape. */
+  id: string;
+  seleccion: { tipo: "paso" | "compuesto"; id: string };
+  /** Lo que se anuncia al llegar con el teclado. */
+  texto: string;
+}
+
+/**
+ * Orden en que el teclado recorre el mapa: el sentido de la vía, compuesto, paso,
+ * compuesto… Cada compuesto aparece una sola vez.
+ */
+export function ordenTeclado(vista: VistaVia): ParadaTeclado[] {
+  const paradas: ParadaTeclado[] = [];
+  const vistos = new Set<string>();
+  const compuesto = (id: string) => {
+    if (vistos.has(id)) return;
+    vistos.add(id);
+    paradas.push({ id, seleccion: { tipo: "compuesto", id }, texto: `Compuesto: ${vista.compuestos[id]?.nombre ?? id}` });
+  };
+  for (const f of vista.mapa?.flechas ?? []) {
+    f.desde.forEach(compuesto);
+    const paso = vista.pasos.find((p) => p.id === f.paso);
+    paradas.push({
+      id: idPaso(f.paso),
+      seleccion: { tipo: "paso", id: f.paso },
+      texto: paso ? `Paso ${paso.orden}: ${paso.titulo}` : f.paso,
+    });
+    f.hacia.forEach(compuesto);
+  }
+  return paradas;
+}

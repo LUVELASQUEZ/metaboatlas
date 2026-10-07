@@ -1,9 +1,9 @@
 "use client";
 
 import type { Core, StylesheetJson } from "cytoscape";
-import { useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { Seleccion } from "@/components/VistaVia";
-import { elementosMapa, idCofactores, idPaso } from "@/lib/elementos-mapa";
+import { elementosMapa, idCofactores, idPaso, ordenTeclado } from "@/lib/elementos-mapa";
 import { ESTILO_EVIDENCIA } from "@/lib/estilo-evidencia";
 import type { Cobertura } from "@/lib/tipos/cobertura";
 import type { VistaVia } from "@/lib/vista-via";
@@ -124,6 +124,15 @@ function estilos(): StylesheetJson {
     {
       selector: 'edge[tipo="sale"]',
       style: { "target-arrow-shape": "triangle", "target-arrow-color": suave },
+    },
+    {
+      selector: ".enfocado",
+      style: {
+        "outline-color": token("--primario"),
+        "outline-width": 3,
+        "outline-offset": 4,
+        "outline-style": "solid",
+      } as never,
     },
     {
       selector: ".elegido",
@@ -255,6 +264,41 @@ export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion, detallado
     }
   }, [cy, pasoElegido, compuestoElegido, cobertura, detallado]);
 
+  // Teclado: las flechas recorren el mapa en el sentido de la vía y Enter abre la ficha.
+  const paradas = useMemo(() => ordenTeclado(vista), [vista]);
+  const [foco, setFoco] = useState<number | null>(null);
+  const [conTeclado, setConTeclado] = useState(false);
+  const parada = foco === null ? null : (paradas[foco] ?? null);
+  useEffect(() => {
+    if (!cy) return;
+    cy.elements().removeClass("enfocado");
+    if (!parada) return;
+    const nodo = cy.getElementById(parada.id);
+    nodo.addClass("enfocado");
+    // Con zoom, lleva el elemento a la vista; sin zoom el mapa entero ya está visible.
+    if (cy.userPanningEnabled()) cy.center(nodo);
+  }, [cy, parada, cobertura, detallado]);
+
+  const alTeclear = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (paradas.length === 0) return;
+    const actual = foco ?? -1;
+    const ir = (i: number) => {
+      e.preventDefault();
+      setFoco(Math.max(0, Math.min(paradas.length - 1, i)));
+    };
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") ir(actual + 1);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") ir(foco === null ? 0 : actual - 1);
+    else if (e.key === "Home") ir(0);
+    else if (e.key === "End") ir(paradas.length - 1);
+    else if ((e.key === "Enter" || e.key === " ") && parada) {
+      e.preventDefault();
+      onSeleccion(parada.seleccion);
+    } else if (e.key === "Escape") {
+      setFoco(null);
+      onSeleccion(null);
+    }
+  };
+
   const zoom = (factor: number) => {
     if (!cy) return;
     cy.zoom({
@@ -288,12 +332,33 @@ export function LienzoMapa({ vista, cobertura, seleccion, onSeleccion, detallado
       </div>
       <div
         ref={contenedor}
-        role="img"
-        aria-label="Mapa de la vía. La tabla de pasos, más abajo, tiene la misma información."
+        tabIndex={0}
+        role="application"
+        aria-roledescription="mapa"
+        aria-label="Mapa de la vía"
+        aria-describedby="instrucciones-mapa"
+        onKeyDown={alTeclear}
+        onFocus={(e) => setConTeclado(e.currentTarget.matches(":focus-visible"))}
+        onBlur={() => {
+          setFoco(null);
+          setConTeclado(false);
+        }}
         className="w-full"
         // El lienzo conserva la proporción del dibujo: la página se desplaza, no el mapa.
         style={{ aspectRatio: `${vista.mapa!.ancho} / ${vista.mapa!.alto}` }}
       />
+      <p id="instrucciones-mapa" className="sr-only">
+        Usa las flechas para recorrer compuestos y pasos en el sentido de la vía, Enter para abrir su
+        ficha y Escape para cerrarla. La tabla de pasos, más abajo, tiene la misma información.
+      </p>
+      {conTeclado && (
+        <p aria-hidden="true" className="absolute bottom-2 left-2 rounded-[6px] border border-borde bg-superficie px-2 py-1 text-sm">
+          Flechas: recorrer · Enter: abrir ficha · Esc: cerrar
+        </p>
+      )}
+      <p aria-live="polite" className="sr-only">
+        {parada?.texto ?? ""}
+      </p>
     </div>
   );
 }
