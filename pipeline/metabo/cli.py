@@ -16,7 +16,7 @@ from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
 from metabo.registry import SourceRegistry
-from metabo.sources import rhea
+from metabo.sources import chebi, enzyme, rhea
 
 # Etapas de `metabo build`, en orden. Se implementan en tareas posteriores.
 STAGES: tuple[tuple[str, str], ...] = (
@@ -59,6 +59,8 @@ def cmd_fuentes(_: argparse.Namespace) -> int:
 
 # Extractores disponibles: fuente -> función que descarga a raw/ y devuelve sus registros.
 EXTRACTORS: dict[str, Callable[[Downloader, Path], tuple[object, list[DownloadRecord]]]] = {
+    "chebi": chebi.extract,
+    "enzyme": enzyme.extract,
     "rhea": rhea.extract,
 }
 

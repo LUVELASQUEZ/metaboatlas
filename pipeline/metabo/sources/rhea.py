@@ -19,6 +19,7 @@ from pathlib import Path
 from metabo.download import Downloader
 from metabo.errors import SourceFormatError
 from metabo.manifest import DownloadRecord
+from metabo.sources.formats import check_header
 
 FUENTE = "rhea"
 BASE_URL = "https://ftp.expasy.org/databases/rhea"
@@ -61,18 +62,6 @@ def parse_release(text: str) -> Release:
             f"rhea-release.properties no tiene un rhea.release.date válido: {fecha!r}"
         )
     return Release(numero=numero, fecha=fecha)
-
-
-def check_header(path: Path, expected: tuple[str, ...]) -> None:
-    """Comprueba que la primera línea del TSV tenga exactamente las columnas esperadas."""
-    with path.open(encoding="utf-8") as handle:
-        header = tuple(handle.readline().rstrip("\r\n").split("\t"))
-    if header != expected:
-        raise SourceFormatError(
-            f"{path.name} cambió de formato: se esperaban las columnas {list(expected)} "
-            f"y se encontraron {list(header)}. Revisa el README del FTP de Rhea antes de "
-            "adaptar el extractor."
-        )
 
 
 def extract(downloader: Downloader, raw_dir: Path) -> tuple[Release, list[DownloadRecord]]:

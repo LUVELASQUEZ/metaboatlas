@@ -117,7 +117,7 @@ chebi:
     Atribución. Uso regido además por los términos de uso de EMBL-EBI
     (https://www.ebi.ac.uk/about/terms-of-use).
   acceso:
-    - ftp.ebi.ac.uk/pub/databases/chebi/
+    - ftp.ebi.ac.uk/pub/databases/chebi/  # flat_files/: README y *.tsv.gz (solo IDs primarios)
   plantillas:
     compuesto: https://www.ebi.ac.uk/chebi/CHEBI:{id}  # comprobado con CHEBI:15361 (pyruvate)
   cita_recomendada: >-
@@ -129,8 +129,18 @@ chebi:
     Licencia y cita copiadas de https://www.ebi.ac.uk/chebi/about (secciones
     "Licensing" y "To cite ChEBI"). DOI tomado del enlace de esa cita y comprobado
     en Crossref. El manual advierte que ChEBI cambió sus formatos de descarga: el
-    FTP tiene ahora SDF/, flat_files/, generic_dumps/ y ontology/; TODO: elegir el
-    archivo al implementar el extractor.
+    FTP tiene ahora SDF/, flat_files/, generic_dumps/ y ontology/. El extractor usa
+    flat_files/, la carpeta que su README recomienda para IDs primarios.
+    CONTRADICCIÓN DE LICENCIA (revisada el 2026-10-07, release 256): el README de
+    flat_files/ dice en un párrafo "Creative Commons Attribution-ShareAlike 4.0
+    International License", pero en la misma página lista el archivo LICENSE como
+    "Creative Commons Attribution 4.0 International License", y ese archivo
+    (ftp.ebi.ac.uk/pub/databases/chebi/flat_files/LICENSE) contiene el texto legal de
+    CC BY 4.0, sin ShareAlike. La página oficial https://www.ebi.ac.uk/chebi/about
+    también declara CC BY 4.0. Decisión de la responsable del proyecto (2026-10-07):
+    se usa CC BY 4.0, que es lo que dicen el texto legal y la página oficial. Si ChEBI
+    aclara otra cosa, revisar esta entrada. El README pide que la atribución incluya
+    la URL de ChEBI y el número de release.
 
 uniprot:
   nombre: UniProtKB
