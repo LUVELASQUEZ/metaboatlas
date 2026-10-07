@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Sistema de diseño (sección 8 de docs/MANUAL.md): tokens en variables CSS para que
+   el modo oscuro solo cambie valores. Todo par texto/fondo cumple WCAG AA. */
+:root {
+  --fondo: #faf8f4;
+  --superficie: #ffffff;
+  --tinta: #1f2a33;
+  --tinta-suave: #5b6770;
+  --primario: #1f6f78;
+  --acento: #b7791f;
+  --borde: #e4dfd6;
+
+  /* Evidencia (Okabe-Ito), siempre con un patrón de apoyo. */
+  --ev-alta: #0072b2;
+  --ev-media: #009e73;
+  --ev-baja: #e69f00;
+  --ev-sin-anotacion: #bdbdbd;
+  --ev-espontaneo: #5b6770;
+  --ev-neutro: #8a959d;
+
+  /* Clase química de los compuestos: suaves y diferenciables. */
+  --clase-carbohidrato: #f3d9a4;
+  --clase-lipido: #e9ddb0;
+  --clase-aminoacido: #c9d8c0;
+  --clase-nucleotido: #d9d0ea;
+  --clase-cofactor: #c5d0da;
+  --clase-ion-gas: #e2e2e2;
+  --clase-otro: #efe9df;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #15191c;
+    --superficie: #1e2428;
+    --tinta: #e8e6e1;
+    --tinta-suave: #a9b1b7;
+    --primario: #5fb3bc;
+    --acento: #e0a84e;
+    --borde: #2e363b;
+    --ev-espontaneo: #a9b1b7;
+    --ev-neutro: #77828a;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-tinta: var(--tinta);
+  --color-tinta-suave: var(--tinta-suave);
+  --color-primario: var(--primario);
+  --color-acento: var(--acento);
+  --color-borde: var(--borde);
+  --font-serif: "Source Serif 4 Variable", Georgia, serif;
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --radius-tarjeta: 10px;
+  --radius-control: 6px;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  line-height: 1.25;
+}
+
+a {
+  color: var(--primario);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--primario);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

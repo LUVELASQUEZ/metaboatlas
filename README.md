@@ -60,6 +60,14 @@ uv run metabo validate
 uv run pytest
 ```
 
+El sitio está en [`web/`](web/README.md). Necesita el paquete de datos que genera `uv run metabo exportar`:
+
+```bash
+cd web
+npm ci
+npm run dev        # http://localhost:3000/metaboatlas/
+```
+
 Los esquemas se validan desde la raíz con `uv run schema/validate_examples.py`. Cada pull request ejecuta estas verificaciones en GitHub Actions ([`checks.yml`](.github/workflows/checks.yml)).
 
 ## Cómo contribuir
