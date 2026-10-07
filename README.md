@@ -1,6 +1,6 @@
 # MetaboAtlas
 
-> Nombre provisional. Proyecto en **Fase 0 (fundamentos)**: todavía no hay sitio publicado ni datos.
+> Nombre provisional. Proyecto en **Fase 0 (fundamentos)**. Sitio: <https://luvelasquez.github.io/metaboatlas/> (por ahora solo la glucólisis). Datos: versiones `data-*` en [Releases](https://github.com/LUVELASQUEZ/metaboatlas/releases).
 
 MetaboAtlas es una aplicación web pública, gratuita y de código abierto para consultar mapas metabólicos en español. Está pensada para estudiantes y docentes de microbiología, bacteriología, biología, bioquímica, biotecnología y nutrición.
 
