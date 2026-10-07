@@ -1,0 +1,180 @@
+---
+via: via:glucolisis
+estado_editorial: borrador
+# Texto redactado con apoyo de IA (sección 10 del manual). Se mantiene en true hasta que
+# un revisor del área lo apruebe.
+generado_con_ia: true
+revisores: []
+actualizado: "2026-10-07"
+# Un texto corto por paso, en el sentido de la vía. Lo usa la ficha del paso.
+pasos:
+  p01: >-
+    La hexocinasa (o la glucocinasa) transfiere un fosfato del ATP a la glucosa. La glucosa
+    6-fosfato queda atrapada en la célula, porque su carga le impide cruzar la membrana.
+  p02: >-
+    La glucosa 6-fosfato se isomeriza a fructosa 6-fosfato. El cambio de aldosa a cetosa
+    prepara la molécula para que luego se rompa en dos mitades.
+  p03: >-
+    La fosfofructocinasa gasta un segundo ATP y forma fructosa 1,6-bisfosfato. Es el paso
+    comprometido de la vía y su principal punto de control.
+  p04: >-
+    La aldolasa corta la fructosa 1,6-bisfosfato en dos triosas fosfato: gliceraldehído
+    3-fosfato y dihidroxiacetona fosfato.
+  p05: >-
+    La triosa fosfato isomerasa convierte la dihidroxiacetona fosfato en gliceraldehído
+    3-fosfato. Así, ambas mitades de la glucosa siguen por la misma ruta.
+  p06: >-
+    La gliceraldehído 3-fosfato deshidrogenasa oxida la triosa, reduce NAD+ a NADH e
+    incorpora un fosfato inorgánico. Se forma 1,3-bisfosfoglicerato.
+  p07: >-
+    La fosfoglicerato cinasa pasa el fosfato de alta energía del 1,3-bisfosfoglicerato al
+    ADP. Es la primera fosforilación a nivel de sustrato: se forma ATP.
+  p08: >-
+    La fosfoglicerato mutasa mueve el fosfato del carbono 3 al carbono 2. El producto es
+    2-fosfoglicerato.
+  p09: >-
+    La enolasa retira una molécula de agua y forma fosfoenolpiruvato, un compuesto con un
+    fosfato de muy alta energía de transferencia.
+  p10: >-
+    La piruvato cinasa transfiere el fosfato del fosfoenolpiruvato al ADP. Se forman ATP y
+    piruvato, el producto final de la vía.
+---
+
+<Nivel nivel="basico">
+
+## ¿Qué hace la glucólisis?
+
+La glucólisis (*glycolysis*) rompe una molécula de glucosa, de seis carbonos, en dos moléculas de piruvato, de tres carbonos cada una.
+
+En el camino, la célula obtiene energía en forma de ATP y guarda electrones en el transportador NADH.
+
+Ocurre en el citosol y no necesita oxígeno. Por eso la usan casi todos los seres vivos, desde bacterias hasta humanos.
+
+### Una analogía
+
+Piensa en una inversión. Al principio la célula "paga" dos ATP para activar la glucosa. Después recupera cuatro ATP. La ganancia neta es de dos ATP por cada glucosa.
+
+### Entrada y salida principales
+
+- **Entra**: una glucosa, dos ATP para la inversión inicial, dos NAD+ y dos fosfatos inorgánicos.
+- **Sale**: dos piruvatos, dos NADH y una ganancia neta de dos ATP.
+
+### ¿Por qué importa?
+
+Es la puerta de entrada del azúcar al metabolismo. El piruvato puede seguir hacia la respiración, si hay oxígeno, o hacia una fermentación, si no lo hay.
+
+Algunas células dependen solo de la glucólisis para obtener ATP. Los glóbulos rojos maduros, por ejemplo, no tienen mitocondrias.<RefPendiente nota="eritrocitos sin mitocondrias y dependencia de la glucólisis" />
+
+</Nivel>
+
+<Nivel nivel="intermedio">
+
+## ¿Cómo funciona?
+
+La vía tiene diez pasos, agrupados en dos fases.
+
+### Fase preparatoria (pasos 1 a 5)
+
+La célula gasta dos ATP. El primero fosforila la glucosa (paso 1) y el segundo, la fructosa 6-fosfato (paso 3).
+
+Entre ambos, una isomerasa convierte la glucosa 6-fosfato en fructosa 6-fosfato (paso 2).
+
+La aldolasa rompe la fructosa 1,6-bisfosfato en dos triosas fosfato (paso 4). La triosa fosfato isomerasa convierte una en la otra (paso 5).
+
+Al terminar esta fase hay dos moléculas de gliceraldehído 3-fosfato por cada glucosa.
+
+### Fase de beneficio (pasos 6 a 10)
+
+Cada gliceraldehído 3-fosfato recorre los pasos 6 a 10. Por eso esos pasos ocurren dos veces por cada glucosa.
+
+En el paso 6 la triosa se oxida y se forma NADH. Es la única oxidación de la vía.
+
+Los pasos 7 y 10 producen ATP por fosforilación a nivel de sustrato: el fosfato pasa directamente de un metabolito al ADP, sin cadena respiratoria.
+
+### Balance energético
+
+La tabla suma los cambios de cada paso según la curaduría de la vía, que se verificó contra las ecuaciones de Rhea.
+
+<BalanceEnergetico duplicados={["p06", "p07", "p08", "p09", "p10"]} />
+
+### Regulación
+
+Tres pasos son prácticamente irreversibles en la célula: el 1, el 3 y el 10. Son los puntos donde se controla la vía.<RefPendiente nota="irreversibilidad de los pasos 1, 3 y 10 en condiciones celulares" />
+
+En el mapa aparecen marcados como pasos regulados.
+
+- **Fosfofructocinasa (paso 3)**: es el control principal. En animales, el ATP abundante la inhibe y el AMP la activa.<RefPendiente nota="regulación alostérica de la fosfofructocinasa 1 por ATP y AMP" />
+- **Hexocinasa (paso 1)**: en animales, su propio producto, la glucosa 6-fosfato, la inhibe. La glucocinasa del hígado no responde así.<RefPendiente nota="inhibición de la hexocinasa por glucosa 6-fosfato; glucocinasa insensible" />
+- **Piruvato cinasa (paso 10)**: la fructosa 1,6-bisfosfato, formada en el paso 3, la activa por adelantado.<RefPendiente nota="activación de la piruvato cinasa por fructosa 1,6-bisfosfato" />
+
+### Conexiones con otras vías
+
+- **Gluconeogénesis**: recorre el camino inverso y usa enzimas propias para saltar los pasos 1, 3 y 10.
+- **Vía de las pentosas fosfato**: parte de la glucosa 6-fosfato y devuelve intermediarios a la glucólisis.
+- **Destinos del piruvato**: con oxígeno pasa al ciclo de Krebs como acetil-CoA. Sin oxígeno se reduce a lactato o a etanol, lo que regenera el NAD+.
+
+</Nivel>
+
+<Nivel nivel="avanzado">
+
+## ¿Qué dicen los datos?
+
+### Las reacciones y sus identificadores
+
+Cada paso del mapa apunta a una o más reacciones de Rhea y a sus números EC. La tabla de pasos de esta página los muestra con enlace a la fuente.
+
+Rhea escribe algunas reacciones en el sentido contrario al de la glucólisis. Es el caso de la fosfoglicerato cinasa (paso 7) y la piruvato cinasa (paso 10). El mapa las muestra en el sentido de la vía.
+
+### Isoenzimas incluidas en la curaduría
+
+- **Paso 1**: hexocinasa (EC 2.7.1.1) y glucocinasa (EC 2.7.1.2). También se incluye la reacción genérica de la hexocinasa sobre "una D-hexosa".
+- **Paso 3**: solo la fosfofructocinasa dependiente de ATP (EC 2.7.1.11).
+- **Paso 8**: las dos fosfoglicerato mutasas, la dependiente (EC 5.4.2.11) y la independiente (EC 5.4.2.12) de 2,3-bisfosfoglicerato.
+
+Las reacciones con otros sustratos que Rhea asocia al mismo EC, como la manosa en el paso 1, no se incluyen.
+
+### Variantes entre organismos
+
+La glucólisis de esta página es la vía de Embden-Meyerhof-Parnas. No es la única forma de degradar glucosa.
+
+- **Sistema de fosfotransferasa (PTS)**: muchas bacterias, como *E. coli*, introducen la glucosa ya fosforilada usando fosfoenolpiruvato. No se incluye en el paso 1; tendrá su propia vía.<RefPendiente nota="captación de glucosa por PTS en E. coli" />
+- **Vía de Entner-Doudoroff**: otras bacterias rompen la glucosa por un camino distinto, con menor rendimiento de ATP.<RefPendiente nota="vía de Entner-Doudoroff y su rendimiento" />
+- **Fosfoglicerato mutasa**: algunos organismos usan la forma dependiente de 2,3-bisfosfoglicerato y otros la independiente. Por eso el paso 8 incluye ambas.
+
+La cobertura de cada organismo se calcula con sus proteínas anotadas en UniProt. Un paso sin anotación no prueba que el organismo carezca de la enzima.
+
+### Regulación alostérica y genética
+
+La regulación cambia entre grupos de organismos. Por ejemplo, la fosfofructocinasa de *E. coli* responde a efectores distintos de los de la enzima de mamíferos.<RefPendiente nota="efectores de la fosfofructocinasa de E. coli frente a la de mamíferos" />
+
+En mamíferos, la fructosa 2,6-bisfosfato es un activador potente de la fosfofructocinasa. Conecta la vía con señales hormonales.<RefPendiente nota="fructosa 2,6-bisfosfato como activador de la PFK-1" />
+
+### Termodinámica
+
+Los pasos 1, 3 y 10 tienen una energía libre muy negativa en las condiciones de la célula. Los demás operan cerca del equilibrio y la gluconeogénesis los comparte.<RefPendiente nota="valores de ΔG de cada paso; citar la fuente de cada cifra" />
+
+Esta página no muestra cifras de ΔG hasta tener una fuente verificable para cada una, porque los valores varían entre libros.
+
+</Nivel>
+
+## Relevancia por carrera
+
+- **Microbiología**: la glucólisis alimenta las fermentaciones láctica y alcohólica. La fermentación de la glucosa es una prueba clásica de identificación bioquímica.<RefPendiente nota="pruebas de fermentación de glucosa en identificación bacteriana" />
+- **Bacteriología clínica**: distinguir bacterias fermentadoras de no fermentadoras de glucosa orienta la identificación de bacilos gramnegativos.<RefPendiente nota="fermentadores y no fermentadores de glucosa en el laboratorio clínico" />
+- **Nutrición**: en el ejercicio intenso, el músculo obtiene ATP rápido por glucólisis y produce lactato.<RefPendiente nota="glucólisis y lactato en el ejercicio intenso" />
+- **Biotecnología**: *Saccharomyces cerevisiae* convierte el piruvato en etanol. Es la base de la producción de bebidas y bioetanol.
+- **Bioquímica**: muchas células tumorales aumentan la glucólisis aun con oxígeno disponible (efecto Warburg).<RefPendiente nota="efecto Warburg" />
+
+## Errores frecuentes
+
+- **"Se forman cuatro ATP."** Se forman cuatro, pero se gastan dos en la fase preparatoria. La ganancia neta es de dos ATP por glucosa.
+- **"El NADH es energía."** El NADH lleva electrones. Solo rinde ATP si esos electrones llegan a una cadena respiratoria.
+- **"La glucólisis es anaerobia, así que solo ocurre sin oxígeno."** No necesita oxígeno, pero ocurre también en células que respiran. El oxígeno cambia el destino del piruvato, no la vía.
+- **"La dihidroxiacetona fosfato se pierde."** La triosa fosfato isomerasa la convierte en gliceraldehído 3-fosfato. Por eso se obtienen dos piruvatos.
+- **"El piruvato es siempre el final."** El piruvato es el final de la vía, pero la célula lo sigue transformando según sus condiciones.
+
+## Referencias
+
+Los datos de reacciones, enzimas y compuestos de esta página vienen de Rhea, ENZYME, ChEBI y UniProt, con su versión en la caja de fuentes.
+
+Las afirmaciones marcadas como "referencia pendiente" esperan una fuente primaria o una revisión de acceso abierto. Se agregarán durante la revisión del contenido.

@@ -18,6 +18,8 @@ const PAGINAS = [
   "/via/glucolisis/",
   "/via/glucolisis/?org=511145&paso=p03",
   "/via/glucolisis/?org=9606&compuesto=CHEBI:59776",
+  "/via/glucolisis/?nivel=intermedio&org=559292",
+  "/via/glucolisis/?nivel=avanzado&paso=p10",
 ];
 const TIPOS = {
   ".html": "text/html; charset=utf-8",

@@ -6,8 +6,11 @@ import { BarraCobertura } from "@/components/BarraCobertura";
 import { LeyendaEvidencia } from "@/components/LeyendaEvidencia";
 import { LienzoMapa } from "@/components/LienzoMapa";
 import { PanelFicha } from "@/components/PanelFicha";
+import { SelectorNivel } from "@/components/contenido/SelectorNivel";
 import { TablaPasos } from "@/components/TablaPasos";
 import { descargarCobertura } from "@/lib/cliente";
+import { mapaDetallado } from "@/lib/niveles";
+import { parseNivel } from "@/lib/niveles-url";
 import type { Cobertura } from "@/lib/tipos/cobertura";
 import type { VistaVia as Vista } from "@/lib/vista-via";
 
@@ -15,11 +18,15 @@ export type Seleccion = { tipo: "paso"; id: string } | { tipo: "compuesto"; id: 
 
 type Descarga = { taxon: string; cobertura: Cobertura } | { taxon: string; error: true };
 
-/** Mapa, selector de organismo, cobertura, ficha y tabla de una vía. Estado en la URL. */
-export function VistaVia({ vista }: { vista: Vista }) {
+/**
+ * Mapa, selectores de organismo y nivel, cobertura, ficha y tabla de una vía. Estado en la
+ * URL. `textosPasos` es el texto didáctico de cada paso, si la vía tiene contenido.
+ */
+export function VistaVia({ vista, textosPasos = {} }: { vista: Vista; textosPasos?: Record<string, string> }) {
   const [org, setOrg] = useQueryState("org", parseAsString);
   const [paso, setPaso] = useQueryState("paso", parseAsString);
   const [compuesto, setCompuesto] = useQueryState("compuesto", parseAsString);
+  const [nivel] = useQueryState("nivel", parseNivel);
   const [descarga, setDescarga] = useState<Descarga | null>(null);
 
   const taxon = org && vista.organismos.some((o) => o.id === `taxon:${org}`) ? `taxon:${org}` : null;
@@ -67,6 +74,7 @@ export function VistaVia({ vista }: { vista: Vista }) {
             ))}
           </select>
         </label>
+        <SelectorNivel />
         <div className="min-w-64 flex-1" aria-live="polite">
           {estado === "ninguno" && (
             <p className="text-sm text-tinta-suave">
@@ -95,6 +103,7 @@ export function VistaVia({ vista }: { vista: Vista }) {
               cobertura={cobertura}
               seleccion={seleccion}
               onSeleccion={seleccionar}
+              detallado={mapaDetallado(nivel)}
             />
           ) : (
             <p>Esta vía aún no tiene un mapa dibujado. Consulta la tabla de pasos.</p>
@@ -107,6 +116,7 @@ export function VistaVia({ vista }: { vista: Vista }) {
           cobertura={cobertura}
           organismo={organismo}
           onSeleccion={seleccionar}
+          textosPasos={textosPasos}
         />
       </div>
 
