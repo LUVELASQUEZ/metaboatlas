@@ -3,9 +3,12 @@
 # Regla de oro: ningún dato entra al pipeline si su fuente no tiene aquí una entrada
 # con la licencia verificada en su página oficial y la fecha de verificación.
 #
-# ESTADO: inventario inicial. NINGUNA entrada está verificada todavía.
-# - Licencias, URLs y patrones de enlace se copiaron del manual, no de las páginas
-#   oficiales; deben confirmarse una por una antes de usar la fuente.
+# ESTADO: verificadas el 2026-10-07 las cinco fuentes de la fase 0 (Rhea, ChEBI,
+# UniProtKB, ENZYME y NCBI Taxonomy). El resto sigue siendo inventario inicial.
+# - En las entradas pendientes, licencias, URLs y patrones de enlace se copiaron del
+#   manual, no de las páginas oficiales; deben confirmarse una por una antes de usarlas.
+# - En las verificadas, `notas` indica la página exacta de donde se copió la cita.
+#   Las citas multilínea respetan los saltos de línea de la página original.
 # - `cita_recomendada` y `doi_cita` se copian textualmente de la página oficial
 #   "How to cite" de cada base. Nunca se escriben de memoria.
 # - Mientras `estado` sea "pendiente de verificar", el pipeline no debe descargar
@@ -72,50 +75,70 @@ wikipathways:
 rhea:
   nombre: Rhea
   uso: redistribuir
-  estado: pendiente de verificar
+  estado: verificada
   url: https://www.rhea-db.org
   licencia: CC BY 4.0
-  licencia_url: null  # TODO
-  verificada: null  # TODO
+  licencia_url: https://www.rhea-db.org/help/license-disclaimer
+  verificada: "2026-10-07"
   que_tomamos: >-
     Reacciones balanceadas, dirección, participantes ChEBI y número EC.
-  condicion: Atribución.
+  condicion: >-
+    Atribución (dar crédito a Rhea). Según LICENSE.txt del FTP, toda copia de sus
+    archivos debe ir acompañada de su declaración de copyright.
   acceso:
-    - ftp.expasy.org/databases/rhea/tsv/  # rhea-directions.tsv, rhea2ec.tsv, rhea2uniprot
-    - sparql.rhea-db.org
+    - ftp.expasy.org/databases/rhea/tsv/  # rhea-directions.tsv, rhea2ec.tsv, rhea2uniprot.tsv
   plantillas:
-    reaccion: https://www.rhea-db.org/rhea/{id}  # TODO: confirmar
-  cita_recomendada: null  # TODO
-  doi_cita: null  # TODO
-  notas: null
+    reaccion: https://www.rhea-db.org/rhea/{id}  # formato de /help/links (p. ej. /rhea/19253)
+  cita_recomendada: |-
+    Bansal P, Morgat A, Axelsen KB, Muthukrishnan V, Coudert E, Aimo L, Hyka-Nouspikel N, Gasteiger E, Kerhornou A, Neto TB, Pozzato M, Blatter MC, Ignatchenko A, Redaschi N, Bridge A
+    Rhea, the reaction knowledgebase in 2022.
+    Nucleic Acids Res. Epub:gkab1016 (2021).
+  doi_cita: 10.1093/nar/gkab1016
+  notas: >-
+    Cita copiada de https://www.rhea-db.org/help/publications ("How to cite us"),
+    enlazada desde la página de licencia. Licencia confirmada también en
+    https://ftp.expasy.org/databases/rhea/LICENSE.txt. DOI comprobado en Crossref.
+    TODO: sparql.rhea-db.org (previsto en el manual) no se agregó a `acceso` porque
+    ese dominio no se pudo verificar desde el entorno.
 
 chebi:
   nombre: ChEBI
   uso: redistribuir
-  estado: pendiente de verificar
-  url: null  # TODO
+  estado: verificada
+  url: https://www.ebi.ac.uk/chebi/
   licencia: CC BY 4.0
-  licencia_url: null  # TODO
-  verificada: null  # TODO
+  licencia_url: https://www.ebi.ac.uk/chebi/about
+  verificada: "2026-10-07"
   que_tomamos: >-
     Compuestos: nombre, fórmula, carga, masa, SMILES, InChI, sinónimos y
     ontología de roles.
-  condicion: Atribución.
+  condicion: >-
+    Atribución. Uso regido además por los términos de uso de EMBL-EBI
+    (https://www.ebi.ac.uk/about/terms-of-use).
   acceso:
     - ftp.ebi.ac.uk/pub/databases/chebi/
-  plantillas: {}  # TODO
-  cita_recomendada: null  # TODO
-  doi_cita: null  # TODO
-  notas: El manual advierte que ChEBI cambió sus formatos de descarga recientemente; verificar.
+  plantillas:
+    compuesto: https://www.ebi.ac.uk/chebi/CHEBI:{id}  # comprobado con CHEBI:15361 (pyruvate)
+  cita_recomendada: >-
+    Malik, A., Arsalan, M., Moreno, C., Mosquera, J., Félix, E., Kizilören, T.,
+    Muthukrishnan, V., Zdrazil, B., Leach, A. R., and O'Boyle, N. M. (2025). ChEBI:
+    re-engineered for a sustainable future. Nucleic Acids Res.
+  doi_cita: 10.1093/nar/gkaf1271
+  notas: >-
+    Licencia y cita copiadas de https://www.ebi.ac.uk/chebi/about (secciones
+    "Licensing" y "To cite ChEBI"). DOI tomado del enlace de esa cita y comprobado
+    en Crossref. El manual advierte que ChEBI cambió sus formatos de descarga: el
+    FTP tiene ahora SDF/, flat_files/, generic_dumps/ y ontology/; TODO: elegir el
+    archivo al implementar el extractor.
 
 uniprot:
   nombre: UniProtKB
   uso: redistribuir
-  estado: pendiente de verificar
-  url: null  # TODO
+  estado: verificada
+  url: https://www.uniprot.org
   licencia: CC BY 4.0
-  licencia_url: null  # TODO
-  verificada: null  # TODO
+  licencia_url: https://www.uniprot.org/help/license
+  verificada: "2026-10-07"
   que_tomamos: >-
     Enzimas por organismo: EC, reacciones Rhea, genes, cofactores, GO y nivel
     de revisión.
@@ -123,27 +146,47 @@ uniprot:
   acceso:
     - rest.uniprot.org/uniprotkb/stream
     - rest.uniprot.org/proteomes
-  plantillas: {}  # TODO
-  cita_recomendada: null  # TODO
-  doi_cita: null  # TODO
-  notas: Núcleo del cálculo de cobertura. Descargar solo los proteomas de pipeline/organismos.yaml.
+  plantillas:
+    proteina: https://www.uniprot.org/uniprotkb/{id}  # formato de /help/linking_to_uniprot
+  cita_recomendada: |-
+    The UniProt Consortium
+    UniProt: the Universal Protein Knowledgebase in 2025
+    Nucleic Acids Res. 53:D609–D617 (2025)
+  doi_cita: 10.1093/nar/gkae1010
+  notas: >-
+    Núcleo del cálculo de cobertura. Descargar solo los proteomas de
+    pipeline/organismos.yaml. Cita copiada de https://www.uniprot.org/help/publications
+    ("How to cite us"; texto obtenido de https://rest.uniprot.org/help/publications,
+    que sirve el mismo contenido en Markdown, sin las marcas de formato). DOI tomado
+    del enlace de esa cita y comprobado en Crossref. La página permite citar en su
+    lugar la publicación que mejor cubra el componente usado. Versión vigente al
+    verificar: 2026_03 (2 de septiembre de 2026).
 
 enzyme:
   nombre: ENZYME (Expasy)
   uso: redistribuir
-  estado: pendiente de verificar
-  url: null  # TODO
+  estado: verificada
+  url: https://enzyme.expasy.org
   licencia: CC BY 4.0
-  licencia_url: null  # TODO
-  verificada: null  # TODO
+  licencia_url: https://ftp.expasy.org/databases/enzyme/README
+  verificada: "2026-10-07"
   que_tomamos: Nomenclatura EC oficial, nombres aceptados y jerarquía de clases.
-  condicion: Atribución.
+  condicion: Atribución (copyright del SIB Swiss Institute of Bioinformatics).
   acceso:
     - ftp.expasy.org/databases/enzyme/  # enzyme.dat, enzclass.txt
-  plantillas: {}  # TODO
-  cita_recomendada: null  # TODO
-  doi_cita: null  # TODO
-  notas: null
+  plantillas:
+    enzima: https://enzyme.expasy.org/EC/{id}  # comprobado con 2.7.1.1 (hexokinase)
+  cita_recomendada: |-
+    Bairoch A.
+    The ENZYME database in 2000
+    Nucleic Acids Res. 28:304-305(2000).
+  doi_cita: 10.1093/nar/28.1.304
+  notas: >-
+    ENZYME no tiene una página web de licencia propia; la licencia se declara en el
+    README y en el manual de usuario (enzuser.txt) de su FTP oficial. Cita copiada de
+    https://enzyme.expasy.org/enzyme_ref.html ("please cite"); enzuser.txt da la misma
+    cita con un punto tras el título. DOI tomado de esa página y comprobado en
+    Crossref. Versión vigente al verificar: 02-Sep-2026.
 
 go:
   nombre: Gene Ontology
@@ -164,19 +207,33 @@ go:
 ncbi_taxonomy:
   nombre: NCBI Taxonomy
   uso: redistribuir
-  estado: pendiente de verificar
-  url: null  # TODO
+  estado: verificada
+  url: https://www.ncbi.nlm.nih.gov/taxonomy
   licencia: Dominio público
-  licencia_url: null  # TODO
-  verificada: null  # TODO
+  licencia_url: https://www.ncbi.nlm.nih.gov/home/about/policies/#copyright
+  verificada: "2026-10-07"
   que_tomamos: Linaje, rangos, nombres científicos y comunes.
-  condicion: Citar la fuente.
+  condicion: >-
+    Citar la fuente. NLM pide un reconocimiento adecuado en todo uso posterior, y
+    el aviso de descargo y copyright de NCBI debe ser visible para los usuarios del
+    servicio.
   acceso:
     - ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/
-  plantillas: {}  # TODO
-  cita_recomendada: null  # TODO
-  doi_cita: null  # TODO
-  notas: null
+  plantillas:
+    organismo: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id={id}  # formato de la página "howlink"
+  cita_recomendada: |-
+    Schoch CL, et al. NCBI Taxonomy: a comprehensive update on curation, resources and tools. Database (Oxford). 2020: baaa062.
+    Sayers EW, et al. GenBank. Nucleic Acids Res. 2019. 47(D1):D94-D99.
+  doi_cita: 10.1093/database/baaa062
+  notas: >-
+    Licencia según "Copyright Status of Webpages" y "Molecular Data Usage" de la
+    página de políticas de NCBI. Citas copiadas de
+    https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=howcite,
+    que recomienda los dos artículos y advierte que NCBI Taxonomy no es una
+    autoridad taxonómica. Esa página no muestra DOI: se obtuvieron en Crossref por
+    búsqueda bibliográfica (Schoch 2020, 10.1093/database/baaa062; Sayers 2019,
+    10.1093/nar/gky989) y coinciden en título, revista, año y páginas. `doi_cita`
+    guarda el de Schoch, el artículo específico de Taxonomy.
 
 wikidata:
   nombre: Wikidata

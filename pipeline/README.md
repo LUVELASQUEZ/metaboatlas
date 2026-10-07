@@ -2,7 +2,7 @@
 
 Pipeline de datos de MetaboAtlas en Python 3.12 (gestor `uv`). Descarga las fuentes registradas en [`../sources.yaml`](../sources.yaml), las normaliza en DuckDB, integra la curaduría, calcula la cobertura, valida contra [`../schema/`](../schema/) y exporta el paquete de datos. Ver la sección 6 de [`docs/MANUAL.md`](../docs/MANUAL.md).
 
-> **Estado:** esqueleto. Las etapas existen como lista, pero todavía no procesan datos. Ninguna fuente está verificada, así que el pipeline no descarga nada.
+> **Estado:** esqueleto. Las etapas existen como lista, pero todavía no procesan datos. Las cinco fuentes de la fase 0 (Rhea, ChEBI, UniProtKB, ENZYME y NCBI Taxonomy) ya están verificadas en `sources.yaml`; las descargas se implementan en las próximas tareas.
 
 ## Uso
 
