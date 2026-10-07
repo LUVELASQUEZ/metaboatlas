@@ -83,8 +83,14 @@ class Downloader:
         version: str,
         filename: str | None = None,
         today: date | None = None,
+        check_headers: Callable[[httpx.Headers], None] | None = None,
     ) -> DownloadRecord:
-        """Descarga `url` a raw/<fuente>/<version>/<archivo> y devuelve su registro."""
+        """Descarga `url` a raw/<fuente>/<version>/<archivo> y devuelve su registro.
+
+        `check_headers`, si se da, recibe las cabeceras de la respuesta antes de escribir
+        el archivo; puede lanzar una excepción para detener la descarga (por ejemplo, si
+        la cabecera de versión no coincide con `version`).
+        """
         source = self._registry.require_downloadable(fuente)
         self._registry.require_official_url(source, url)
         version = _safe_segment(version, "Versión")
@@ -96,7 +102,7 @@ class Downloader:
         partial = target.with_name(target.name + ".parcial")
 
         try:
-            digest, size = self._retrying()(self._fetch, source, url, partial)
+            digest, size = self._retrying()(self._fetch, source, url, partial, check_headers)
         except RetryError as exc:
             partial.unlink(missing_ok=True)
             cause = exc.last_attempt.exception()
@@ -128,6 +134,12 @@ class Downloader:
         Aplica las mismas reglas que `download`: fuente verificada, acceso oficial y
         reintentos con espera exponencial.
         """
+        return self.fetch_text_with_headers(fuente, url, max_bytes)[0]
+
+    def fetch_text_with_headers(
+        self, fuente: str, url: str, max_bytes: int = 1 << 16
+    ) -> tuple[str, httpx.Headers]:
+        """Como `fetch_text`, pero devuelve también las cabeceras de la respuesta."""
         source = self._registry.require_downloadable(fuente)
         self._registry.require_official_url(source, url)
         try:
@@ -152,7 +164,7 @@ class Downloader:
             reraise=False,
         )
 
-    def _fetch_text(self, source: Source, url: str, max_bytes: int) -> str:
+    def _fetch_text(self, source: Source, url: str, max_bytes: int) -> tuple[str, httpx.Headers]:
         data = bytearray()
         with self._client.stream("GET", url) as response:
             self._registry.require_official_url(source, str(response.url))
@@ -161,15 +173,24 @@ class Downloader:
                 data.extend(chunk)
                 if len(data) > max_bytes:
                     raise DownloadError(f"{url} supera el tamaño esperado ({max_bytes} bytes).")
-        return data.decode("utf-8")
+            headers = response.headers
+        return data.decode("utf-8"), headers
 
-    def _fetch(self, source: Source, url: str, destination: Path) -> tuple[str, int]:
+    def _fetch(
+        self,
+        source: Source,
+        url: str,
+        destination: Path,
+        check_headers: Callable[[httpx.Headers], None] | None = None,
+    ) -> tuple[str, int]:
         sha = hashlib.sha256()
         size = 0
         with self._client.stream("GET", url) as response:
             # Una redirección no puede sacar la descarga de los accesos oficiales.
             self._registry.require_official_url(source, str(response.url))
             response.raise_for_status()
+            if check_headers is not None:
+                check_headers(response.headers)
             with destination.open("wb") as handle:
                 for chunk in response.iter_bytes(_CHUNK_SIZE):
                     sha.update(chunk)

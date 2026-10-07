@@ -177,6 +177,11 @@ uniprot:
     del enlace de esa cita y comprobado en Crossref. La página permite citar en su
     lugar la publicación que mejor cubra el componente usado. Versión vigente al
     verificar: 2026_03 (2 de septiembre de 2026).
+    Extractor (pipeline/metabo/sources/uniprot.py): por cada proteoma descarga su ficha
+    (proteomes/<UP>?format=json) y sus proteínas revisadas y no revisadas
+    (uniprotkb/stream, query=proteome:<UP>, TSV comprimido) con los campos del manual
+    más cc_pathway, xref_reactome, xref_pdb y xref_alphafolddb. La versión se toma de
+    la cabecera X-UniProt-Release de la API.
 
 enzyme:
   nombre: ENZYME (Expasy)

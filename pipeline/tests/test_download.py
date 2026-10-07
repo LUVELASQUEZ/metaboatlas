@@ -169,3 +169,29 @@ def test_fetch_text_refuses_oversized_files(registry, download_config, tmp_path)
     downloader, _ = make_downloader(registry, download_config, tmp_path, server)
     with pytest.raises(DownloadError, match="tamaño"):
         downloader.fetch_text("fuente_prueba", URL, max_bytes=10)
+
+
+def test_check_headers_can_stop_a_download_without_leaving_files(
+    registry, download_config, tmp_path
+):
+    server = FakeServer(200)
+    downloader, sleeps = make_downloader(registry, download_config, tmp_path, server)
+    seen: list[str] = []
+
+    def reject(headers: httpx.Headers) -> None:
+        seen.append(headers["content-length"])
+        raise DownloadError("cabecera inesperada")
+
+    with pytest.raises(DownloadError, match="cabecera inesperada"):
+        downloader.download("fuente_prueba", URL, "v1", check_headers=reject)
+    assert seen == [str(len(BODY))]
+    assert len(server.requests) == 1 and sleeps == []
+    assert not list((tmp_path / "raw" / "fuente_prueba" / "v1").iterdir())
+
+
+def test_fetch_text_with_headers_returns_response_headers(registry, download_config, tmp_path):
+    server = FakeServer(200)
+    downloader, _ = make_downloader(registry, download_config, tmp_path, server)
+    text, headers = downloader.fetch_text_with_headers("fuente_prueba", URL)
+    assert text == BODY.decode()
+    assert headers["content-length"] == str(len(BODY))
