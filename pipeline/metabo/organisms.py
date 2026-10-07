@@ -24,6 +24,7 @@ class Organism(BaseModel):
     nombre: str = Field(min_length=1)
     intereses: list[Literal["modelo", "clinico", "industrial"]] = Field(min_length=1)
     proteoma_referencia: str | None = Field(default=None, pattern=r"^UP[0-9]{9}$")
+    nombre_ncbi: str | None = Field(default=None, min_length=1)
 
     @property
     def taxon_id(self) -> str:

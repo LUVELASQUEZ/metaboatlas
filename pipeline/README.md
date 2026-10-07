@@ -64,3 +64,4 @@ El descargador (`metabo/download.py`) aplica las reglas 1 a 4 de `CLAUDE.md` ant
 - **Correo de contacto:** se lee del secreto `METABO_CONTACTO`.
 - **Fuentes:** Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy están verificadas en `sources.yaml`.
 - **Proteomas:** cada organismo de `organismos.yaml` tiene su `proteoma_referencia`. Las proteínas se descargan por proteoma (`proteome:UP…`), no por taxón, porque UniProt puede registrar el proteoma bajo otro taxón (es el caso de *E. coli* MG1655, cuyo proteoma está bajo el taxón 83333).
+- **Taxones:** cada `id` de `organismos.yaml` existe en NCBI Taxonomy (ni fusionado ni eliminado) y su `nombre_ncbi` se copió de `names.dmp`.

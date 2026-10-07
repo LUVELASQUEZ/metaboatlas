@@ -7,6 +7,14 @@
 # (proteomeType "Reference proteome").
 # Consultado el 2026-10-07, UniProt release 2026_03 (02-September-2026).
 #
+# nombre_ncbi: nombre científico del taxón copiado textualmente de names.dmp
+# ("scientific name") de NCBI Taxonomy. Comprueba que cada `id` es el organismo que
+# dice `nombre`. Nunca se escribe de memoria.
+# Consultado el 2026-10-07 en ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/
+# (new_taxdump.tar.gz, Last-Modified 2026-10-07 00:42:32 GMT,
+# SHA-256 631266d3dd4f5ba7be933475dff2ccfcdf279e3dd354d782c651b904fce4cf3f).
+# Ningún taxón aparece en merged.dmp ni en delnodes.dmp.
+#
 # Las proteínas de un organismo se descargan siempre por proteoma
 # (query=proteome:UPxxxxxxxxx), no por taxón: UniProt puede registrar el proteoma
 # bajo un taxón distinto del de la cepa (ver E. coli).
@@ -14,6 +22,7 @@
 organismos:
   - id: taxon:511145
     nombre: Escherichia coli K-12 MG1655
+    nombre_ncbi: Escherichia coli str. K-12 substr. MG1655  # rango "no rank", hijo de 83333
     intereses: [modelo]
     # UniProt no tiene proteoma de referencia para el taxón 511145. Este proteoma
     # está registrado bajo el taxón 83333, "Escherichia coli (strain K12)", con cepa
@@ -23,15 +32,18 @@ organismos:
 
   - id: taxon:224308
     nombre: Bacillus subtilis 168
+    nombre_ncbi: Bacillus subtilis subsp. subtilis str. 168  # rango "strain"
     intereses: [modelo]
     proteoma_referencia: UP000001570  # ensamblaje GCA_000009045.1
 
   - id: taxon:559292
     nombre: Saccharomyces cerevisiae S288C
+    nombre_ncbi: Saccharomyces cerevisiae S288C  # rango "strain"
     intereses: [modelo]
     proteoma_referencia: UP000002311  # ensamblaje GCA_000146045.2
 
   - id: taxon:9606
     nombre: Homo sapiens
+    nombre_ncbi: Homo sapiens  # rango "species"
     intereses: [modelo]
     proteoma_referencia: UP000005640  # ensamblaje GCA_000001405.29
