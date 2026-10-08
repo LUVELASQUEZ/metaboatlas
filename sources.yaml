@@ -323,9 +323,9 @@ europe_pmc:
     - www.ebi.ac.uk/europepmc/webservices/rest/search
   plantillas:
     articulo: https://europepmc.org/article/MED/{id}
-  cita_recomendada: null  # TODO: copiar de la página oficial de cómo citar Europe PMC
-  doi_cita: null  # TODO
-  sin_cita_oficial: true  # TEMPORAL, solo para desarrollo local: reemplazar por la cita oficial
+  cita_recomendada: null
+  doi_cita: null
+  sin_cita_oficial: true
   notas: >-
     Página de copyright (https://europepmc.org/Copyright, leída el 2026-10-08; el sitio
     tiene un desafío de Cloudflare que rechaza peticiones automáticas, así que Luisa la
@@ -337,7 +337,9 @@ europe_pmc:
     download services that may be used for automated retrieval". La página no da una
     licencia para los datos de cita. Decisión de Luisa (2026-10-08): usar Europe PMC
     solo para datos de cita, por la API REST con resultType=lite (sin resúmenes); son
-    hechos bibliográficos que toda lista de referencias reproduce.
+    hechos bibliográficos que toda lista de referencias reproduce. Cita: ni la página
+    de copyright ni https://europepmc.org/About publican una cita recomendada de
+    Europe PMC (revisadas por Luisa el 2026-10-08), así que no se escribe ninguna.
 
 escher:
   nombre: Escher (software)
