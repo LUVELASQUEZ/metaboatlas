@@ -9,7 +9,8 @@ import { elementosMapa, ordenTeclado, textoCofactores, textoRotulo } from "@/lib
 import { enlace, type Fuentes, leerFuentes, plantilla } from "@/lib/fuentes";
 import type { Cobertura } from "@/lib/tipos/cobertura";
 import type { Reaccion } from "@/lib/tipos/reaccion";
-import { construirVistaVia, nombresEnEcuacion, type VistaVia } from "@/lib/vista-via";
+import { agruparOrganismos } from "@/lib/organismos";
+import { construirVistaVia, nombresEnEcuacion, type OrganismoVista, type VistaVia } from "@/lib/vista-via";
 
 const procedencia = (fuente: string, id: string) => [
   { fuente, id, version: "1", fecha_descarga: "2026-10-07" },
@@ -102,8 +103,8 @@ const ARCHIVOS: Record<string, unknown> = {
   "compuestos/CHEBI_5.json": compuesto("5", "otro azúcar", false, "otro azúcar en español"),
   "enzimas/EC_9.9.9.1.json": { id: "EC:9.9.9.1", nombre: { es: null, en: "enzima uno" }, proteinas: [], procedencia: procedencia("enzyme", "9.9.9.1") },
   "enzimas/EC_9.9.9.2.json": { id: "EC:9.9.9.2", nombre: { es: "enzima dos en español", en: "enzima dos" }, proteinas: [], procedencia: [...procedencia("enzyme", "9.9.9.2"), ...procedencia("wikidata", "Q20")] },
-  "organismos/13.json": { id: "taxon:13", nombre_cientifico: "Bacteria ficticia", dominio: "bacteria", procedencia: [] },
-  "organismos/14.json": { id: "taxon:14", nombre_cientifico: "Sin cobertura", dominio: "bacteria", procedencia: [] },
+  "organismos/13.json": { id: "taxon:13", nombre_cientifico: "Bacteria ficticia", dominio: "bacteria", intereses: ["clinico"], procedencia: [] },
+  "organismos/14.json": { id: "taxon:14", nombre_cientifico: "Sin cobertura", dominio: "bacteria", intereses: ["modelo"], procedencia: [] },
   "cobertura/prueba/13.json": { via: "via:prueba", taxon: "taxon:13", pasos: {}, fuentes: {} },
 };
 
@@ -188,6 +189,24 @@ describe("construirVistaVia", () => {
 
   it("solo ofrece organismos con cobertura calculada", () => {
     expect(vista.organismos.map((o) => o.id)).toEqual(["taxon:13"]);
+    expect(vista.organismos[0]?.intereses).toEqual(["clinico"]);
+  });
+
+  it("agrupa los organismos por su primer interés y los ordena por nombre", () => {
+    const o = (id: string, nombre: string, intereses: string[]): OrganismoVista => ({
+      id,
+      nombre,
+      dominio: "bacteria",
+      intereses,
+      enlace: null,
+    });
+    const grupos = agruparOrganismos([
+      o("taxon:3", "Zeta industrial", ["industrial"]),
+      o("taxon:1", "Beta modelo", ["modelo", "industrial"]),
+      o("taxon:2", "Alfa modelo", ["modelo"]),
+    ]);
+    expect(grupos.map((g) => g.etiqueta)).toEqual(["Organismos modelo", "Interés industrial y alimentario"]);
+    expect(grupos[0]?.organismos.map((x) => x.nombre)).toEqual(["Alfa modelo", "Beta modelo"]);
   });
 
   it("enlaza solo fuentes verificadas", () => {
