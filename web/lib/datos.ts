@@ -10,6 +10,7 @@ import type { Manifiesto } from "@/lib/tipos/manifiesto";
 import type { Mapa } from "@/lib/tipos/mapa";
 import type { Organismo } from "@/lib/tipos/organismo";
 import type { Reaccion } from "@/lib/tipos/reaccion";
+import type { ReferenciaBibliografica as Referencia } from "@/lib/tipos/referencia";
 import type { Via } from "@/lib/tipos/via";
 
 export class Paquete {
@@ -71,6 +72,12 @@ export class Paquete {
 
   enzima(id: string): Enzima {
     return this.leer(`enzimas/${archivoDe(id)}.json`);
+  }
+
+  /** Datos de cita de un artículo (Europe PMC); null si el paquete aún no lo trae. */
+  referencia(pmid: string): Referencia | null {
+    const relativo = `referencias/PMID_${pmid}.json`;
+    return this.existe(relativo) ? this.leer(relativo) : null;
   }
 
   organismos(): Organismo[] {

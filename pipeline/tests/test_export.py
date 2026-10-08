@@ -19,7 +19,7 @@ from metabo import schemas
 from metabo.coverage.algorithm import Thresholds
 from metabo.errors import ConfigError
 from metabo.export import compounds as export_compounds
-from metabo.export import names, package
+from metabo.export import names, package, references
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import Organism
 from metabo.sources import chebi, enzyme, uniprot
@@ -611,3 +611,63 @@ def test_real_spanish_name_curation_is_valid():
         en="pyruvate", es="piruvato"
     )
     assert curation.get("organismos", "taxon:9606") is not None
+
+
+# --- Referencias bibliográficas ---------------------------------------------------
+
+
+def epmc_lite(*pmids: str) -> bytes:
+    rows = [
+        {"pmid": p, "title": f"Artículo {p}.", "pubYear": "2021", "journalTitle": "Rev"}
+        for p in pmids
+    ]
+    return json.dumps({"resultList": {"result": rows}}).encode()
+
+
+def build_with_references(raw_dir: Path, referencias) -> package.Package:
+    return package.build(
+        raw_dir,
+        [VIA],
+        ORGANISMS,
+        CURATION,
+        Thresholds(100, 80, 30),
+        date(2026, 10, 7),
+        None,
+        None,
+        referencias,
+    )
+
+
+CITED = [references.CitedReference(pmid="11", respalda="Algo ficticio.", verificado="resumen")]
+
+
+def test_references_are_exported_with_their_provenance(raw_dir):
+    manifest = Manifest.read(raw_dir / "manifest.json")
+    body = epmc_lite("11", "12")
+    manifest.add(_record(raw_dir, "europe_pmc", "2026-10-08", "referencias-001.json", body))
+    manifest.write(raw_dir / "manifest.json")
+
+    built = build_with_references(raw_dir, CITED)
+    doc = built.documents["referencias/PMID_11.json"]
+    assert (doc["id"], doc["titulo"], doc["anio"], doc["doi"]) == (
+        "PMID:11",
+        "Artículo 11.",
+        2021,
+        None,
+    )
+    assert doc["respalda"] == "Algo ficticio."
+    assert doc["procedencia"][0]["fuente"] == "europe_pmc"
+    # Solo se exportan las referencias curadas, no todo lo descargado.
+    assert "referencias/PMID_12.json" not in built.documents
+    assert "europe_pmc" in {d.fuente for d in built.manifest.descargas}
+
+
+def test_references_need_the_europe_pmc_download(raw_dir):
+    with pytest.raises(ConfigError, match="europe_pmc"):
+        build_with_references(raw_dir, CITED)
+
+
+def test_real_reference_curation_is_valid():
+    cited = references.load_curation(Path(__file__).parents[2] / "curation" / "referencias.yaml")
+    assert len(cited) > 0
+    assert all(r.verificado in ("resumen", "texto completo") for r in cited)

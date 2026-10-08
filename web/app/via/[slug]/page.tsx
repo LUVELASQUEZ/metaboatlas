@@ -7,13 +7,15 @@ import { ContenidoNiveles, NivelActivo } from "@/components/contenido/ContenidoN
 import { Nivel } from "@/components/contenido/Nivel";
 import { Autoevaluacion } from "@/components/contenido/Autoevaluacion";
 import { RefPendiente } from "@/components/contenido/RefPendiente";
+import { Bibliografia, Ref } from "@/components/contenido/Referencias";
 import { TerminoGlosario } from "@/components/contenido/TerminoGlosario";
 import { compilarContenido, leerContenidoVia, validarContenido } from "@/lib/contenido";
 import { leerGlosario } from "@/lib/glosario";
 import { leerPreguntas, type Pregunta, validarPreguntas } from "@/lib/preguntas";
 import { Paquete } from "@/lib/datos";
-import { leerFuentes } from "@/lib/fuentes";
+import { leerFuentes, plantilla, type Fuentes } from "@/lib/fuentes";
 import { NIVEL_INICIAL } from "@/lib/niveles";
+import { pmidsCitados, pmidsCurados } from "@/lib/referencias";
 import { NOMBRE_EDITORIAL } from "@/lib/textos";
 import type { Via } from "@/lib/tipos/via";
 import { construirVistaVia } from "@/lib/vista-via";
@@ -50,6 +52,13 @@ export default async function ViaPage({ params }: Props) {
     const errores = validarContenido(contenido, via);
     if (errores.length > 0) throw new Error(`content/vias/${slug}.mdx: ${errores.join("; ")}`);
   }
+  const citados = contenido ? pmidsCitados(contenido.cuerpo) : [];
+  const curados = pmidsCurados();
+  const sinCurar = citados.filter((p) => !curados.includes(p));
+  if (sinCurar.length > 0) {
+    throw new Error(`content/vias/${slug}.mdx cita PMID que no están en curation/referencias.yaml: ${sinCurar.join(", ")}`);
+  }
+  const referencias = Object.fromEntries(citados.map((p) => [p, paquete.referencia(p)]));
   const autoevaluacion = leerPreguntas(slug);
   if (autoevaluacion) {
     const errores = validarPreguntas(autoevaluacion, via);
@@ -63,6 +72,13 @@ export default async function ViaPage({ params }: Props) {
   }
   for (const o of paquete.organismos()) {
     for (const p of o.procedencia) versiones[p.fuente] ??= p.version;
+  }
+  // Nombres en español (Wikidata) y datos de cita (Europe PMC).
+  for (const entidad of [...Object.values(vista.compuestos), ...Object.values(vista.enzimas)]) {
+    for (const o of entidad.origen) versiones[o.fuente] ??= o.version;
+  }
+  for (const r of Object.values(referencias)) {
+    for (const p of r?.procedencia ?? []) versiones[p.fuente] ??= p.version;
   }
   return (
     <article className="space-y-6">
@@ -84,6 +100,9 @@ export default async function ViaPage({ params }: Props) {
           cuerpo={contenido.cuerpo}
           meta={contenido.meta}
           preguntas={autoevaluacion?.preguntas ?? []}
+          pmids={citados}
+          referencias={referencias}
+          fuentes={fuentes}
         />
       ) : (
         <p className="text-tinta-suave">Esta vía aún no tiene explicación didáctica.</p>
@@ -98,12 +117,20 @@ async function Explicacion({
   cuerpo,
   meta,
   preguntas,
+  pmids,
+  referencias,
+  fuentes,
 }: {
   via: Via;
   cuerpo: string;
   meta: NonNullable<ReturnType<typeof leerContenidoVia>>["meta"];
   preguntas: Pregunta[];
+  /** En orden de primera cita (las claves numéricas de un objeto se reordenan). */
+  pmids: string[];
+  referencias: Parameters<typeof Bibliografia>[0]["referencias"];
+  fuentes: Fuentes;
 }) {
+  const numeros = new Map(pmids.map((p, i) => [p, i + 1]));
   const glosario = leerGlosario();
   const breve = Object.fromEntries(glosario.map((t) => [t.id, t.breve]));
   const titulos = Object.fromEntries(via.pasos.map((p) => [p.id, p.titulo]));
@@ -113,6 +140,14 @@ async function Explicacion({
       components={{
         Nivel,
         RefPendiente,
+        Ref: ({ pmid }: { pmid: string }) => <Ref pmid={pmid} numeros={numeros} />,
+        Bibliografia: () => (
+          <Bibliografia
+            pmids={pmids}
+            referencias={referencias}
+            plantillaArticulo={plantilla(fuentes, "europe_pmc", "articulo")}
+          />
+        ),
         BalanceEnergetico: (props: { duplicados?: string[] }) => <BalanceEnergetico via={via} {...props} />,
         TerminoGlosario: ({ id, children }: { id: string; children: React.ReactNode }) => (
           <TerminoGlosario id={id} breve={breve[id]}>

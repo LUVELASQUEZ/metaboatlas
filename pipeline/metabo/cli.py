@@ -17,12 +17,13 @@ from metabo.errors import PipelineError
 from metabo.export import compounds as export_compounds
 from metabo.export import names as export_names
 from metabo.export import package
+from metabo.export import references as export_references
 from metabo.export.attribution import attribution
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
 from metabo.registry import SourceRegistry
-from metabo.sources import chebi, enzyme, ncbi_taxonomy, rhea, uniprot, wikidata
+from metabo.sources import chebi, enzyme, europe_pmc, ncbi_taxonomy, rhea, uniprot, wikidata
 
 # Etapas de `metabo build`, en orden. Se implementan en tareas posteriores.
 STAGES: tuple[tuple[str, str], ...] = (
@@ -74,10 +75,17 @@ def _extract_wikidata(downloader: Downloader, raw_dir: Path) -> tuple[str, list[
     return wikidata.extract(downloader, raw_dir, compounds, ecs)
 
 
+def _extract_europe_pmc(downloader: Downloader, raw_dir: Path) -> tuple[str, list[DownloadRecord]]:
+    """Consulta en Europe PMC los datos de cita de curation/referencias.yaml."""
+    references = export_references.load_curation(repo_root() / "curation" / "referencias.yaml")
+    return europe_pmc.extract(downloader, raw_dir, [r.pmid for r in references])
+
+
 # Extractores disponibles: fuente -> función que descarga a raw/ y devuelve sus registros.
 EXTRACTORS: dict[str, Callable[[Downloader, Path], tuple[object, list[DownloadRecord]]]] = {
     "chebi": chebi.extract,
     "enzyme": enzyme.extract,
+    "europe_pmc": _extract_europe_pmc,
     "ncbi_taxonomy": ncbi_taxonomy.extract,
     "rhea": rhea.extract,
     "uniprot": uniprot.extract,
@@ -227,6 +235,7 @@ def cmd_exportar(args: argparse.Namespace) -> int:
         date.today(),
         _curated_maps(root),
         export_names.load_curation(root / "curation" / "nombres_es.yaml"),
+        export_references.load_curation(root / "curation" / "referencias.yaml"),
     )
     out_dir = root / config.directorios.salida / built.manifest.version_datos
     written = built.write(out_dir)

@@ -307,19 +307,37 @@ brenda:
 europe_pmc:
   nombre: Europe PMC
   uso: redistribuir
-  estado: pendiente de verificar
-  url: null  # TODO
-  licencia: Metadatos abiertos  # TODO: precisar la licencia exacta de los metadatos
-  licencia_url: null  # TODO
-  verificada: null  # TODO
-  que_tomamos: Título, autores, revista y DOI de los artículos citados.
-  condicion: Citar la fuente.
+  estado: verificada
+  url: https://europepmc.org
+  licencia: Datos de cita (hechos bibliográficos); los artículos conservan el copyright de su editorial
+  licencia_url: https://europepmc.org/Copyright
+  verificada: "2026-10-08"
+  que_tomamos: >-
+    Solo datos de cita de los artículos citados en el contenido: título, autores,
+    revista, año, volumen, páginas, DOI, PMCID y si es de acceso abierto. Nunca
+    resúmenes ni texto de los artículos.
+  condicion: >-
+    Acceso automático solo por sus servicios oficiales (API REST); el texto de cada
+    artículo tiene la licencia de su editorial.
   acceso:
-    - ebi.ac.uk/europepmc/webservices/rest/search
-  plantillas: {}  # TODO
-  cita_recomendada: null  # TODO
+    - www.ebi.ac.uk/europepmc/webservices/rest/search
+  plantillas:
+    articulo: https://europepmc.org/article/MED/{id}
+  cita_recomendada: null  # TODO: copiar de la página oficial de cómo citar Europe PMC
   doi_cita: null  # TODO
-  notas: null
+  sin_cita_oficial: true  # TEMPORAL, solo para desarrollo local: reemplazar por la cita oficial
+  notas: >-
+    Página de copyright (https://europepmc.org/Copyright, leída el 2026-10-08; el sitio
+    tiene un desafío de Cloudflare que rechaza peticiones automáticas, así que Luisa la
+    copió desde su navegador): "All of the material available through the Europe PMC
+    site is provided by the respective publishers or authors. Almost all of it is
+    protected by U.K. and/or foreign copyright laws". "Crawlers and other automated
+    processes may NOT be used to systematically retrieve batches of articles from the
+    Europe PMC web site." "Europe PMC has implemented OAI, RESTful, SOAP, and bulk
+    download services that may be used for automated retrieval". La página no da una
+    licencia para los datos de cita. Decisión de Luisa (2026-10-08): usar Europe PMC
+    solo para datos de cita, por la API REST con resultType=lite (sin resúmenes); son
+    hechos bibliográficos que toda lista de referencias reproduce.
 
 escher:
   nombre: Escher (software)

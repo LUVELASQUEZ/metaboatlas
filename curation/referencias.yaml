@@ -1,0 +1,66 @@
+# Referencias bibliográficas del contenido didáctico (content/).
+#
+# Aquí solo se anota el PMID y qué afirmación respalda. Título, autores, revista, año,
+# DOI y PMCID se descargan de Europe PMC (`uv run metabo extraer europe_pmc`, API
+# REST, resultados "lite" sin resúmenes) y nunca se escriben a mano (regla 6 de
+# CLAUDE.md). Por decisión del 2026-10-08, de Europe PMC solo se toman datos de cita:
+# ni resúmenes ni texto de los artículos.
+#
+# En el MDX, una afirmación se cita con <Ref pmid="…" />. `verificado` dice dónde se
+# comprobó que el artículo respalda la afirmación (resumen o texto completo, leído en
+# Europe PMC el 2026-10-08). Se prefieren artículos de lectura gratuita (con PMCID).
+referencias:
+  - pmid: "37512500"
+    respalda: Los glóbulos rojos maduros no tienen mitocondrias y dependen solo de la glucólisis para obtener ATP.
+    verificado: texto completo
+  - pmid: "27159581"
+    respalda: >-
+      Los pasos de la hexocinasa, la fosfofructocinasa y la piruvato cinasa son los que
+      impulsan la vía en un solo sentido; los demás operan cerca del equilibrio. Mide ΔG
+      en E. coli, levadura y una línea celular de mamífero: la fosfofructocinasa actúa
+      como paso irreversible y la piruvato cinasa tolera algo de flujo inverso. En E. coli la glucosa se fosforila con el sistema de fosfotransferasa.
+    verificado: texto completo
+  - pmid: "38201444"
+    respalda: El ATP (y el citrato y el fosfoenolpiruvato) inhiben la fosfofructocinasa 1; el AMP la activa.
+    verificado: texto completo
+  - pmid: "29298880"
+    respalda: La glucosa 6-fosfato inhibe por retroalimentación a la hexocinasa.
+    verificado: texto completo
+  - pmid: "30949058"
+    respalda: La glucocinasa no sufre inhibición por su producto.
+    verificado: texto completo
+  - pmid: "29455645"
+    respalda: La fructosa 1,6-bisfosfato activa la isoforma M2 de la piruvato cinasa (no la M1).
+    verificado: texto completo
+  - pmid: "17158705"
+    respalda: El sistema de fosfotransferasa (PTS) bacteriano transporta y fosforila azúcares usando fosfoenolpiruvato.
+    verificado: resumen
+  - pmid: "23630264"
+    respalda: La vía de Entner-Doudoroff rinde un ATP por glucosa, la mitad que la glucólisis de Embden-Meyerhof-Parnas.
+    verificado: resumen
+  - pmid: "40329473"
+    respalda: El ADP y el GDP activan la fosfofructocinasa de E. coli y el fosfoenolpiruvato la inhibe.
+    verificado: texto completo
+  - pmid: "30234009"
+    respalda: >-
+      La fructosa 2,6-bisfosfato regula alostéricamente a la fosfofructocinasa 1 (aumenta
+      su afinidad por la fructosa 6-fosfato y alivia la inhibición por ATP); su nivel
+      responde al glucagón en el hígado. Las células tumorales mantienen una glucólisis
+      alta aun con oxígeno suficiente (efecto Warburg).
+    verificado: texto completo
+  - pmid: "21938252"
+    respalda: >-
+      En el laboratorio clínico, los bacilos gramnegativos que dan reacción alcalina en
+      agar TSI se consideran no fermentadores y se identifican con pruebas como la de
+      oxidación-fermentación de la glucosa (Hugh-Leifson).
+    verificado: texto completo
+  - pmid: "27740597"
+    respalda: >-
+      El lactato aumenta con la intensidad del ejercicio; se producía en la glucólisis y
+      ya no se considera un simple desecho ni la causa de la fatiga.
+    verificado: texto completo
+  - pmid: "27911732"
+    respalda: >-
+      Efecto Warburg: las células tumorales consumen mucha glucosa y excretan lactato,
+      aunque sus mitocondrias funcionan; no ocurre igual en todos los tipos de cáncer.
+    verificado: resumen

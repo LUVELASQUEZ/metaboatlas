@@ -24,6 +24,8 @@ El cuerpo usa estos componentes:
 - `<Nivel nivel="basico|intermedio|avanzado">`: los tres son obligatorios. La página muestra solo el nivel elegido.
 - `<BalanceEnergetico duplicados={["p06", …]} />`: tabla calculada de la `energia` de la curaduría. `duplicados` son los pasos que ocurren dos veces por molécula de sustrato.
 - `<Autoevaluacion />`: lugar donde se muestran las preguntas de `preguntas/<slug>.json`.
+- `<Ref pmid="…" />`: cita uno o varios artículos (`pmid="27159581 17158705"`). El PMID debe estar en `curation/referencias.yaml`, con la afirmación que respalda; sus datos de cita vienen de Europe PMC. La página los numera por orden de aparición.
+- `<Bibliografia />`: lista numerada de los artículos citados (va en la sección "Referencias").
 - `<RefPendiente nota="…" />`: marca una afirmación que espera su referencia. Nunca se escriben citas de memoria (regla 6 de CLAUDE.md).
 
 `web/tests/contenido.test.ts` comprueba cada archivo contra `curation/vias/` y verifica que el balance coincida con lo que dice el texto.

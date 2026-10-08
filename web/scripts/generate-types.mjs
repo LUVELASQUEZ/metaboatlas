@@ -10,7 +10,7 @@ const schemaDir = path.resolve(here, "../../schema");
 const outDir = path.resolve(here, "../lib/tipos");
 
 // Esquemas de archivos que la web lee del paquete de datos.
-const SCHEMAS = ["via", "compuesto", "reaccion", "enzima", "organismo", "cobertura", "mapa", "manifiesto"];
+const SCHEMAS = ["via", "compuesto", "reaccion", "enzima", "organismo", "cobertura", "mapa", "manifiesto", "referencia"];
 
 const banner = "// Generado por scripts/generate-types.mjs desde schema/. No editar a mano.\n";
 

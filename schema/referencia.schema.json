@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvelasquez.github.io/metaboatlas/schema/referencia.schema.json",
+  "title": "Referencia bibliográfica",
+  "description": "Datos de cita de un artículo citado en el contenido didáctico (curation/referencias.yaml + Europe PMC). Solo datos de cita: ni resúmenes ni texto del artículo. Archivo referencias/PMID_<n>.json del paquete de datos.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "pattern": "^PMID:[1-9][0-9]*$" },
+    "titulo": { "type": "string", "minLength": 1 },
+    "autores": {
+      "description": "Lista de autores tal como la da Europe PMC (\"Park JO, Rubin SA, …\").",
+      "type": "string"
+    },
+    "revista": { "type": "string" },
+    "anio": { "type": "integer", "minimum": 1800 },
+    "volumen": { "type": ["string", "null"] },
+    "numero": { "type": ["string", "null"] },
+    "paginas": { "type": ["string", "null"] },
+    "doi": { "type": ["string", "null"], "pattern": "^10\\." },
+    "pmcid": {
+      "description": "ID en PubMed Central; si existe, el artículo se puede leer gratis.",
+      "type": ["string", "null"],
+      "pattern": "^PMC[0-9]+$"
+    },
+    "acceso_abierto": {
+      "description": "Europe PMC lo marca como de acceso abierto (licencia que permite reutilizarlo).",
+      "type": "boolean"
+    },
+    "respalda": {
+      "description": "Qué afirmación del contenido respalda (curation/referencias.yaml).",
+      "type": "string",
+      "minLength": 1
+    },
+    "verificado": {
+      "description": "Dónde se comprobó que el artículo respalda la afirmación.",
+      "enum": ["resumen", "texto completo"]
+    },
+    "xrefs": { "$ref": "comun.schema.json#/$defs/xrefs" },
+    "procedencia": { "$ref": "comun.schema.json#/$defs/lista_procedencia" }
+  },
+  "required": [
+    "id",
+    "titulo",
+    "autores",
+    "revista",
+    "anio",
+    "volumen",
+    "numero",
+    "paginas",
+    "doi",
+    "pmcid",
+    "acceso_abierto",
+    "respalda",
+    "verificado",
+    "xrefs",
+    "procedencia"
+  ],
+  "additionalProperties": false
+}
