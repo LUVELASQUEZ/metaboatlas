@@ -39,3 +39,16 @@ def test_attribution_lists_each_source_with_its_license_and_citation():
     for line in rhea.cita_recomendada.splitlines():
         assert f"> {line}" in text
     assert "no significa que el organismo carezca" in text
+
+
+def test_source_without_official_citation_says_so():
+    manifest = Manifest(
+        version_datos="2026.10",
+        descargas=[_record("wikidata", "2026-10-08", "compuestos-001.json")],
+    )
+    registry = SourceRegistry.load()
+    assert registry.get("wikidata").sin_cita_oficial
+    text = attribution(manifest, registry)
+    assert "## Wikidata" in text
+    assert "Cita recomendada" not in text
+    assert "no publica una cita recomendada" in text

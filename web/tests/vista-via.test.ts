@@ -37,9 +37,9 @@ function reaccion(id: string, ecuacion: string, izquierda: string[], derecha: st
   } as unknown as Reaccion;
 }
 
-const compuesto = (n: string, nombre: string, cofactor = false) => ({
+const compuesto = (n: string, nombre: string, cofactor = false, es: string | null = null) => ({
   id: `CHEBI:${n}`,
-  nombre: { es: null, en: nombre },
+  nombre: { es, en: nombre },
   definicion: null,
   sinonimos: [],
   formula: "C6H12O6",
@@ -99,9 +99,9 @@ const ARCHIVOS: Record<string, unknown> = {
   "compuestos/CHEBI_2.json": compuesto("2", "azúcar fosfato(2−)"),
   "compuestos/CHEBI_3.json": compuesto("3", "moneda(4−)", true),
   "compuestos/CHEBI_4.json": compuesto("4", "moneda gastada(3−)", true),
-  "compuestos/CHEBI_5.json": compuesto("5", "otro azúcar"),
+  "compuestos/CHEBI_5.json": compuesto("5", "otro azúcar", false, "otro azúcar en español"),
   "enzimas/EC_9.9.9.1.json": { id: "EC:9.9.9.1", nombre: { es: null, en: "enzima uno" }, proteinas: [], procedencia: procedencia("enzyme", "9.9.9.1") },
-  "enzimas/EC_9.9.9.2.json": { id: "EC:9.9.9.2", nombre: { es: null, en: "enzima dos" }, proteinas: [], procedencia: procedencia("enzyme", "9.9.9.2") },
+  "enzimas/EC_9.9.9.2.json": { id: "EC:9.9.9.2", nombre: { es: "enzima dos en español", en: "enzima dos" }, proteinas: [], procedencia: [...procedencia("enzyme", "9.9.9.2"), ...procedencia("wikidata", "Q20")] },
   "organismos/13.json": { id: "taxon:13", nombre_cientifico: "Bacteria ficticia", dominio: "bacteria", procedencia: [] },
   "organismos/14.json": { id: "taxon:14", nombre_cientifico: "Sin cobertura", dominio: "bacteria", procedencia: [] },
   "cobertura/prueba/13.json": { via: "via:prueba", taxon: "taxon:13", pasos: {}, fuentes: {} },
@@ -112,6 +112,11 @@ const FUENTES: Fuentes = {
     clave: "rhea", nombre: "Rhea", uso: "redistribuir", estado: "verificada", url: null,
     licencia: "CC BY 4.0", licencia_url: null, verificada: "2026-10-07", condicion: null,
     plantillas: { reaccion: "https://rhea.example/rhea/{id}" }, cita_recomendada: null, doi_cita: null,
+  },
+  wikidata: {
+    clave: "wikidata", nombre: "Wikidata", uso: "redistribuir", estado: "verificada", url: null,
+    licencia: "CC0 1.0", licencia_url: null, verificada: "2026-10-08", condicion: null,
+    plantillas: { elemento: "https://wikidata.example/wiki/{id}" }, cita_recomendada: null, doi_cita: null,
   },
   kegg: {
     clave: "kegg", nombre: "KEGG", uso: "solo_enlace", estado: "pendiente de verificar", url: null,
@@ -154,8 +159,25 @@ describe("construirVistaVia", () => {
       nombre: "sugar phosphate",
       nombreChebi: "azúcar fosfato(2−)",
     });
-    // Sin nombre en ninguna ecuación: el de ChEBI.
-    expect(vista.compuestos["CHEBI:5"]!.nombre).toBe("other sugar");
+    // Sin nombre en español, el de lectura en inglés.
+    expect(vista.compuestos["CHEBI:2"]!.idioma).toBe("en");
+  });
+
+  it("prefiere el nombre en español y conserva el de inglés", () => {
+    expect(vista.compuestos["CHEBI:5"]).toMatchObject({
+      nombre: "otro azúcar en español",
+      idioma: "es",
+      nombreEn: "other sugar",
+    });
+    const enzima = vista.enzimas["EC:9.9.9.2"]!;
+    expect([enzima.nombre, enzima.idioma, enzima.nombreEn]).toEqual([
+      "enzima dos en español",
+      "es",
+      "enzima dos",
+    ]);
+    // Wikidata se enlaza con su plantilla de elemento.
+    expect(enzima.origen[1]!.url).toBe("https://wikidata.example/wiki/Q20");
+    expect(vista.enzimas["EC:9.9.9.1"]!.idioma).toBe("en");
   });
 
   it("orienta los cofactores en el sentido de la flecha, no de la reacción", () => {
@@ -186,7 +208,7 @@ describe("elementos del mapa", () => {
     } as unknown as Cobertura;
     const rotulos = elementosMapa(vista, cobertura).filter((e) => e.data.tipo === "rotulo");
     expect(rotulos.map((r) => r.data.estado)).toEqual(["alta", "sin_anotacion"]);
-    expect(rotulos[1]!.data.etiqueta).toBe("2. enzima dos\nEC 9.9.9.2 (?)");
+    expect(rotulos[1]!.data.etiqueta).toBe("2. enzima dos en español\nEC 9.9.9.2 (?)");
   });
 
   it("marca los pasos regulados con un signo además del borde", () => {

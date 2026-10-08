@@ -38,6 +38,8 @@ class Source(BaseModel):
     cita_recomendada: str | None
     doi_cita: str | None
     notas: str | None
+    # La base no publica una cita recomendada (la regla 6 impide escribir una).
+    sin_cita_oficial: bool = False
 
     @property
     def downloadable(self) -> bool:

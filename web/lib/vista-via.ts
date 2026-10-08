@@ -20,8 +20,12 @@ export interface Origen {
 
 export interface CompuestoVista {
   id: string;
-  /** Nombre con que Rhea escribe el compuesto en sus ecuaciones, o el de ChEBI. */
+  /** Nombre en español si lo hay; si no, el de lectura en inglés (`nombreEn`). */
   nombre: string;
+  /** Idioma de `nombre`, para el atributo `lang`. */
+  idioma: "es" | "en";
+  /** Nombre con que Rhea escribe el compuesto en sus ecuaciones, o el de ChEBI. */
+  nombreEn: string;
   nombreChebi: string;
   definicion: string | null;
   formula: string | null;
@@ -40,7 +44,11 @@ export interface ReaccionVista {
 
 export interface EnzimaVista {
   id: string;
+  /** Nombre en español si lo hay; si no, el aceptado por ENZYME. */
   nombre: string;
+  idioma: "es" | "en";
+  /** Nombre aceptado por ENZYME, en inglés. */
+  nombreEn: string;
   origen: Origen[];
 }
 
@@ -104,7 +112,8 @@ function origenes(
     id: p.id,
     version: p.version,
     fecha: p.fecha_descarga,
-    url: enlace(fuentes, p.fuente, tipo, p.id),
+    // Wikidata enlaza sus elementos (Q…) con una sola plantilla, sea cual sea el tipo.
+    url: enlace(fuentes, p.fuente, tipo, p.id) ?? enlace(fuentes, p.fuente, "elemento", p.id),
   }));
 }
 
@@ -149,9 +158,12 @@ export function construirVistaVia(paquete: Paquete, fuentes: Fuentes, slug: stri
   const compuestos: Record<string, CompuestoVista> = {};
   for (const id of [...ids].sort()) {
     const c = paquete.compuesto(id);
+    const nombreEn = nombreRhea.get(id) ?? c.nombre.en;
     compuestos[id] = {
       id,
-      nombre: nombreRhea.get(id) ?? c.nombre.en,
+      nombre: c.nombre.es ?? nombreEn,
+      idioma: c.nombre.es ? "es" : "en",
+      nombreEn,
       nombreChebi: c.nombre.en,
       definicion: c.definicion ?? null,
       formula: c.formula ?? null,
@@ -166,7 +178,13 @@ export function construirVistaVia(paquete: Paquete, fuentes: Fuentes, slug: stri
   const enzimas: Record<string, EnzimaVista> = {};
   for (const ec of new Set(via.pasos.flatMap((p) => p.ec))) {
     const e = paquete.enzima(ec);
-    enzimas[ec] = { id: ec, nombre: e.nombre.en, origen: origenes(fuentes, e.procedencia, "enzima") };
+    enzimas[ec] = {
+      id: ec,
+      nombre: e.nombre.es ?? e.nombre.en,
+      idioma: e.nombre.es ? "es" : "en",
+      nombreEn: e.nombre.en,
+      origen: origenes(fuentes, e.procedencia, "enzima"),
+    };
   }
 
   const moduloDe = new Map(via.modulos.flatMap((m) => m.pasos.map((p) => [p, m.id] as const)));

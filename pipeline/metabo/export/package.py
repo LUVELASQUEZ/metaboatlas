@@ -6,9 +6,12 @@ organismos.yaml y la cobertura de cada vía en cada organismo. Cada documento se
 valida contra su esquema de schema/ y lleva la procedencia de cada dato (fuente, ID,
 versión y fecha de descarga). `manifest.json` lista las descargas usadas.
 
+Los nombres en español salen de curation/nombres_es.yaml o, si un ID no está curado,
+de su etiqueta única en Wikidata (metabo/export/names.py); si no hay ninguna,
+`nombre.es` queda en null, marcado para traducción manual.
+
 Lo que todavía no tiene fuente queda vacío o en null, nunca inventado:
 - SMILES, InChI e InChIKey: falta descargar structures.tsv.gz de ChEBI.
-- Nombres en español (`nombre.es`): vendrán de Wikidata.
 - Referencias cruzadas de compuestos y reacciones: falta reference.tsv.gz de ChEBI.
 - Reversibilidad y ΔG de las reacciones, y tinción de Gram: sin fuente verificada.
 """
@@ -28,10 +31,11 @@ from metabo import maps, schemas
 from metabo.coverage import compute
 from metabo.coverage.algorithm import Thresholds
 from metabo.errors import ConfigError
+from metabo.export import names as spanish
 from metabo.export.compounds import Classifier, CompoundCuration, check_names
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import Organism
-from metabo.sources import chebi, enzyme, ncbi_taxonomy, rhea, uniprot
+from metabo.sources import chebi, enzyme, ncbi_taxonomy, rhea, uniprot, wikidata
 
 # Fuente -> archivos de raw/ que usa la exportación (además de los proteomas).
 REQUIRED_FILES: dict[str, tuple[str, ...]] = {
@@ -144,6 +148,17 @@ def _ec_key(ec: str) -> tuple[int | str, ...]:
     return tuple(int(p) if p.isdigit() else p for p in _native(ec).split("."))
 
 
+def _apply_spanish(
+    document: dict[str, Any], name: spanish.SpanishName, labels: WikidataLabels
+) -> None:
+    """Pone `nombre.es`, su origen y, si sale de Wikidata, su referencia y procedencia."""
+    document["nombre"]["es"] = name.es
+    document["nombre_es_origen"] = name.origen
+    if name.wikidata is not None:
+        document["xrefs"].append({"fuente": "wikidata", "tipo": "elemento", "id": name.wikidata})
+        document["procedencia"].append(labels.procedencia(name.wikidata))
+
+
 def _compound_document(
     compound: chebi.Compound, classifier: Classifier, source: SourceFiles
 ) -> dict[str, Any]:
@@ -211,6 +226,50 @@ def _enzyme_document(
     return document
 
 
+@dataclass
+class WikidataLabels:
+    """Etiquetas en español descargadas de Wikidata (vacías si no se extrajo)."""
+
+    source: SourceFiles | None
+    labels: dict[str, wikidata.Label]
+    used: bool = False
+
+    @classmethod
+    def from_manifest(cls, manifest: Manifest, raw_dir: Path) -> WikidataLabels:
+        if not any(d.fuente == wikidata.FUENTE for d in manifest.descargas):
+            return cls(None, {})
+        source = _source(manifest, raw_dir, wikidata.FUENTE, ())
+        labels: dict[str, wikidata.Label] = {}
+        for tipo in wikidata.TIPOS:
+            paths = sorted(p for n, p in source.paths.items() if n.startswith(f"{tipo}-"))
+            labels.update(wikidata.read_labels(paths, tipo))
+        return cls(source, labels)
+
+    def procedencia(self, qid: str) -> dict[str, str]:
+        assert self.source is not None
+        self.used = True
+        return {
+            "fuente": wikidata.FUENTE,
+            "id": qid,
+            "version": self.source.version,
+            "fecha_descarga": self.source.records[0].fecha_descarga,
+        }
+
+
+def entity_ids(
+    raw_dir: Path, vias: Sequence[Mapping[str, Any]], mapas: Mapping[str, Mapping[str, Any]]
+) -> tuple[set[str], set[str]]:
+    """Compuestos (participantes de las reacciones y nodos de los mapas) y EC del paquete."""
+    manifest = Manifest.read(raw_dir / "manifest.json")
+    source = _source(manifest, raw_dir, "rhea", (rhea.REACTIONS_FILE,))
+    reactions = rhea.read_reactions(source.paths[rhea.REACTIONS_FILE])
+    reaction_ids = {r for via in vias for p in via["pasos"] for r in p["reacciones"]}
+    compounds = {c for rid in reaction_ids if rid in reactions for c in reactions[rid].chebi}
+    compounds |= {node["compuesto"] for mapa in mapas.values() for node in mapa["compuestos"]}
+    ecs = {ec for via in vias for p in via["pasos"] for ec in p["ec"]}
+    return compounds, ecs
+
+
 def _kegg_code(entries: Iterable[uniprot.Entry]) -> str | None:
     """Prefijo de organismo más frecuente en las referencias KEGG de UniProt ("eco")."""
     counts = Counter(ref.split(":", 1)[0] for entry in entries for ref in entry.kegg if ":" in ref)
@@ -255,13 +314,16 @@ def build(
     umbrales: Thresholds,
     calculado: date,
     mapas: Mapping[str, Mapping[str, Any]] | None = None,
+    nombres: spanish.NameCuration | None = None,
 ) -> Package:
     """Arma todos los documentos del paquete y los valida contra schema/.
 
     `mapas` asocia el slug de una vía con su mapa curado; una vía sin mapa se exporta
-    sin él (la web usará un diseño automático).
+    sin él (la web usará un diseño automático). `nombres` es la curaduría de
+    curation/nombres_es.yaml.
     """
     mapas = mapas or {}
+    nombres = nombres or spanish.NameCuration()
     manifest = Manifest.read(raw_dir / "manifest.json")
     without = [o.id for o in organisms if o.proteoma_referencia is None]
     if without:
@@ -269,6 +331,7 @@ def build(
     sources = {f: _source(manifest, raw_dir, f, names) for f, names in REQUIRED_FILES.items()}
     proteome_files = [f"{o.proteoma_referencia}.tsv.gz" for o in organisms]
     sources["uniprot"] = _source(manifest, raw_dir, "uniprot", proteome_files)
+    labels = WikidataLabels.from_manifest(manifest, raw_dir)
     documents: dict[str, dict[str, Any]] = {}
 
     # Vías curadas.
@@ -319,11 +382,17 @@ def build(
     if errors:
         detail = "\n  ".join(errors)
         raise ConfigError(f"curation/compuestos.yaml no coincide con ChEBI:\n  {detail}")
+    errors = spanish.check_names(
+        nombres, "compuestos", {c: compounds[c].nombre for c in compound_ids}
+    )
+    if errors:
+        detail = "\n  ".join(errors)
+        raise ConfigError(f"curation/nombres_es.yaml no coincide con ChEBI:\n  {detail}")
     classifier = Classifier(compound_curation, ontology)
     for cid in sorted(compound_ids, key=lambda c: int(_native(c))):
-        documents[f"compuestos/{file_name(cid)}"] = _compound_document(
-            compounds[cid], classifier, sources["chebi"]
-        )
+        document = _compound_document(compounds[cid], classifier, sources["chebi"])
+        _apply_spanish(document, spanish.resolve(nombres, "compuestos", cid, labels.labels), labels)
+        documents[f"compuestos/{file_name(cid)}"] = document
 
     # Proteínas de los proteomas; organismos.
     entries: dict[str, list[uniprot.Entry]] = {}
@@ -332,14 +401,24 @@ def build(
     taxa = ncbi_taxonomy.read_taxa(
         sources["ncbi_taxonomy"].paths[ncbi_taxonomy.ARCHIVE], [o.id for o in organisms]
     )
+    errors = spanish.check_names(
+        nombres, "organismos", {o.id: taxa[o.id].nombre_comun for o in organisms}
+    )
+    if errors:
+        detail = "\n  ".join(errors)
+        raise ConfigError(f"curation/nombres_es.yaml no coincide con NCBI Taxonomy:\n  {detail}")
     for organism in organisms:
-        documents[f"organismos/{organism.taxon_id}.json"] = _organism_document(
+        document = _organism_document(
             organism,
             taxa[organism.id],
             _kegg_code(entries[organism.id]),
             sources["ncbi_taxonomy"],
             sources["uniprot"],
         )
+        curated = nombres.get("organismos", organism.id)
+        if curated is not None and document["nombre_comun"] is not None:
+            document["nombre_comun"]["es"] = curated.es
+        documents[f"organismos/{organism.taxon_id}.json"] = document
 
     # Enzimas (EC) de los pasos, con las proteínas que las tienen en cada organismo.
     enzymes = enzyme.read_entries(sources["enzyme"].paths["enzyme.dat"])
@@ -348,6 +427,12 @@ def build(
     for rid, ecs in rhea2ec.items():
         for ec in ecs:
             ec_reactions.setdefault(ec, set()).add(rid)
+    errors = spanish.check_names(
+        nombres, "enzimas", {ec: enzymes[ec].nombre for ec in ec_ids if ec in enzymes}
+    )
+    if errors:
+        detail = "\n  ".join(errors)
+        raise ConfigError(f"curation/nombres_es.yaml no coincide con ENZYME:\n  {detail}")
     for ec in ec_ids:
         if ec not in enzymes:
             raise ConfigError(f"{ec} no existe en ENZYME {sources['enzyme'].version}.")
@@ -357,9 +442,11 @@ def build(
             for entry in entries[organism.id]
             if ec in entry.ec
         ]
-        documents[f"enzimas/{file_name(ec)}"] = _enzyme_document(
+        document = _enzyme_document(
             enzymes[ec], ec_reactions.get(ec, ()), proteins, sources["enzyme"]
         )
+        _apply_spanish(document, spanish.resolve(nombres, "enzimas", ec, labels.labels), labels)
+        documents[f"enzimas/{file_name(ec)}"] = document
 
     # Cobertura de cada vía en cada organismo.
     inputs = compute.CoverageInputs.from_raw(raw_dir, organisms)
@@ -374,6 +461,9 @@ def build(
     used = Manifest(version_datos=manifest.version_datos)
     for source in sources.values():
         for record in source.records:
+            used.add(record)
+    if labels.used and labels.source is not None:
+        for record in labels.source.records:
             used.add(record)
     return Package(documents, used)
 

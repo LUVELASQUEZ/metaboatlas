@@ -15,13 +15,14 @@ from metabo.coverage import compute
 from metabo.download import Downloader
 from metabo.errors import PipelineError
 from metabo.export import compounds as export_compounds
+from metabo.export import names as export_names
 from metabo.export import package
 from metabo.export.attribution import attribution
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
 from metabo.registry import SourceRegistry
-from metabo.sources import chebi, enzyme, ncbi_taxonomy, rhea, uniprot
+from metabo.sources import chebi, enzyme, ncbi_taxonomy, rhea, uniprot, wikidata
 
 # Etapas de `metabo build`, en orden. Se implementan en tareas posteriores.
 STAGES: tuple[tuple[str, str], ...] = (
@@ -62,6 +63,17 @@ def cmd_fuentes(_: argparse.Namespace) -> int:
     return 0
 
 
+def _extract_wikidata(downloader: Downloader, raw_dir: Path) -> tuple[str, list[DownloadRecord]]:
+    """Consulta en Wikidata los nombres de los compuestos y las enzimas del paquete.
+
+    Los IDs salen de las vías curadas, sus mapas y las reacciones de Rhea ya
+    descargadas, así que Rhea debe extraerse antes.
+    """
+    root = repo_root()
+    compounds, ecs = package.entity_ids(raw_dir, _curated_vias(root, []), _curated_maps(root))
+    return wikidata.extract(downloader, raw_dir, compounds, ecs)
+
+
 # Extractores disponibles: fuente -> función que descarga a raw/ y devuelve sus registros.
 EXTRACTORS: dict[str, Callable[[Downloader, Path], tuple[object, list[DownloadRecord]]]] = {
     "chebi": chebi.extract,
@@ -69,6 +81,7 @@ EXTRACTORS: dict[str, Callable[[Downloader, Path], tuple[object, list[DownloadRe
     "ncbi_taxonomy": ncbi_taxonomy.extract,
     "rhea": rhea.extract,
     "uniprot": uniprot.extract,
+    "wikidata": _extract_wikidata,
 }
 
 
@@ -193,6 +206,13 @@ def _curated_vias(root: Path, given: Sequence[str]) -> list[dict]:
     return vias
 
 
+def _curated_maps(root: Path) -> dict[str, dict]:
+    return {
+        path.stem: maps.load_map(path)
+        for path in sorted((root / "curation" / "mapas").glob("*.json"))
+    }
+
+
 def cmd_exportar(args: argparse.Namespace) -> int:
     config = load_config()
     root = repo_root()
@@ -205,10 +225,8 @@ def cmd_exportar(args: argparse.Namespace) -> int:
         export_compounds.load_curation(root / "curation" / "compuestos.yaml"),
         compute.thresholds(config.cobertura.umbrales),
         date.today(),
-        {
-            path.stem: maps.load_map(path)
-            for path in sorted((root / "curation" / "mapas").glob("*.json"))
-        },
+        _curated_maps(root),
+        export_names.load_curation(root / "curation" / "nombres_es.yaml"),
     )
     out_dir = root / config.directorios.salida / built.manifest.version_datos
     written = built.write(out_dir)

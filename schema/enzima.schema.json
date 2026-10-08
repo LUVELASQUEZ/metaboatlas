@@ -10,6 +10,10 @@
       "description": "Nombre aceptado (ENZYME, en inglés) y su nombre en español.",
       "$ref": "comun.schema.json#/$defs/texto_bilingue"
     },
+    "nombre_es_origen": {
+      "description": "De dónde sale `nombre.es`: curaduría de MetaboAtlas (curation/nombres_es.yaml), etiqueta única de Wikidata, o null si no hay nombre en español.",
+      "enum": ["curaduria", "wikidata", null]
+    },
     "nombres_alternativos": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 },

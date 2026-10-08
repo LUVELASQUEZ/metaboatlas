@@ -19,7 +19,7 @@ from metabo import schemas
 from metabo.coverage.algorithm import Thresholds
 from metabo.errors import ConfigError
 from metabo.export import compounds as export_compounds
-from metabo.export import package
+from metabo.export import names, package
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import Organism
 from metabo.sources import chebi, enzyme, uniprot
@@ -497,3 +497,117 @@ def test_real_compound_curation_is_valid():
         Path(__file__).parents[2] / "curation" / "compuestos.yaml"
     )
     assert curation.clases[0].clase == "nucleotido"
+
+
+# --- Nombres en español -----------------------------------------------------------
+
+
+def sparql(*rows: tuple[str, str, str | None]) -> bytes:
+    """Respuesta SPARQL JSON ficticia: (ID sin prefijo, QID, etiqueta en español)."""
+    bindings = []
+    for native, qid, es in rows:
+        row = {
+            "id": {"type": "literal", "value": native},
+            "item": {"type": "uri", "value": f"http://www.wikidata.org/entity/{qid}"},
+        }
+        if es is not None:
+            row["es"] = {"xml:lang": "es", "type": "literal", "value": es}
+        bindings.append(row)
+    data = {"head": {"vars": ["id", "item", "es"]}, "results": {"bindings": bindings}}
+    return json.dumps(data).encode()
+
+
+def with_wikidata(raw_dir: Path) -> Path:
+    manifest = Manifest.read(raw_dir / "manifest.json")
+    compounds = sparql(("2", "Q2", "azúcar fosfato"), ("3", "Q3", "moneda"))
+    enzymes = sparql(
+        ("7.99.99.1", "Q10", "enzima uno"),
+        ("7.99.99.2", "Q20", "enzima dos"),
+        ("7.99.99.2", "Q21", "otra enzima"),  # dos etiquetas distintas: ambigua
+    )
+    for name, body in (("compuestos-001.json", compounds), ("enzimas-001.json", enzymes)):
+        manifest.add(_record(raw_dir, "wikidata", "2026-10-08", name, body))
+    manifest.write(raw_dir / "manifest.json")
+    return raw_dir
+
+
+NOMBRES = names.NameCuration(
+    {
+        "compuestos": {"CHEBI:3": names.CuratedName(en="moneda(2-)", es="moneda curada")},
+        "organismos": {"taxon:14": names.CuratedName(en="fake yeast", es="levadura ficticia")},
+    }
+)
+
+
+def build_named(raw_dir: Path, nombres=NOMBRES) -> package.Package:
+    return package.build(
+        raw_dir,
+        [VIA],
+        ORGANISMS,
+        CURATION,
+        Thresholds(100, 80, 30),
+        date(2026, 10, 7),
+        None,
+        nombres,
+    )
+
+
+def test_spanish_names_come_from_curation_then_wikidata(raw_dir):
+    built = build_named(with_wikidata(raw_dir))
+    docs = built.documents
+    curated = docs["compuestos/CHEBI_3.json"]
+    assert (curated["nombre"]["es"], curated["nombre_es_origen"]) == ("moneda curada", "curaduria")
+    # La curaduría gana sobre Wikidata y no agrega su procedencia.
+    assert [p["fuente"] for p in curated["procedencia"]] == ["chebi"]
+
+    from_wikidata = docs["compuestos/CHEBI_2.json"]
+    assert from_wikidata["nombre"] == {"es": "azúcar fosfato", "en": "azúcar fosfato(2-)"}
+    assert from_wikidata["nombre_es_origen"] == "wikidata"
+    assert {"fuente": "wikidata", "tipo": "elemento", "id": "Q2"} in from_wikidata["xrefs"]
+    assert from_wikidata["procedencia"][-1] == {
+        "fuente": "wikidata",
+        "id": "Q2",
+        "version": "2026-10-08",
+        "fecha_descarga": "2026-10-07",
+    }
+
+    missing = docs["compuestos/CHEBI_4.json"]
+    assert (missing["nombre"]["es"], missing["nombre_es_origen"]) == (None, None)
+
+    assert docs["enzimas/EC_7.99.99.1.json"]["nombre"]["es"] == "enzima uno"
+    # Un EC con dos etiquetas distintas en Wikidata es ambiguo: queda sin nombre.
+    assert docs["enzimas/EC_7.99.99.2.json"]["nombre"]["es"] is None
+
+    assert docs["organismos/14.json"]["nombre_comun"] == {
+        "es": "levadura ficticia",
+        "en": "fake yeast",
+    }
+    assert "wikidata" in {d.fuente for d in built.manifest.descargas}
+
+
+def test_wikidata_is_optional_and_left_out_when_unused(raw_dir):
+    built = build_named(raw_dir, names.NameCuration())
+    assert "wikidata" not in {d.fuente for d in built.manifest.descargas}
+    assert built.documents["compuestos/CHEBI_2.json"]["nombre"]["es"] is None
+
+
+def test_curated_spanish_names_must_match_the_source(raw_dir):
+    wrong = names.NameCuration(
+        {"enzimas": {"EC:7.99.99.1": names.CuratedName(en="otra cosa", es="algo")}}
+    )
+    with pytest.raises(ConfigError, match=r"EC:7\.99\.99\.1: el nombre curado es 'otra cosa'"):
+        build_named(raw_dir, wrong)
+
+
+def test_entity_ids_cover_reactions_maps_and_steps(raw_dir):
+    compounds, ecs = package.entity_ids(raw_dir, [VIA], {"prueba": MAPA})
+    assert compounds == {"CHEBI:1", "CHEBI:2", "CHEBI:3", "CHEBI:4", "CHEBI:901"}
+    assert ecs == {"EC:7.99.99.1", "EC:7.99.99.2"}
+
+
+def test_real_spanish_name_curation_is_valid():
+    curation = names.load_curation(Path(__file__).parents[2] / "curation" / "nombres_es.yaml")
+    assert curation.get("compuestos", "CHEBI:15361") == names.CuratedName(
+        en="pyruvate", es="piruvato"
+    )
+    assert curation.get("organismos", "taxon:9606") is not None

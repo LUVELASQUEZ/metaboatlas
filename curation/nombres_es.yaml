@@ -1,0 +1,60 @@
+# Nombres en español de compuestos, enzimas y organismos (sección 4 de docs/MANUAL.md).
+#
+# Orden de prioridad al exportar (`metabo exportar`):
+#   1. este archivo (curaduría de MetaboAtlas);
+#   2. la etiqueta en español de Wikidata, solo si el ID tiene una sola etiqueta
+#      distinta (raw/wikidata/, `metabo extraer wikidata`);
+#   3. ninguno: `nombre.es` queda en null, marcado para traducción manual.
+#
+# Cada entrada lleva `en`, el nombre que tiene el ID en la fuente (ChEBI, ENZYME o
+# NCBI Taxonomy). `metabo exportar` comprueba que coincida con los datos descargados,
+# para que ningún ID se escriba de memoria (regla 5 de CLAUDE.md).
+#
+# Criterios de traducción (revisados el 2026-10-08):
+# - Compuestos: traducción del nombre de ChEBI sin la carga entre paréntesis. Rhea usa
+#   la especie iónica a pH 7,3, así que se nombra como anión ("piruvato", "glicerato").
+#   "phosphonato" se traduce "fosfo" y "glycerone phosphate" por su nombre didáctico
+#   "dihidroxiacetona fosfato". Los nucleótidos y el NAD conservan sus siglas.
+# - CHEBI:15378 (hydron): Wikidata lo llama "hidrón"; se usa "H+", que es como lo
+#   escriben las ecuaciones de los cursos.
+# - Enzimas: nombre aceptado de ENZYME traducido; "kinase" se traduce "cinasa"
+#   (forma recomendada en español) y se conserva el calificativo entre paréntesis.
+#   Wikidata asigna EC 2.7.1.1 a "hexocinasa" y a "glucocinasa" a la vez, por eso las
+#   enzimas no dependen de sus etiquetas.
+# - Organismos: solo el nombre común que NCBI Taxonomy da en inglés.
+compuestos:
+  CHEBI:15361: {en: pyruvate, es: piruvato}
+  CHEBI:15378: {en: hydron, es: H+}
+  CHEBI:229467: {en: D-hexose 6-phosphate(2−), es: D-hexosa 6-fosfato}
+  CHEBI:30616: {en: ATP(4−), es: ATP}
+  CHEBI:32966: {en: "β-D-fructofuranose 1,6-bisphosphate(4−)", es: "β-D-fructofuranosa 1,6-bisfosfato"}
+  CHEBI:4167: {en: D-glucopyranose, es: D-glucopiranosa}
+  CHEBI:4194: {en: D-hexose, es: D-hexosa}
+  CHEBI:43474: {en: hydrogenphosphate, es: hidrogenofosfato}
+  CHEBI:456216: {en: ADP(3−), es: ADP}
+  CHEBI:57540: {en: NAD(1−), es: NAD+}
+  CHEBI:57604: {en: "3-phosphonato-D-glyceroyl phosphate(4−)", es: "1,3-bisfosfo-D-glicerato"}
+  CHEBI:57634: {en: β-D-fructofuranose 6-phosphate(2−), es: β-D-fructofuranosa 6-fosfato}
+  CHEBI:57642: {en: glycerone phosphate(2−), es: dihidroxiacetona fosfato}
+  CHEBI:57945: {en: NADH(2−), es: NADH}
+  CHEBI:58225: {en: α-D-glucose 6-phosphate(2−), es: α-D-glucosa 6-fosfato}
+  CHEBI:58272: {en: 3-phosphonato-D-glycerate(3−), es: 3-fosfo-D-glicerato}
+  CHEBI:58289: {en: 2-phosphonato-D-glycerate(3−), es: 2-fosfo-D-glicerato}
+  CHEBI:58702: {en: phosphonatoenolpyruvate, es: fosfoenolpiruvato}
+  CHEBI:59776: {en: D-glyceraldehyde 3-phosphate(2−), es: D-gliceraldehído 3-fosfato}
+  CHEBI:61548: {en: D-glucopyranose 6-phosphate(2−), es: D-glucopiranosa 6-fosfato}
+enzimas:
+  EC:1.2.1.12: {en: glyceraldehyde-3-phosphate dehydrogenase (phosphorylating), es: gliceraldehído-3-fosfato deshidrogenasa (fosforilante)}
+  EC:2.7.1.1: {en: hexokinase, es: hexocinasa}
+  EC:2.7.1.11: {en: 6-phosphofructokinase, es: 6-fosfofructocinasa}
+  EC:2.7.1.2: {en: glucokinase, es: glucocinasa}
+  EC:2.7.1.40: {en: pyruvate kinase, es: piruvato cinasa}
+  EC:2.7.2.3: {en: phosphoglycerate kinase, es: fosfoglicerato cinasa}
+  EC:4.1.2.13: {en: fructose-bisphosphate aldolase, es: fructosa-bisfosfato aldolasa}
+  EC:4.2.1.11: {en: phosphopyruvate hydratase, es: fosfopiruvato hidratasa (enolasa)}
+  EC:5.3.1.1: {en: triose-phosphate isomerase, es: triosa-fosfato isomerasa}
+  EC:5.3.1.9: {en: glucose-6-phosphate isomerase, es: glucosa-6-fosfato isomerasa}
+  EC:5.4.2.11: {en: "phosphoglycerate mutase (2,3-diphosphoglycerate-dependent)", es: "fosfoglicerato mutasa (dependiente de 2,3-bisfosfoglicerato)"}
+  EC:5.4.2.12: {en: "phosphoglycerate mutase (2,3-diphosphoglycerate-independent)", es: "fosfoglicerato mutasa (independiente de 2,3-bisfosfoglicerato)"}
+organismos:
+  taxon:9606: {en: human, es: ser humano}

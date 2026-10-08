@@ -19,6 +19,10 @@ export interface EnzimaActividad {
    */
   id: string;
   nombre: TextoBilingue;
+  /**
+   * De dónde sale `nombre.es`: curaduría de MetaboAtlas (curation/nombres_es.yaml), etiqueta única de Wikidata, o null si no hay nombre en español.
+   */
+  nombre_es_origen?: "curaduria" | "wikidata" | null;
   nombres_alternativos: string[];
   /**
    * Clase EC principal (1 oxidorreductasas … 7 translocasas).

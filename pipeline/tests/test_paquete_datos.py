@@ -12,7 +12,7 @@ from metabo import curation, maps
 from metabo.config import load_config
 from metabo.coverage import compute
 from metabo.errors import ConfigError
-from metabo.export import compounds, package
+from metabo.export import compounds, names, package
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
 
@@ -34,6 +34,7 @@ def documents() -> dict:
                 p.stem: maps.load_map(p)
                 for p in sorted((root / "curation" / "mapas").glob("*.json"))
             },
+            names.load_curation(root / "curation" / "nombres_es.yaml"),
         )
     except (ConfigError, FileNotFoundError) as exc:
         pytest.skip(f"Faltan datos descargados en raw/: {exc}")
@@ -72,3 +73,13 @@ def test_glycolysis_map_draws_every_step(documents) -> None:
     assert sorted(s["paso"] for s in mapa["pasos"]) == sorted(p["id"] for p in via["pasos"])
     for node in mapa["compuestos"]:
         assert not documents[f"compuestos/{package.file_name(node['compuesto'])}"]["es_cofactor"]
+
+
+def test_every_compound_and_enzyme_has_a_spanish_name(documents):
+    missing = [
+        doc["id"]
+        for path, doc in documents.items()
+        if path.startswith(("compuestos/", "enzimas/")) and doc["nombre"]["es"] is None
+    ]
+    assert missing == []
+    assert documents["compuestos/CHEBI_15361.json"]["nombre"]["es"] == "piruvato"

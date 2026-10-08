@@ -144,8 +144,13 @@ function FichaPaso({
           const e = vista.enzimas[ec];
           return (
             <div key={ec} className="text-sm">
-              <span lang="en">{e?.nombre}</span>{" "}
+              <span lang={e?.idioma}>{e?.nombre}</span>{" "}
               <span className="font-mono text-xs">{ec.replace("EC:", "EC ")}</span>
+              {e?.idioma === "es" && (
+                <span className="block text-tinta-suave">
+                  En inglés: <span lang="en">{e.nombreEn}</span>
+                </span>
+              )}
               {e && <Origenes origen={e.origen} />}
             </div>
           );
@@ -286,10 +291,16 @@ function FichaCompuesto({
   return (
     <>
       <p className="text-sm text-tinta-suave">{NOMBRE_CLASE_QUIMICA[c.clase]}</p>
-      <h2 id="titulo-ficha" className="text-2xl font-semibold" lang="en">
+      <h2 id="titulo-ficha" className="text-2xl font-semibold" lang={c.idioma}>
         {c.nombre}
       </h2>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 text-sm">
+        {c.idioma === "es" && (
+          <>
+            <dt className="font-semibold">En inglés</dt>
+            <dd lang="en">{c.nombreEn}</dd>
+          </>
+        )}
         <dt className="font-semibold">Nombre en ChEBI</dt>
         <dd lang="en">{c.nombreChebi}</dd>
         {c.formula && (

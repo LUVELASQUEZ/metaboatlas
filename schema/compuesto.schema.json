@@ -7,6 +7,10 @@
   "properties": {
     "id": { "$ref": "comun.schema.json#/$defs/curie_chebi" },
     "nombre": { "$ref": "comun.schema.json#/$defs/texto_bilingue" },
+    "nombre_es_origen": {
+      "description": "De dónde sale `nombre.es`: curaduría de MetaboAtlas (curation/nombres_es.yaml), etiqueta única de Wikidata, o null si no hay nombre en español.",
+      "enum": ["curaduria", "wikidata", null]
+    },
     "definicion": {
       "description": "Definición de ChEBI, en inglés.",
       "type": ["string", "null"]
