@@ -1,0 +1,19 @@
+{
+  "id": "PMID:1",
+  "titulo": "Artículo ficticio para el ejemplo del esquema.",
+  "autores": "Autora A, Autor B.",
+  "revista": "Revista Ficticia",
+  "anio": 2026,
+  "volumen": "1",
+  "numero": null,
+  "paginas": "1-2",
+  "doi": null,
+  "pmcid": null,
+  "acceso_abierto": false,
+  "respalda": "Una afirmación ficticia.",
+  "verificado": "resumen",
+  "xrefs": [{ "fuente": "europe_pmc", "tipo": "articulo", "id": "1" }],
+  "procedencia": [
+    { "fuente": "europe_pmc", "id": "1", "version": "2026-10-08", "fecha_descarga": "2026-10-08" }
+  ]
+}

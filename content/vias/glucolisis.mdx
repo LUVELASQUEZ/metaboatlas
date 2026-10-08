@@ -5,7 +5,7 @@ estado_editorial: borrador
 # un revisor del área lo apruebe.
 generado_con_ia: true
 revisores: []
-actualizado: "2026-10-07"
+actualizado: "2026-10-08"
 # Un texto corto por paso, en el sentido de la vía. Lo usa la ficha del paso.
 pasos:
   p01: >-
@@ -63,7 +63,7 @@ Piensa en una inversión. Al principio la célula "paga" dos ATP para activar la
 
 Es la puerta de entrada del azúcar al metabolismo. El piruvato puede seguir hacia la respiración, si hay oxígeno, o hacia una fermentación, si no lo hay.
 
-Algunas células dependen solo de la glucólisis para obtener ATP. Los glóbulos rojos maduros, por ejemplo, no tienen mitocondrias.<RefPendiente nota="eritrocitos sin mitocondrias y dependencia de la glucólisis" />
+Algunas células dependen solo de la glucólisis para obtener ATP. Los glóbulos rojos maduros, por ejemplo, no tienen mitocondrias.<Ref pmid="37512500" />
 
 </Nivel>
 
@@ -99,13 +99,13 @@ La tabla suma los cambios de cada paso según la curaduría de la vía, que se v
 
 ### Regulación
 
-Tres pasos son prácticamente irreversibles en la célula: el 1, el 3 y el 10. Son los puntos donde se controla la vía.<RefPendiente nota="irreversibilidad de los pasos 1, 3 y 10 en condiciones celulares" />
+Tres pasos son prácticamente irreversibles en la célula: el 1, el 3 y el 10. Son los puntos donde se controla la vía.<Ref pmid="27159581" />
 
 En el mapa aparecen marcados como pasos regulados.
 
-- **Fosfofructocinasa (paso 3)**: es el control principal. En animales, el ATP abundante la inhibe y el AMP la activa.<RefPendiente nota="regulación alostérica de la fosfofructocinasa 1 por ATP y AMP" />
-- **Hexocinasa (paso 1)**: en animales, su propio producto, la glucosa 6-fosfato, la inhibe. La glucocinasa del hígado no responde así.<RefPendiente nota="inhibición de la hexocinasa por glucosa 6-fosfato; glucocinasa insensible" />
-- **Piruvato cinasa (paso 10)**: la fructosa 1,6-bisfosfato, formada en el paso 3, la activa por adelantado.<RefPendiente nota="activación de la piruvato cinasa por fructosa 1,6-bisfosfato" />
+- **Fosfofructocinasa (paso 3)**: es el control principal. En animales, el ATP abundante la inhibe y el AMP la activa.<Ref pmid="38201444" />
+- **Hexocinasa (paso 1)**: en animales, su propio producto, la glucosa 6-fosfato, la inhibe. La glucocinasa del hígado no responde así.<Ref pmid="29298880 30949058" />
+- **Piruvato cinasa (paso 10)**: en isoformas como la PKM2 de mamíferos, la fructosa 1,6-bisfosfato, formada en el paso 3, la activa por adelantado.<Ref pmid="29455645" />
 
 ### Conexiones con otras vías
 
@@ -137,21 +137,21 @@ Las reacciones con otros sustratos que Rhea asocia al mismo EC, como la manosa e
 
 La glucólisis de esta página es la vía de Embden-Meyerhof-Parnas. No es la única forma de degradar glucosa.
 
-- **Sistema de fosfotransferasa (PTS)**: muchas bacterias, como *E. coli*, introducen la glucosa ya fosforilada usando fosfoenolpiruvato. No se incluye en el paso 1; tendrá su propia vía.<RefPendiente nota="captación de glucosa por PTS en E. coli" />
-- **Vía de Entner-Doudoroff**: otras bacterias rompen la glucosa por un camino distinto, con menor rendimiento de ATP.<RefPendiente nota="vía de Entner-Doudoroff y su rendimiento" />
+- **Sistema de fosfotransferasa (PTS)**: muchas bacterias, como *E. coli*, introducen la glucosa ya fosforilada usando fosfoenolpiruvato. No se incluye en el paso 1; tendrá su propia vía.<Ref pmid="17158705 27159581" />
+- **Vía de Entner-Doudoroff**: otras bacterias rompen la glucosa por un camino distinto, con menor rendimiento de ATP.<Ref pmid="23630264" />
 - **Fosfoglicerato mutasa**: algunos organismos usan la forma dependiente de 2,3-bisfosfoglicerato y otros la independiente. Por eso el paso 8 incluye ambas.
 
 La cobertura de cada organismo se calcula con sus proteínas anotadas en UniProt. Un paso sin anotación no prueba que el organismo carezca de la enzima.
 
 ### Regulación alostérica y genética
 
-La regulación cambia entre grupos de organismos. Por ejemplo, la fosfofructocinasa de *E. coli* responde a efectores distintos de los de la enzima de mamíferos.<RefPendiente nota="efectores de la fosfofructocinasa de E. coli frente a la de mamíferos" />
+La regulación cambia entre grupos de organismos. Por ejemplo, la fosfofructocinasa de *E. coli* responde a efectores distintos de los de la enzima de mamíferos.<Ref pmid="40329473 38201444" />
 
-En mamíferos, la fructosa 2,6-bisfosfato es un activador potente de la fosfofructocinasa. Conecta la vía con señales hormonales.<RefPendiente nota="fructosa 2,6-bisfosfato como activador de la PFK-1" />
+En mamíferos, la fructosa 2,6-bisfosfato es un activador potente de la fosfofructocinasa. Conecta la vía con señales hormonales.<Ref pmid="30234009" />
 
 ### Termodinámica
 
-Los pasos 1, 3 y 10 tienen una energía libre muy negativa en las condiciones de la célula. Los demás operan cerca del equilibrio y la gluconeogénesis los comparte.<RefPendiente nota="valores de ΔG de cada paso; citar la fuente de cada cifra" />
+Según el modelo clásico, los pasos 1, 3 y 10 empujan la vía en un solo sentido y los demás operan cerca del equilibrio, por eso la gluconeogénesis los comparte. Las mediciones en *E. coli*, levadura y células de mamífero lo confirman con matices: la fosfofructocinasa actúa como un paso irreversible, mientras que la piruvato cinasa tolera algo de flujo en sentido contrario.<Ref pmid="27159581" />
 
 Esta página no muestra cifras de ΔG hasta tener una fuente verificable para cada una, porque los valores varían entre libros.
 
@@ -159,11 +159,11 @@ Esta página no muestra cifras de ΔG hasta tener una fuente verificable para ca
 
 ## Relevancia por carrera
 
-- **Microbiología**: la glucólisis alimenta las fermentaciones láctica y alcohólica. La fermentación de la glucosa es una prueba clásica de identificación bioquímica.<RefPendiente nota="pruebas de fermentación de glucosa en identificación bacteriana" />
-- **Bacteriología clínica**: distinguir bacterias fermentadoras de no fermentadoras de glucosa orienta la identificación de bacilos gramnegativos.<RefPendiente nota="fermentadores y no fermentadores de glucosa en el laboratorio clínico" />
-- **Nutrición**: en el ejercicio intenso, el músculo obtiene ATP rápido por glucólisis y produce lactato.<RefPendiente nota="glucólisis y lactato en el ejercicio intenso" />
+- **Microbiología**: la glucólisis alimenta las fermentaciones láctica y alcohólica. La fermentación de la glucosa es una prueba clásica de identificación bioquímica.<Ref pmid="21938252" />
+- **Bacteriología clínica**: distinguir bacterias fermentadoras de no fermentadoras de glucosa orienta la identificación de bacilos gramnegativos.<Ref pmid="21938252" />
+- **Nutrición**: en el ejercicio intenso aumenta la producción de lactato a partir de la glucólisis. Hoy se sabe que el lactato no es un simple desecho ni la causa de la fatiga.<Ref pmid="27740597" />
 - **Biotecnología**: *Saccharomyces cerevisiae* convierte el piruvato en etanol. Es la base de la producción de bebidas y bioetanol.
-- **Bioquímica**: muchas células tumorales aumentan la glucólisis aun con oxígeno disponible (efecto Warburg).<RefPendiente nota="efecto Warburg" />
+- **Bioquímica**: muchas células tumorales aumentan la glucólisis aun con oxígeno disponible (efecto Warburg).<Ref pmid="27911732 30234009" />
 
 ## Errores frecuentes
 
@@ -183,4 +183,6 @@ Las preguntas cambian con el nivel. Se corrigen aquí mismo y no se guarda ning�
 
 Los datos de reacciones, enzimas y compuestos de esta página vienen de Rhea, ENZYME, ChEBI y UniProt, con su versión en la caja de fuentes.
 
-Las afirmaciones marcadas como "referencia pendiente" esperan una fuente primaria o una revisión de acceso abierto. Se agregarán durante la revisión del contenido.
+Los números entre corchetes remiten a esta lista. Los datos de cita vienen de Europe PMC; se prefirieron artículos de lectura gratuita.
+
+<Bibliografia />

@@ -12,7 +12,7 @@ from metabo import curation, maps
 from metabo.config import load_config
 from metabo.coverage import compute
 from metabo.errors import ConfigError
-from metabo.export import compounds, names, package
+from metabo.export import compounds, names, package, references
 from metabo.organisms import load_organisms
 from metabo.paths import repo_root
 
@@ -35,6 +35,7 @@ def documents() -> dict:
                 for p in sorted((root / "curation" / "mapas").glob("*.json"))
             },
             names.load_curation(root / "curation" / "nombres_es.yaml"),
+            references.load_curation(root / "curation" / "referencias.yaml"),
         )
     except (ConfigError, FileNotFoundError) as exc:
         pytest.skip(f"Faltan datos descargados en raw/: {exc}")
@@ -83,3 +84,10 @@ def test_every_compound_and_enzyme_has_a_spanish_name(documents):
     ]
     assert missing == []
     assert documents["compuestos/CHEBI_15361.json"]["nombre"]["es"] == "piruvato"
+
+
+def test_every_curated_reference_has_its_citation_data(documents):
+    cited = references.load_curation(repo_root() / "curation" / "referencias.yaml")
+    for reference in cited:
+        doc = documents[f"referencias/PMID_{reference.pmid}.json"]
+        assert doc["titulo"] and doc["revista"] and doc["anio"] > 1900

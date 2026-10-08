@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { balanceEnergetico } from "@/lib/balance";
 import { compilarContenido, type ContenidoVia, leerContenidoVia, validarContenido } from "@/lib/contenido";
+import { pmidsCitados, pmidsCurados, textoCita } from "@/lib/referencias";
 import type { Via } from "@/lib/tipos/via";
 
 const raiz = path.join(__dirname, "..", "..");
@@ -34,6 +35,11 @@ describe.each(slugs)("content/vias/%s.mdx", (slug) => {
     expect(validarContenido(contenido, via)).toEqual([]);
   });
 
+  it("solo cita PMID de curation/referencias.yaml", () => {
+    const curados = pmidsCurados(raiz);
+    expect(pmidsCitados(contenido.cuerpo).filter((p) => !curados.includes(p))).toEqual([]);
+  });
+
   it("se compila y muestra un bloque por nivel", async () => {
     const Contenido = await compilarContenido(contenido.cuerpo);
     const html = renderToStaticMarkup(
@@ -42,6 +48,8 @@ describe.each(slugs)("content/vias/%s.mdx", (slug) => {
           Nivel: ({ nivel, children }: { nivel: string; children: React.ReactNode }) =>
             createElement("section", { "data-nivel": nivel }, children),
           RefPendiente: () => null,
+          Ref: () => null,
+          Bibliografia: () => null,
           BalanceEnergetico: () => null,
           Autoevaluacion: () => null,
         },
@@ -112,5 +120,39 @@ describe("validación del contenido", () => {
     const c = base();
     c.meta.estado_editorial = "revisado";
     expect(validarContenido(c, via)).toEqual(["un contenido revisado necesita al menos un revisor"]);
+  });
+});
+
+describe("referencias", () => {
+  it("numera los PMID por su primera aparición, también dentro de una cita múltiple", () => {
+    const cuerpo = 'a<Ref pmid="3" /> b<Ref pmid="1 3" /> c<Ref pmid="2" />';
+    expect(pmidsCitados(cuerpo)).toEqual(["3", "1", "2"]);
+  });
+
+  it("la glucólisis ya no tiene referencias pendientes", () => {
+    const { cuerpo } = leerContenidoVia("glucolisis", contenidoDir)!;
+    expect(cuerpo).not.toContain("<RefPendiente");
+    expect(pmidsCitados(cuerpo).length).toBeGreaterThan(0);
+  });
+
+  it("arma la cita con los datos de Europe PMC", () => {
+    const texto = textoCita({
+      id: "PMID:1",
+      titulo: "Un título.",
+      autores: "Autora A, Autor B.",
+      revista: "Rev Ficticia",
+      anio: 2020,
+      volumen: "12",
+      numero: "7",
+      paginas: "482-489",
+      doi: null,
+      pmcid: null,
+      acceso_abierto: false,
+      respalda: "x",
+      verificado: "resumen",
+      xrefs: [],
+      procedencia: [{ fuente: "europe_pmc", id: "1", version: "2026-10-08", fecha_descarga: "2026-10-08" }],
+    });
+    expect(texto).toBe("Autora A, Autor B. Un título. Rev Ficticia. 2020;12(7):482-489.");
   });
 });

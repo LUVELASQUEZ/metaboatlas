@@ -85,6 +85,12 @@ jobs:
         working-directory: pipeline
         run: uv run metabo extraer wikidata
 
+      # Datos de cita de curation/referencias.yaml (solo cita, sin resúmenes): también
+      # dependen de la curaduría y no van a la caché.
+      - name: Consultar las referencias en Europe PMC
+        working-directory: pipeline
+        run: uv run metabo extraer europe_pmc
+
       - name: Exportar el paquete
         working-directory: pipeline
         run: uv run metabo exportar

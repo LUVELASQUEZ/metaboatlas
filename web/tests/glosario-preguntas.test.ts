@@ -33,6 +33,8 @@ async function html(cuerpo: string): Promise<string> {
         TerminoGlosario: ({ id, children }: { id: string; children: React.ReactNode }) =>
           createElement("a", { "data-termino": id }, children),
         RefPendiente: () => null,
+        Ref: () => null,
+        Bibliografia: () => null,
         BalanceEnergetico: () => null,
         Autoevaluacion: () => null,
       },

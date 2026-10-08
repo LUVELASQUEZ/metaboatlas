@@ -13,12 +13,14 @@ data/2026.10/
   organismos/511145.json        # organismos.yaml + NCBI Taxonomy + UniProt
   cobertura/glucolisis/511145.json
   mapas/glucolisis.json         # el dibujo de curation/mapas/, verificado contra Rhea
+  referencias/PMID_27159581.json  # artículos citados en content/ (curation/referencias.yaml + Europe PMC)
 ```
 
 - `package.py` arma los documentos. Solo exporta las entidades que tocan las vías curadas, y cada una lleva su `procedencia` (fuente, ID, versión y fecha de descarga). Una exportación nueva reemplaza la carpeta de la misma versión.
 - Los mapas de `curation/mapas/` se verifican con `metabo/maps.py` (ver [`curation/mapas/README.md`](../../../curation/mapas/README.md)) y sus nodos también se exportan como compuestos.
 - `attribution.py` escribe `ATRIBUCION.md`, que acompaña al paquete en cada copia (release `data-<version>` y sitio web).
 - `names.py` elige el nombre en español de compuestos, enzimas y organismos: primero `curation/nombres_es.yaml`, después la etiqueta única de Wikidata; si no hay ninguno, `nombre.es` queda en null. `nombre_es_origen` dice de dónde salió (`curaduria`, `wikidata` o null). Wikidata es opcional: sin su descarga, solo se usa la curaduría.
+- `references.py` exporta las referencias de `curation/referencias.yaml` con sus datos de cita de Europe PMC (título, autores, revista, año, DOI, PMCID), sin resúmenes ni texto.
 - `compounds.py` decide la clase de cada compuesto y si es cofactor, con las reglas de [`curation/compuestos.yaml`](../../../curation/compuestos.yaml).
 
 ## De dónde sale cada campo

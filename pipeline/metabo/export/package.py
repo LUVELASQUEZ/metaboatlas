@@ -32,10 +32,11 @@ from metabo.coverage import compute
 from metabo.coverage.algorithm import Thresholds
 from metabo.errors import ConfigError
 from metabo.export import names as spanish
+from metabo.export import references as bibliography
 from metabo.export.compounds import Classifier, CompoundCuration, check_names
 from metabo.manifest import DownloadRecord, Manifest
 from metabo.organisms import Organism
-from metabo.sources import chebi, enzyme, ncbi_taxonomy, rhea, uniprot, wikidata
+from metabo.sources import chebi, enzyme, europe_pmc, ncbi_taxonomy, rhea, uniprot, wikidata
 
 # Fuente -> archivos de raw/ que usa la exportación (además de los proteomas).
 REQUIRED_FILES: dict[str, tuple[str, ...]] = {
@@ -315,12 +316,14 @@ def build(
     calculado: date,
     mapas: Mapping[str, Mapping[str, Any]] | None = None,
     nombres: spanish.NameCuration | None = None,
+    referencias: Sequence[bibliography.CitedReference] = (),
 ) -> Package:
     """Arma todos los documentos del paquete y los valida contra schema/.
 
     `mapas` asocia el slug de una vía con su mapa curado; una vía sin mapa se exporta
     sin él (la web usará un diseño automático). `nombres` es la curaduría de
-    curation/nombres_es.yaml.
+    curation/nombres_es.yaml y `referencias`, la de curation/referencias.yaml (sus datos
+    de cita salen de Europe PMC, que entonces debe estar descargado).
     """
     mapas = mapas or {}
     nombres = nombres or spanish.NameCuration()
@@ -454,6 +457,23 @@ def build(
         relative = compute.output_path(Path("."), document).as_posix()
         documents[relative] = document
 
+    # Referencias bibliográficas del contenido.
+    if referencias:
+        sources["europe_pmc"] = _source(manifest, raw_dir, europe_pmc.FUENTE, ())
+        articles = europe_pmc.read_articles(sources["europe_pmc"].paths.values())
+        missing = [r.pmid for r in referencias if r.pmid not in articles]
+        if missing:
+            raise ConfigError(
+                f"Faltan en la descarga de Europe PMC los PMID {', '.join(missing)}: "
+                "ejecuta `uv run metabo extraer europe_pmc`."
+            )
+        epmc = sources["europe_pmc"]
+        provenance = bibliography.Provenance(epmc.version, epmc.records[0].fecha_descarga)
+        for reference in referencias:
+            documents[f"referencias/PMID_{reference.pmid}.json"] = bibliography.document(
+                reference, articles[reference.pmid], provenance
+            )
+
     for relative, document in documents.items():
         schema = _SCHEMA_BY_FOLDER[relative.split("/", 1)[0]]
         schemas.validate(schema, document, label=relative)
@@ -476,4 +496,5 @@ _SCHEMA_BY_FOLDER = {
     "organismos": "organismo",
     "cobertura": "cobertura",
     "mapas": "mapa",
+    "referencias": "referencia",
 }

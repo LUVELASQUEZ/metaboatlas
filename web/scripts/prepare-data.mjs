@@ -21,6 +21,7 @@ const SCHEMA_BY_FOLDER = {
   organismos: "organismo",
   cobertura: "cobertura",
   mapas: "mapa",
+  referencias: "referencia",
 };
 
 async function sourceDir() {

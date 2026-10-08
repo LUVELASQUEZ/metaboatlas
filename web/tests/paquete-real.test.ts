@@ -39,9 +39,12 @@ describe.skipIf(!hayDatos)("glucólisis con datos reales", () => {
     expect(vista().pasos.find((p) => p.id === paso)![lado]).toContain(compuesto);
   });
 
-  it("muestra los nombres de lectura de Rhea", () => {
+  it("muestra el nombre en español y conserva el de lectura de Rhea", () => {
     const v = vista();
-    expect(v.compuestos["CHEBI:57540"]!.nombre).toBe("NAD(+)");
-    expect(v.compuestos["CHEBI:57642"]!.nombre).toBe("dihydroxyacetone phosphate");
+    expect(v.compuestos["CHEBI:57540"]).toMatchObject({ nombre: "NAD+", nombreEn: "NAD(+)" });
+    expect(v.compuestos["CHEBI:57642"]).toMatchObject({
+      nombre: "dihidroxiacetona fosfato",
+      nombreEn: "dihydroxyacetone phosphate",
+    });
   });
 });
