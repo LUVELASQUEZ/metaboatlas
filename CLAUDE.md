@@ -43,7 +43,7 @@ El diseño completo está en `docs/MANUAL.md`. Léelo antes de cualquier tarea q
 ## Organismos
 
 - Fase 0: cuatro organismos — *Escherichia coli* K-12 MG1655 (`taxon:511145`), *Bacillus subtilis* 168 (`taxon:224308`), *Saccharomyces cerevisiae* S288C (`taxon:559292`) y *Homo sapiens* (`taxon:9606`).
-- La lista del MVP vive en `pipeline/organismos.yaml`; su tamaño definitivo está pendiente de decisión. El código no debe asumir un número fijo.
+- La lista del MVP vive en `pipeline/organismos.yaml`: unos 50 organismos en tres grupos (modelo, clínico, industrial), decidido el 2026-10-08. El código no debe asumir un número fijo.
 
 ## Forma de trabajar
 

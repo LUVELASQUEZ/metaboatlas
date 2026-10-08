@@ -58,3 +58,6 @@ enzimas:
   EC:5.4.2.12: {en: "phosphoglycerate mutase (2,3-diphosphoglycerate-independent)", es: "fosfoglicerato mutasa (independiente de 2,3-bisfosfoglicerato)"}
 organismos:
   taxon:9606: {en: human, es: ser humano}
+  taxon:3702: {en: thale cress, es: arabidopsis}
+  taxon:7227: {en: fruit fly, es: mosca de la fruta}
+  taxon:10090: {en: house mouse, es: ratón doméstico}

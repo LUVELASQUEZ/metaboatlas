@@ -47,14 +47,15 @@ jobs:
 
       # Las descargas del mes se guardan en la caché de Actions (privada) para no
       # volver a pedirlas a las fuentes cuando solo cambia la curaduría. La ejecución
-      # programada siempre descarga de nuevo.
+      # programada siempre descarga de nuevo. La clave incluye organismos.yaml: si cambia
+      # la lista de organismos, hay que descargar sus proteomas.
       - name: Recuperar las descargas del mes
         id: cache
         if: github.event_name != 'schedule'
         uses: actions/cache/restore@v4
         with:
           path: raw
-          key: raw-${{ steps.mes.outputs.mes }}
+          key: raw-${{ steps.mes.outputs.mes }}-${{ hashFiles('pipeline/organismos.yaml') }}
 
       - name: Descargar las fuentes
         if: steps.cache.outputs.cache-hit != 'true'
@@ -76,7 +77,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: raw
-          key: raw-${{ steps.mes.outputs.mes }}
+          key: raw-${{ steps.mes.outputs.mes }}-${{ hashFiles('pipeline/organismos.yaml') }}
 
       # Los nombres de Wikidata dependen de las vías curadas (sus compuestos y EC), así
       # que se consultan en cada ejecución y no se guardan en la caché. Son dos

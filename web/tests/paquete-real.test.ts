@@ -5,6 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { Paquete } from "@/lib/datos";
 import { leerFuentes } from "@/lib/fuentes";
+import { agruparOrganismos } from "@/lib/organismos";
 import { construirVistaVia } from "@/lib/vista-via";
 
 const raiz = path.join(__dirname, "..", "public", "datos");
@@ -18,12 +19,16 @@ describe.skipIf(!hayDatos)("glucólisis con datos reales", () => {
       "glucolisis",
     );
 
-  it("dibuja los 10 pasos y ofrece los organismos de la fase 0", () => {
+  it("dibuja los 10 pasos y ofrece todos los organismos del paquete", () => {
     const v = vista();
     expect(v.mapa?.flechas.map((f) => f.paso).sort()).toEqual(v.pasos.map((p) => p.id).sort());
-    expect(v.organismos.map((o) => o.id).sort()).toEqual(
-      ["taxon:224308", "taxon:511145", "taxon:559292", "taxon:9606"].sort(),
-    );
+    // El número de organismos no es fijo (pipeline/organismos.yaml): deben estar todos
+    // los del paquete, entre ellos los cuatro de la fase 0, y cada uno en un grupo.
+    const ids = v.organismos.map((o) => o.id).sort();
+    expect(ids).toEqual(Paquete.actual(raiz).organismos().map((o) => o.id).sort());
+    expect(ids).toEqual(expect.arrayContaining(["taxon:224308", "taxon:511145", "taxon:559292", "taxon:9606"]));
+    const agrupados = agruparOrganismos(v.organismos).flatMap((g) => g.organismos.map((o) => o.id));
+    expect(agrupados.sort()).toEqual(ids);
   });
 
   // Balance energético de los libros de texto, deducido de las ecuaciones de Rhea y del
