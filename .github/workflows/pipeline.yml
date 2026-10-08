@@ -78,6 +78,13 @@ jobs:
           path: raw
           key: raw-${{ steps.mes.outputs.mes }}
 
+      # Los nombres de Wikidata dependen de las vías curadas (sus compuestos y EC), así
+      # que se consultan en cada ejecución y no se guardan en la caché. Son dos
+      # consultas pequeñas al servicio SPARQL, una tras otra.
+      - name: Consultar los nombres en Wikidata
+        working-directory: pipeline
+        run: uv run metabo extraer wikidata
+
       - name: Exportar el paquete
         working-directory: pipeline
         run: uv run metabo exportar

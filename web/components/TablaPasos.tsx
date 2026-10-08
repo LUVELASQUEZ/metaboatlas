@@ -73,7 +73,7 @@ export function TablaPasos({
                       <td className="p-2">
                         {paso.enzimas.map((ec) => (
                           <span key={ec} className="block">
-                            <span lang="en">{vista.enzimas[ec]?.nombre}</span>{" "}
+                            <span lang={vista.enzimas[ec]?.idioma}>{vista.enzimas[ec]?.nombre}</span>{" "}
                             <span className="font-mono text-xs">{ec.replace("EC:", "EC ")}</span>
                           </span>
                         ))}

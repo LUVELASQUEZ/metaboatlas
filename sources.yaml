@@ -259,23 +259,33 @@ ncbi_taxonomy:
 wikidata:
   nombre: Wikidata
   uso: redistribuir
-  estado: pendiente de verificar
-  url: null  # TODO
-  licencia: CC0
-  licencia_url: null  # TODO
-  verificada: null  # TODO
+  estado: verificada
+  url: https://www.wikidata.org
+  licencia: CC0 1.0
+  licencia_url: https://www.wikidata.org/wiki/Wikidata:Licensing
+  verificada: "2026-10-08"
   que_tomamos: >-
-    Nombres en español de compuestos, enzimas y taxones; enlaces a Wikipedia
-    en español.
-  condicion: Ninguna.
+    Etiquetas en español de compuestos (por su ID de ChEBI, propiedad P683) y de
+    enzimas (por su número EC, propiedad P591), con el ID del elemento de Wikidata.
+  condicion: >-
+    Ninguna: los datos estructurados son CC0. Se reconoce la fuente igualmente.
   acceso:
     - query.wikidata.org/sparql
-  plantillas: {}  # TODO
-  cita_recomendada: null  # TODO
-  doi_cita: null  # TODO
+  plantillas:
+    elemento: https://www.wikidata.org/wiki/{id}
+  cita_recomendada: null
+  doi_cita: null
+  sin_cita_oficial: true
   notas: >-
-    Consultas por lotes de 200 a 500 IDs. Solo se toman datos de Wikidata; los
-    artículos de Wikipedia solo se enlazan (su licencia es distinta; verificar).
+    Licencia copiada de Wikidata:Licensing: "All structured data (i.e. the main,
+    Property, Lexeme, and EntitySchema namespaces) is released into the public
+    domain under Creative Commons Zero"; el texto de otros espacios es CC BY-SA, y
+    no se usa. Wikidata no publica una página "How to cite" (Wikidata:Citing_Wikidata
+    no existe, consultado el 2026-10-08) y la regla 6 impide escribir una cita de
+    memoria, así que solo se reconoce por nombre, licencia y fecha de consulta.
+    Acceso según Wikidata:Data_access: User-Agent con contacto, Accept-Encoding
+    gzip, pocas consultas a la vez y pausa ante un 429. Consultas por lotes de
+    200 IDs. Los artículos de Wikipedia no se toman (licencia CC BY-SA).
 
 brenda:
   nombre: BRENDA

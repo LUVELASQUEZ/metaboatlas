@@ -44,4 +44,9 @@ def attribution(manifest: Manifest, registry: SourceRegistry) -> str:
             lines += [f"> {line}" for line in source.cita_recomendada.splitlines()]
             if source.doi_cita:
                 lines += [">", f"> https://doi.org/{source.doi_cita}"]
+        elif source.sin_cita_oficial:
+            lines.append(
+                "- Esta base no publica una cita recomendada: cítala por su nombre, "
+                "su sitio y la fecha de consulta."
+            )
     return "\n".join(lines) + "\n"

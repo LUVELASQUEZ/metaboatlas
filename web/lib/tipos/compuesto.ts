@@ -16,6 +16,10 @@ export interface Compuesto {
   id: string;
   nombre: TextoBilingue;
   /**
+   * De dónde sale `nombre.es`: curaduría de MetaboAtlas (curation/nombres_es.yaml), etiqueta única de Wikidata, o null si no hay nombre en español.
+   */
+  nombre_es_origen?: "curaduria" | "wikidata" | null;
+  /**
    * Definición de ChEBI, en inglés.
    */
   definicion?: string | null;

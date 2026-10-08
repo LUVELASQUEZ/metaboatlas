@@ -35,9 +35,14 @@ def test_verified_repository_sources_are_complete():
             assert source.url and source.url.startswith("https://"), source.key
             assert source.licencia_url, source.key
             assert source.verificada, source.key
-            assert source.cita_recomendada, source.key
-            assert source.doi_cita, source.key
-            assert "TODO" not in source.cita_recomendada, source.key
+            if source.sin_cita_oficial:
+                # Sin cita oficial no se escribe ninguna; las notas dicen dónde se buscó.
+                assert source.cita_recomendada is None and source.doi_cita is None, source.key
+                assert source.notas, source.key
+            else:
+                assert source.cita_recomendada, source.key
+                assert source.doi_cita, source.key
+                assert "TODO" not in source.cita_recomendada, source.key
             assert source.plantillas, source.key
 
 
