@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { Paquete } from "@/lib/datos";
-import { elementosMapa, textoCofactores, textoRotulo } from "@/lib/elementos-mapa";
+import { elementosMapa, ordenTeclado, textoCofactores, textoRotulo } from "@/lib/elementos-mapa";
 import { enlace, type Fuentes, leerFuentes, plantilla } from "@/lib/fuentes";
 import type { Cobertura } from "@/lib/tipos/cobertura";
 import type { Reaccion } from "@/lib/tipos/reaccion";
@@ -209,6 +209,14 @@ describe("elementos del mapa", () => {
     const rotulo = elementos.find((e) => e.data.id === "paso:p01")!;
     const cofactores = elementos.find((e) => e.data.id === "cofactores:p01")!;
     expect(rotulo.position).not.toBe(cofactores.position);
+  });
+
+  it("el teclado recorre el mapa en el sentido de la vía, sin repetir compuestos", () => {
+    const paradas = ordenTeclado(vista);
+    expect(paradas.map((p) => p.id)).toEqual(["CHEBI:1", "paso:p01", "CHEBI:2", "paso:p02", "CHEBI:5"]);
+    expect(paradas[1]!.seleccion).toEqual({ tipo: "paso", id: "p01" });
+    expect(paradas[1]!.texto).toMatch(/^Paso 1: /);
+    expect(paradas[0]!.seleccion).toEqual({ tipo: "compuesto", id: "CHEBI:1" });
   });
 
   it("una flecha por compuesto de origen y de destino", () => {
