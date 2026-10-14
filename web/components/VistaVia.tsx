@@ -12,6 +12,7 @@ import { descargarCobertura } from "@/lib/cliente";
 import { mapaDetallado } from "@/lib/niveles";
 import { parseNivel } from "@/lib/niveles-url";
 import type { Cobertura } from "@/lib/tipos/cobertura";
+import { agruparOrganismos } from "@/lib/organismos";
 import type { VistaVia as Vista } from "@/lib/vista-via";
 
 export type Seleccion = { tipo: "paso"; id: string } | { tipo: "compuesto"; id: string } | null;
@@ -67,10 +68,14 @@ export function VistaVia({ vista, textosPasos = {} }: { vista: Vista; textosPaso
             onChange={(e) => void setOrg(e.target.value || null)}
           >
             <option value="">Ninguno (solo la vía de referencia)</option>
-            {vista.organismos.map((o) => (
-              <option key={o.id} value={o.id.replace("taxon:", "")}>
-                {o.nombre}
-              </option>
+            {agruparOrganismos(vista.organismos).map((g) => (
+              <optgroup key={g.etiqueta} label={g.etiqueta}>
+                {g.organismos.map((o) => (
+                  <option key={o.id} value={o.id.replace("taxon:", "")}>
+                    {o.nombre}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </label>

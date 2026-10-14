@@ -1,16 +1,21 @@
 # Organismos con cobertura precalculada (sección 5 de docs/MANUAL.md).
-# Fase 0: cuatro organismos definidos en CLAUDE.md. El tamaño final de la lista
-# del MVP está pendiente de decisión; el código no asume un número fijo.
+# MVP: unos 50 organismos (decisión del 2026-10-08), en tres grupos: modelo,
+# interés clínico e interés industrial y alimentario. Los cuatro primeros son los de
+# la fase 0. Criterio: organismos que aparecen en los cursos de microbiología,
+# bioquímica, biotecnología y nutrición, con cepa de referencia y proteoma de
+# referencia en UniProt, y casos que enseñan algo distinto (arqueas, genomas
+# mínimos, vía de Entner-Doudoroff, bacterias lácticas, levaduras no
+# convencionales). El código no asume un número fijo.
 #
 # proteoma_referencia: ID del proteoma de referencia en UniProt (UPxxxxxxxxx).
 # Nunca se escribe de memoria: se obtiene de rest.uniprot.org/proteomes/search
 # (proteomeType "Reference proteome").
-# Consultado el 2026-10-07, UniProt release 2026_03 (02-September-2026).
+# Consultados el 2026-10-07 (fase 0) y el 2026-10-08 (MVP), UniProt release 2026_03 (02-September-2026).
 #
 # nombre_ncbi: nombre científico del taxón copiado textualmente de names.dmp
 # ("scientific name") de NCBI Taxonomy. Comprueba que cada `id` es el organismo que
 # dice `nombre`. Nunca se escribe de memoria.
-# Consultado el 2026-10-07 en ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/
+# Consultado el 2026-10-07 y el 2026-10-08 en ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/
 # (new_taxdump.tar.gz, Last-Modified 2026-10-07 00:42:32 GMT,
 # SHA-256 631266d3dd4f5ba7be933475dff2ccfcdf279e3dd354d782c651b904fce4cf3f).
 # Ningún taxón aparece en merged.dmp ni en delnodes.dmp.
@@ -20,10 +25,13 @@
 # bajo un taxón distinto del de la cepa (ver E. coli).
 
 organismos:
+
+  # --- Organismos modelo ---
+
   - id: taxon:511145
     nombre: Escherichia coli K-12 MG1655
     nombre_ncbi: Escherichia coli str. K-12 substr. MG1655  # rango "no rank", hijo de 83333
-    intereses: [modelo]
+    intereses: [modelo, industrial]
     # UniProt no tiene proteoma de referencia para el taxón 511145. Este proteoma
     # está registrado bajo el taxón 83333, "Escherichia coli (strain K12)", con cepa
     # "K12 / MG1655 / ATCC 47076" y ensamblaje GCA_000005845.2 (genoma de MG1655).
@@ -33,13 +41,13 @@ organismos:
   - id: taxon:224308
     nombre: Bacillus subtilis 168
     nombre_ncbi: Bacillus subtilis subsp. subtilis str. 168  # rango "strain"
-    intereses: [modelo]
+    intereses: [modelo, industrial]
     proteoma_referencia: UP000001570  # ensamblaje GCA_000009045.1
 
   - id: taxon:559292
     nombre: Saccharomyces cerevisiae S288C
     nombre_ncbi: Saccharomyces cerevisiae S288C  # rango "strain"
-    intereses: [modelo]
+    intereses: [modelo, industrial]
     proteoma_referencia: UP000002311  # ensamblaje GCA_000146045.2
 
   - id: taxon:9606
@@ -47,3 +55,312 @@ organismos:
     nombre_ncbi: Homo sapiens  # rango "species"
     intereses: [modelo]
     proteoma_referencia: UP000005640  # ensamblaje GCA_000001405.29
+
+  - id: taxon:10090
+    nombre: Mus musculus C57BL/6J
+    nombre_ncbi: Mus musculus  # rango "species"
+    intereses: [modelo]
+    # proteoma grande (~55 000 proteínas)
+    proteoma_referencia: UP000000589  # ensamblaje GCA_000001635.9
+
+  - id: taxon:3702
+    nombre: Arabidopsis thaliana Columbia
+    nombre_ncbi: Arabidopsis thaliana  # rango "species"
+    intereses: [modelo]
+    # planta modelo
+    proteoma_referencia: UP000006548  # ensamblaje GCA_000001735.1
+
+  - id: taxon:6239
+    nombre: Caenorhabditis elegans N2
+    nombre_ncbi: Caenorhabditis elegans  # rango "species"
+    intereses: [modelo]
+    proteoma_referencia: UP000001940  # ensamblaje GCA_000002985.3
+
+  - id: taxon:7227
+    nombre: Drosophila melanogaster
+    nombre_ncbi: Drosophila melanogaster  # rango "species"
+    intereses: [modelo]
+    proteoma_referencia: UP000000803  # ensamblaje GCA_000001215.4
+
+  - id: taxon:284812
+    nombre: Schizosaccharomyces pombe 972h-
+    nombre_ncbi: Schizosaccharomyces pombe 972h-  # rango "strain"
+    intereses: [modelo]
+    proteoma_referencia: UP000002485  # ensamblaje GCA_000002945.2
+
+  - id: taxon:3055
+    nombre: Chlamydomonas reinhardtii
+    nombre_ncbi: Chlamydomonas reinhardtii  # rango "species"
+    intereses: [modelo]
+    # alga verde: fotosíntesis eucariota
+    proteoma_referencia: UP000006906  # ensamblaje GCA_000002595.3
+
+  - id: taxon:367110
+    nombre: Neurospora crassa OR74A
+    nombre_ncbi: Neurospora crassa OR74A  # rango "strain"
+    intereses: [modelo]
+    proteoma_referencia: UP000001805  # ensamblaje GCA_000182925.2
+
+  - id: taxon:1111708
+    nombre: Synechocystis sp. PCC 6803
+    nombre_ncbi: Synechocystis sp. PCC 6803 substr. Kazusa  # rango "no rank"
+    intereses: [modelo]
+    # cianobacteria: fotosíntesis oxigénica
+    proteoma_referencia: UP000001425  # ensamblaje GCA_000009725.1
+
+  - id: taxon:243232
+    nombre: Methanocaldococcus jannaschii DSM 2661
+    nombre_ncbi: Methanocaldococcus jannaschii DSM 2661  # rango "strain"
+    intereses: [modelo]
+    # arquea metanógena
+    proteoma_referencia: UP000000805  # ensamblaje GCA_000091665.1
+
+  - id: taxon:309800
+    nombre: Haloferax volcanii DS2
+    nombre_ncbi: Haloferax volcanii DS2  # rango "strain"
+    intereses: [modelo]
+    # arquea halófila
+    proteoma_referencia: UP000008243  # ensamblaje GCA_000025685.1
+
+  - id: taxon:273057
+    nombre: Saccharolobus solfataricus P2
+    nombre_ncbi: Saccharolobus solfataricus P2  # rango "strain"
+    intereses: [modelo]
+    # arquea termoacidófila; glucólisis por Entner-Doudoroff modificada
+    proteoma_referencia: UP000001974  # ensamblaje GCA_000007005.1
+
+  # --- Interés clínico ---
+
+  - id: taxon:93061
+    nombre: Staphylococcus aureus NCTC 8325
+    nombre_ncbi: Staphylococcus aureus subsp. aureus NCTC 8325  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000008816  # ensamblaje GCA_000013425.1
+
+  - id: taxon:373153
+    nombre: Streptococcus pneumoniae D39
+    nombre_ncbi: Streptococcus pneumoniae D39  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000001452  # ensamblaje GCA_000014365.2
+
+  - id: taxon:301447
+    nombre: Streptococcus pyogenes M1 SF370
+    nombre_ncbi: Streptococcus pyogenes serotype M1  # rango "serotype"
+    intereses: [clinico]
+    # UniProt registra este proteoma bajo el serotipo M1 (taxón 301447), con cepa
+    # "ATCC 700294 / SF370 / Serotype M1". Se usa ese taxón, no uno de la cepa.
+    proteoma_referencia: UP000000750  # ensamblaje GCA_000006785.2
+
+  - id: taxon:226185
+    nombre: Enterococcus faecalis V583
+    nombre_ncbi: Enterococcus faecalis V583  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000001415  # ensamblaje GCA_000007785.1
+
+  - id: taxon:169963
+    nombre: Listeria monocytogenes EGD-e
+    nombre_ncbi: Listeria monocytogenes EGD-e  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000000817  # ensamblaje GCA_000196035.1
+
+  - id: taxon:272563
+    nombre: Clostridioides difficile 630
+    nombre_ncbi: Clostridioides difficile 630  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000001978  # ensamblaje GCA_000009205.2
+
+  - id: taxon:83332
+    nombre: Mycobacterium tuberculosis H37Rv
+    nombre_ncbi: Mycobacterium tuberculosis H37Rv  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000001584  # ensamblaje GCA_000195955.2
+
+  - id: taxon:208964
+    nombre: Pseudomonas aeruginosa PAO1
+    nombre_ncbi: Pseudomonas aeruginosa PAO1  # rango "strain"
+    intereses: [clinico]
+    # usa la vía de Entner-Doudoroff
+    proteoma_referencia: UP000002438  # ensamblaje GCA_000006765.1
+
+  - id: taxon:272620
+    nombre: Klebsiella pneumoniae MGH 78578
+    nombre_ncbi: Klebsiella pneumoniae subsp. pneumoniae MGH 78578  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000000265  # ensamblaje GCA_000016305.1
+
+  - id: taxon:575584
+    nombre: Acinetobacter baumannii ATCC 19606
+    nombre_ncbi: Acinetobacter baumannii ATCC 19606 = CIP 70.34 = JCM 6841  # rango "strain"
+    intereses: [clinico]
+    # cepa tipo
+    proteoma_referencia: UP000498640  # ensamblaje GCA_009035845.1
+
+  - id: taxon:99287
+    nombre: Salmonella enterica serovar Typhimurium LT2
+    nombre_ncbi: Salmonella enterica subsp. enterica serovar Typhimurium str. LT2  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000001014  # ensamblaje GCA_000006945.2
+
+  - id: taxon:243277
+    nombre: Vibrio cholerae O1 El Tor N16961
+    nombre_ncbi: Vibrio cholerae O1 biovar El Tor str. N16961  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000000584  # ensamblaje GCA_000006745.1
+
+  - id: taxon:85962
+    nombre: Helicobacter pylori 26695
+    nombre_ncbi: Helicobacter pylori 26695  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000000429  # ensamblaje GCA_000008525.1
+
+  - id: taxon:272634
+    nombre: Mycoplasmoides pneumoniae M129
+    nombre_ncbi: Mycoplasmoides pneumoniae M129  # rango "strain"
+    intereses: [clinico]
+    # genoma mínimo; antes Mycoplasma pneumoniae
+    proteoma_referencia: UP000000808  # ensamblaje GCA_000027345.1
+
+  - id: taxon:272561
+    nombre: Chlamydia trachomatis D/UW-3/CX
+    nombre_ncbi: Chlamydia trachomatis D/UW-3/CX  # rango "strain"
+    intereses: [clinico]
+    # parásito intracelular obligado
+    proteoma_referencia: UP000000431  # ensamblaje GCA_000008725.1
+
+  - id: taxon:243276
+    nombre: Treponema pallidum Nichols
+    nombre_ncbi: Treponema pallidum subsp. pallidum str. Nichols  # rango "strain"
+    intereses: [clinico]
+    # metabolismo muy reducido
+    proteoma_referencia: UP000000811  # ensamblaje GCA_000008605.1
+
+  - id: taxon:237561
+    nombre: Candida albicans SC5314
+    nombre_ncbi: Candida albicans SC5314  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000000559  # ensamblaje GCA_000182965.3
+
+  - id: taxon:330879
+    nombre: Aspergillus fumigatus Af293
+    nombre_ncbi: Aspergillus fumigatus Af293  # rango "strain"
+    intereses: [clinico]
+    proteoma_referencia: UP000002530  # ensamblaje GCA_000002655.1
+
+  - id: taxon:36329
+    nombre: Plasmodium falciparum 3D7
+    nombre_ncbi: Plasmodium falciparum 3D7  # rango "isolate"
+    intereses: [clinico]
+    proteoma_referencia: UP000001450  # ensamblaje GCA_000002765.3
+
+  - id: taxon:185431
+    nombre: Trypanosoma brucei brucei TREU927
+    nombre_ncbi: Trypanosoma brucei brucei TREU927  # rango "strain"
+    intereses: [clinico]
+    # glucólisis en glicosomas
+    proteoma_referencia: UP000008524  # ensamblaje GCA_000002445.1
+
+  # --- Interés industrial y alimentario ---
+
+  - id: taxon:196627
+    nombre: Corynebacterium glutamicum ATCC 13032
+    nombre_ncbi: Corynebacterium glutamicum ATCC 13032  # rango "strain"
+    intereses: [industrial]
+    # producción de aminoácidos
+    proteoma_referencia: UP000000582  # ensamblaje GCA_000011325.1
+
+  - id: taxon:160488
+    nombre: Pseudomonas putida KT2440
+    nombre_ncbi: Pseudomonas putida KT2440  # rango "strain"
+    intereses: [industrial]
+    proteoma_referencia: UP000000556  # ensamblaje GCA_000007565.2
+
+  - id: taxon:264203
+    nombre: Zymomonas mobilis ZM4
+    nombre_ncbi: Zymomonas mobilis subsp. mobilis ZM4 = ATCC 31821  # rango "strain"
+    intereses: [industrial]
+    # etanol por la vía de Entner-Doudoroff
+    proteoma_referencia: UP000001173  # ensamblaje GCA_000007105.1
+
+  - id: taxon:272562
+    nombre: Clostridium acetobutylicum ATCC 824
+    nombre_ncbi: Clostridium acetobutylicum ATCC 824  # rango "strain"
+    intereses: [industrial]
+    # fermentación acetona-butanol-etanol
+    proteoma_referencia: UP000000814  # ensamblaje GCA_000008765.1
+
+  - id: taxon:100226
+    nombre: Streptomyces coelicolor A3(2)
+    nombre_ncbi: Streptomyces coelicolor A3(2)  # rango "strain"
+    intereses: [industrial]
+    # metabolitos secundarios
+    proteoma_referencia: UP000001973  # ensamblaje GCA_000203835.1
+
+  - id: taxon:220668
+    nombre: Lactiplantibacillus plantarum WCFS1
+    nombre_ncbi: Lactiplantibacillus plantarum WCFS1  # rango "strain"
+    intereses: [industrial]
+    # bacteria láctica
+    proteoma_referencia: UP000000432  # ensamblaje GCA_000203855.3
+
+  - id: taxon:272623
+    nombre: Lactococcus lactis IL1403
+    nombre_ncbi: Lactococcus lactis subsp. lactis Il1403  # rango "strain"
+    intereses: [industrial]
+    # bacteria láctica (quesos)
+    proteoma_referencia: UP000002196  # ensamblaje GCA_000006865.1
+
+  - id: taxon:264199
+    nombre: Streptococcus thermophilus LMG 18311
+    nombre_ncbi: Streptococcus thermophilus LMG 18311  # rango "strain"
+    intereses: [industrial]
+    # bacteria láctica (yogur)
+    proteoma_referencia: UP000001170  # ensamblaje GCA_000011825.1
+
+  - id: taxon:568703
+    nombre: Lacticaseibacillus rhamnosus GG
+    nombre_ncbi: Lacticaseibacillus rhamnosus GG  # rango "strain"
+    intereses: [industrial]
+    # probiótico
+    proteoma_referencia: UP000002067  # ensamblaje GCA_000011045.1
+
+  - id: taxon:206672
+    nombre: Bifidobacterium longum NCC2705
+    nombre_ncbi: Bifidobacterium longum NCC2705  # rango "strain"
+    intereses: [industrial]
+    # probiótico; derivación bífida
+    proteoma_referencia: UP000000439  # ensamblaje GCA_000007525.1
+
+  - id: taxon:226186
+    nombre: Bacteroides thetaiotaomicron VPI-5482
+    nombre_ncbi: Bacteroides thetaiotaomicron VPI-5482  # rango "strain"
+    intereses: [industrial]
+    # microbiota intestinal
+    proteoma_referencia: UP000001414  # ensamblaje GCA_000011065.1
+
+  - id: taxon:349741
+    nombre: Akkermansia muciniphila ATCC BAA-835
+    nombre_ncbi: Akkermansia muciniphila ATCC BAA-835  # rango "strain"
+    intereses: [industrial]
+    # microbiota intestinal
+    proteoma_referencia: UP000001031  # ensamblaje GCA_000020225.1
+
+  - id: taxon:644223
+    nombre: Komagataella phaffii GS115
+    nombre_ncbi: Komagataella phaffii GS115  # rango "strain"
+    intereses: [industrial]
+    # levadura para proteínas recombinantes; antes Pichia pastoris
+    proteoma_referencia: UP000000314  # ensamblaje GCA_000027005.1
+
+  - id: taxon:284591
+    nombre: Yarrowia lipolytica CLIB122
+    nombre_ncbi: Yarrowia lipolytica CLIB122  # rango "strain"
+    intereses: [industrial]
+    # levadura oleaginosa
+    proteoma_referencia: UP000001300  # ensamblaje GCA_000002525.1
+
+  - id: taxon:425011
+    nombre: Aspergillus niger CBS 513.88
+    nombre_ncbi: Aspergillus niger CBS 513.88  # rango "strain"
+    intereses: [industrial]
+    # ácido cítrico y enzimas
+    proteoma_referencia: UP000006706  # ensamblaje GCA_000002855.2

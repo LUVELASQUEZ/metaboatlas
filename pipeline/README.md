@@ -70,8 +70,9 @@ El descargador (`metabo/download.py`) aplica las reglas 1 a 4 de `CLAUDE.md` ant
 
 - **Correo de contacto:** se lee del secreto `METABO_CONTACTO`.
 - **Fuentes:** Rhea, ChEBI, UniProt, ENZYME y NCBI Taxonomy están verificadas en `sources.yaml`.
-- **Proteomas:** cada organismo de `organismos.yaml` tiene su `proteoma_referencia`. Las proteínas se descargan por proteoma (`proteome:UP…`), no por taxón, porque UniProt puede registrar el proteoma bajo otro taxón (es el caso de *E. coli* MG1655, cuyo proteoma está bajo el taxón 83333).
+- **Proteomas:** cada organismo de `organismos.yaml` tiene su `proteoma_referencia`. Las proteínas se descargan por proteoma (`proteome:UP…`), no por taxón, porque UniProt puede registrar el proteoma bajo otro taxón (es el caso de *E. coli* MG1655, cuyo proteoma está bajo el taxón 83333, y de *S. pyogenes* SF370, bajo el serotipo M1).
 - **Taxones:** cada `id` de `organismos.yaml` existe en NCBI Taxonomy (ni fusionado ni eliminado) y su `nombre_ncbi` se copió de `names.dmp`. `tests/test_taxonomia_datos.py` lo comprueba contra el volcado descargado.
+- **Agregar un organismo:** busca su proteoma con `rest.uniprot.org/proteomes/search?query=organism_name:"…"&format=json` y quédate con el de `proteomeType` "Reference proteome"; usa como `id` el taxón de ese proteoma, copia `nombre_ncbi` de `names.dmp`, elige sus `intereses` (el primero decide el grupo del selector en la web) y vuelve a correr `metabo extraer uniprot` y `metabo exportar`.
 
 ## NCBI Taxonomy
 

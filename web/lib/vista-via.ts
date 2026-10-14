@@ -84,6 +84,7 @@ export interface OrganismoVista {
   id: string;
   nombre: string;
   dominio: string;
+  intereses: string[];
   enlace: string | null;
 }
 
@@ -217,6 +218,7 @@ export function construirVistaVia(paquete: Paquete, fuentes: Fuentes, slug: stri
       id: o.id,
       nombre: o.nombre_cientifico,
       dominio: o.dominio,
+      intereses: o.intereses,
       enlace: enlace(fuentes, "ncbi_taxonomy", "organismo", nativo(o.id)),
     }));
 
